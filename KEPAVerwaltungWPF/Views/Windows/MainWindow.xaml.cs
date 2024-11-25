@@ -63,6 +63,9 @@ public partial class MainWindow : MetroWindow
                 case "MnuBtnDarkTheme":
                     ChangeTheme(DarkLight.Dark);
                     break;
+                case "MnuBtnZoom":
+                    EnableDisableZoom(!MainViewModel.ZoomActive);
+                    break;
             }
         }
     }
@@ -77,9 +80,17 @@ public partial class MainWindow : MetroWindow
         {
             case DarkLight.Light:
                 Application.Current.Resources.MergedDictionaries[intLastIndex].Source = new Uri("pack://application:,,,/KEPAVerwaltungWPF;component/ThemeAndStyle/LightTheme.xaml", UriKind.RelativeOrAbsolute);
+                Properties.Settings.Default.Theme = "Light";
+                Properties.Settings.Default.Save();
+                MnuBtnLightTheme.IsEnabled = false;
+                MnuBtnDarkTheme.IsEnabled = true;
                 break;
             case DarkLight.Dark:
                 Application.Current.Resources.MergedDictionaries[intLastIndex].Source = new Uri("pack://application:,,,/KEPAVerwaltungWPF;component/ThemeAndStyle/DarkTheme.xaml", UriKind.RelativeOrAbsolute);
+                Properties.Settings.Default.Theme = "Dark";
+                Properties.Settings.Default.Save();
+                MnuBtnLightTheme.IsEnabled = true;
+                MnuBtnDarkTheme.IsEnabled = false;
                 break;
         }
     }
@@ -89,10 +100,40 @@ public partial class MainWindow : MetroWindow
         if (enable)
         {
             MyMagnifier.ZoomFactor = MainViewModel.ZoomFactor;
+            MyMagnifier.Visibility = Visibility.Visible;
+            MainViewModel.ZoomActive = enable;
+            Properties.Settings.Default.ZoomActive = enable;
+            Properties.Settings.Default.Save();
         }
         else
         {
-            MyMagnifier.ZoomFactor = 0;
+            //MyMagnifier.ZoomFactor = 0;
+            MyMagnifier.Visibility = Visibility.Collapsed;
+            MainViewModel.ZoomActive = enable;
+            Properties.Settings.Default.ZoomActive = enable;
+            Properties.Settings.Default.Save();
         }
+    }
+
+    private void MainWindow_OnLoaded(object sender, RoutedEventArgs e)
+    {
+        switch (Properties.Settings.Default.Theme)
+        {
+            case "Light":
+                ChangeTheme(DarkLight.Light);
+                MnuBtnLightTheme.IsEnabled = false;
+                MnuBtnDarkTheme.IsEnabled = true;
+                break;
+            case "Dark":
+                ChangeTheme(DarkLight.Dark);
+                MnuBtnLightTheme.IsEnabled = true;
+                MnuBtnDarkTheme.IsEnabled = false;
+                break;
+        }
+        
+        MainViewModel.ZoomActive = Properties.Settings.Default.ZoomActive;
+        MainViewModel.ZoomFactor = Properties.Settings.Default.ZoomFactor;
+        MainViewModel.ZoomRadius = Properties.Settings.Default.ZoomRadius;
+        EnableDisableZoom(MainViewModel.ZoomActive);
     }
 }

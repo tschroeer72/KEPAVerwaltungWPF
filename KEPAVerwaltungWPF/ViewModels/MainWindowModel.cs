@@ -10,7 +10,7 @@ public partial class MainWindowModel : BaseViewModel
         Titel = "Kegelgruppe KEPA 1958 Verwaltung";
     }
 
-    [ObservableProperty] private double zoomFactor = 0;
+    [ObservableProperty] private double zoomFactor = 0.2;
     [ObservableProperty] private int zoomRadius = 200;
     [ObservableProperty] private bool zoomActive = false;
 
