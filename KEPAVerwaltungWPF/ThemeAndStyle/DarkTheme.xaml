@@ -1,7 +1,12 @@
 ﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
     <SolidColorBrush x:Key="PrimaryBrush" Color="#DDDDDD"/>
+    <SolidColorBrush x:Key="PrimaryAccentBrush" Color="#999999"/>
+    <SolidColorBrush x:Key="SubMenuPrimary" Color="#313031"/>
+    <SolidColorBrush x:Key="SubMenuBackground" Color="#DDDDDD"/>
     <SolidColorBrush x:Key="HoverBrush" Color="#666666"/>
     <SolidColorBrush x:Key="BackgroundBrush" Color="#313031"/>
-    <SolidColorBrush x:Key="TitleBrush" Color="#313031"/>
+    <SolidColorBrush x:Key="TitleBrush" Color="#DDDDDD"/>
+    <SolidColorBrush x:Key="TitleBackgroundBrush" Color="#313031"/>
+    <SolidColorBrush x:Key="WindowTitledBrush" Color="#313031"/>
 </ResourceDictionary>

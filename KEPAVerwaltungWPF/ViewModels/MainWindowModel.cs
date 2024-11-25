@@ -13,6 +13,8 @@ public partial class MainWindowModel : BaseViewModel
     [ObservableProperty] private double zoomFactor = 0;
     [ObservableProperty] private int zoomRadius = 200;
     [ObservableProperty] private bool zoomActive = false;
+
+    [ObservableProperty] private string aktiveMeisterschaft = "keine aktive Meisterschaft";
     
     [RelayCommand]
     public void ShowSplashView()

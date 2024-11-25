@@ -41,11 +41,76 @@
         <mw:WindowCommands ShowLastSeparator="False">
             <TextBlock Text="{Binding Titel}" Margin="2 0"
                        VerticalAlignment="Center"
-                       FontSize="32" FontFamily="Forte">
+                       FontSize="28" FontFamily="Forte">
             </TextBlock>
         </mw:WindowCommands>
     </mw:MetroWindow.LeftWindowCommands>
-    
+
+    <mw:MetroWindow.RightWindowCommands>
+        <mw:WindowCommands  ShowLastSeparator="False">
+            <StackPanel x:Name="RightMenu"
+                        Orientation="Horizontal"
+                        VerticalAlignment="Center">
+                <Label Name="LblAktiveMeisterschaft" Content="{Binding AktiveMeisterschaft}"
+                       FontSize="18"
+                       FontWeight="Bold"                       
+                       FontFamily="Roboto"
+                       Foreground="{DynamicResource WindowTitledBrush}"
+                       VerticalAlignment="Bottom">
+                </Label>
+
+                <Menu Margin="0 -4 0 2" >
+                    <MenuItem Padding="4" Cursor="Hand">
+                        <MenuItem.Header>
+                            <md:PackIcon Kind="Menu"
+                                         Height="30" Width="30"
+                                         Foreground="{DynamicResource WindowTitledBrush}"/>
+                        </MenuItem.Header>
+
+                        <MenuItem Name="MnuBtnLightTheme"
+                                  Height="50" 
+                                  Background="{DynamicResource BackgroundBrush}"
+                                  FontWeight="ExtraBold"
+                                  Cursor="Hand"  
+                                  Click="OpenPageOnMain">
+                            <MenuItem.Header>
+                                <StackPanel Orientation="Horizontal">
+                                    <md:PackIcon Kind="Brightness7"
+                                                 Height="30" Width="30"
+                                                 Foreground="{DynamicResource TitleBrush}"/>
+                                    <Label Content="LightTheme" 
+                                           Foreground="{DynamicResource TitleBrush}"
+                                           FontSize="20" FontWeight="ExtraBold"
+                                           VerticalContentAlignment="Center">
+                                    </Label>
+                                </StackPanel>
+                            </MenuItem.Header>
+                        </MenuItem>
+                        <MenuItem Name="MnuBtnDarkTheme"
+                                  Height="50" 
+                                  Background="{DynamicResource BackgroundBrush}"
+                                  FontWeight="ExtraBold"
+                                  Cursor="Hand" 
+                                  Click="OpenPageOnMain">
+                            <MenuItem.Header>
+                                <StackPanel Orientation="Horizontal">
+                                    <md:PackIcon Kind="Brightness4"
+                                                 Height="30" Width="30"
+                                                 Foreground="{DynamicResource TitleBrush}"/>
+                                    <Label Content="DarkTheme" 
+                                           Foreground="{DynamicResource TitleBrush}"
+                                           FontSize="20" FontWeight="ExtraBold"
+                                           VerticalContentAlignment="Center">
+                                    </Label>
+                                </StackPanel>
+                            </MenuItem.Header>
+                        </MenuItem>
+                    </MenuItem>
+                </Menu>
+            </StackPanel>
+        </mw:WindowCommands>
+    </mw:MetroWindow.RightWindowCommands>
+
     <mw:MetroWindow.Flyouts>
         <mw:FlyoutsControl Background="{DynamicResource BackgroundBrush}">
             <mw:Flyout x:Name="InfoFlyout"
@@ -107,21 +172,44 @@
                         HorizontalAlignment="Center">
                 <RadioButton x:Name="BtnHome" GroupName="grpTitleBar"
                              Style="{StaticResource BtnMainMenuStyle}"
-                             Content="Home" FontSize="30"
-                             Width="210" Height="44"
+                             Content="Home"
+                             Width="100" Height="44"
                              Click="OpenPageOnMain">                
                 </RadioButton>
                 <RadioButton x:Name="BtnVerwaltung" GroupName="grpTitleBar"
                              Style="{StaticResource BtnMainMenuStyle}"
-                             Content="Verwaltung" FontSize="30"
-                             Width="210" Height="44"
-                             Margin="10 0"
+                             Content="Verwaltung" 
+                             Width="180" Height="44"
+                             Click="OpenPageOnMain">
+                </RadioButton>
+                <RadioButton x:Name="BtnSpielVerwaltung" GroupName="grpTitleBar"
+                             Style="{StaticResource BtnMainMenuStyle}"
+                             Content="Spielverwaltung" 
+                             Width="240" Height="44"
+                             Click="OpenPageOnMain">
+                </RadioButton>
+                <RadioButton x:Name="BtnStatistik" GroupName="grpTitleBar"
+                             Style="{StaticResource BtnMainMenuStyle}"
+                             Content="Statistik" 
+                             Width="140" Height="44"
+                             Click="OpenPageOnMain">
+                </RadioButton>
+                <RadioButton x:Name="BtnEMail" GroupName="grpTitleBar"
+                             Style="{StaticResource BtnMainMenuStyle}"
+                             Content="E-Mail" 
+                             Width="100" Height="44"
+                             Click="OpenPageOnMain">
+                </RadioButton>
+                <RadioButton x:Name="BtnBerichte" GroupName="grpTitleBar"
+                             Style="{StaticResource BtnMainMenuStyle}"
+                             Content="Berichte" 
+                             Width="120" Height="44"
                              Click="OpenPageOnMain">
                 </RadioButton>
                 <RadioButton x:Name="BtnEinstellungen" GroupName="grpTitleBar"
                              Style="{StaticResource BtnMainMenuStyle}"
-                             Content="Einstellungen" FontSize="30"
-                             Width="210" Height="44"
+                             Content="Einstellungen" 
+                             Width="200" Height="44"
                              Click="OpenPageOnMain">
                 </RadioButton>
             </StackPanel>

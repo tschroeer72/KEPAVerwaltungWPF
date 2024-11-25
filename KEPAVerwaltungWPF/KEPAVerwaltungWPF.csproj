@@ -19,4 +19,11 @@
     <PackageReference Include="Microsoft.Xaml.Behaviors.Wpf" Version="1.1.135" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Page Remove="ThemeAndStyle\DarkTheme.xaml" />
+    <Resource Include="ThemeAndStyle\DarkTheme.xaml" />
+    <Page Remove="ThemeAndStyle\LightTheme.xaml" />
+    <Resource Include="ThemeAndStyle\LightTheme.xaml" />
+  </ItemGroup>
+
 </Project>

@@ -4,6 +4,7 @@
     <Style x:Key="BtnMainMenuStyle" TargetType="RadioButton">
         <Setter Property="Foreground" Value="{DynamicResource PrimaryBrush}"/>
         <Setter Property="FontWeight" Value="Bold"/>
+        <Setter Property="FontSize" Value="26" />
         <Setter Property="Margin" Value="6 0"/>
         <Setter Property="VerticalAlignment" Value="Center"/>
         <Setter Property="VerticalContentAlignment" Value="Center"/>
@@ -63,7 +64,101 @@
                             </Trigger.ExitActions>
                         </Trigger>
                     </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    
+    <!-- SubMenuStyle --> 
+    <Style x:Key="BtnUnderPageMenuStyle" TargetType="RadioButton">
+        <Setter Property="Foreground" Value="{DynamicResource SubMenuPrimary}"/>
+        <Setter Property="Height" Value="40"/>
+        <Setter Property="FontSize" Value="20"/>
+        <Setter Property="FontWeight" Value="ExtraBold"/>
+        <Setter Property="Margin" Value="6 0"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="SnapsToDevicePixels" Value="True"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="RadioButton">
+                    <Border>
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="8"/>
+                            </Grid.RowDefinitions>
+                            <Border x:Name="ContentBorder" Grid.Row="0" 
+                                    Background="{DynamicResource SubMenuBackground}"
+                                    BorderThickness="0" 
+                                    BorderBrush="{DynamicResource SubMenuPrimary}">
+                                <Border.Effect>
+                                    <DropShadowEffect Color="{DynamicResource PrimaryAccentColor}" Direction="-90" ShadowDepth="2"/>
+                                </Border.Effect>
+                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
 
+                            <Border x:Name="CurserBorder" Grid.Row="1"
+                                    Height="8" Margin="0 2 0 0" 
+                                    BorderThickness="0 2 0 0" 
+                                    BorderBrush="{DynamicResource SubMenuPrimary}"
+                                    Background="{DynamicResource SubMenuBackground}"
+                                    Opacity="0">
+                            </Border>
+                        </Grid>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <MultiTrigger>
+                            <MultiTrigger.Conditions>
+                                <Condition Property="IsMouseOver" Value="True"/>
+                                <Condition Property="IsChecked" Value="False"/>
+                            </MultiTrigger.Conditions>
+
+                            <MultiTrigger.EnterActions>
+                                <BeginStoryboard>
+                                    <Storyboard>
+                                        <ThicknessAnimation Storyboard.TargetName="ContentBorder" 
+                                                            Storyboard.TargetProperty="BorderThickness" To="0 0 0 1" 
+                                                            Duration="0:0:0.2">
+                                        </ThicknessAnimation>
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </MultiTrigger.EnterActions>
+
+                            <MultiTrigger.ExitActions>
+                                <BeginStoryboard>
+                                    <Storyboard>
+                                        <ThicknessAnimation Storyboard.TargetName="ContentBorder" 
+                                                            Storyboard.TargetProperty="BorderThickness" To="0" 
+                                                            Duration="0:0:0.3">
+                                        </ThicknessAnimation>
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </MultiTrigger.ExitActions>
+
+                        </MultiTrigger>
+
+                        <Trigger Property="IsChecked" Value="True">
+                            <Trigger.EnterActions>
+                                <BeginStoryboard>
+                                    <Storyboard>
+                                        <DoubleAnimation Storyboard.TargetName="CurserBorder" 
+                                                         Storyboard.TargetProperty="Opacity" To="1" 
+                                                         Duration="0:0:0.3"/>
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </Trigger.EnterActions>
+
+                            <Trigger.ExitActions>
+                                <BeginStoryboard>
+                                    <Storyboard>
+                                        <DoubleAnimation Storyboard.TargetName="CurserBorder" 
+                                                         Storyboard.TargetProperty="Opacity" To="0" 
+                                                         Duration="0:0:0.3"/>
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </Trigger.ExitActions>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
                 </ControlTemplate>
             </Setter.Value>
         </Setter>

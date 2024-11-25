@@ -51,6 +51,39 @@ public partial class App : Application
         services.AddSingleton<HomeView>();
         services.AddSingleton<HomeViewModel>();
 
+        services.AddSingleton<VerwaltungView>();
+        services.AddSingleton<VerwaltungViewModel>();
+        
+        services.AddSingleton<MitgliederView>();
+        services.AddSingleton<MitgliederViewModel>();
+
+        services.AddSingleton<MeisterschaftenView>();
+        services.AddSingleton<MeisterschaftenViewModel>();
+
+        services.AddSingleton<SpielverwaltungView>();
+        services.AddSingleton<SpielverwaltungViewModel>();
+
+        services.AddSingleton<ErgebniseingabeView>();
+        services.AddSingleton<ErgebniseingabeViewModel>();
+
+        services.AddSingleton<ErgebnisausgabeView>();
+        services.AddSingleton<ErgebnisausgabeViewModel>();
+
+        services.AddSingleton<StatistikView>();
+        services.AddSingleton<StatistikViewModel>();
+
+        services.AddSingleton<EMailView>();
+        services.AddSingleton<EMailViewModel>();
+
+        services.AddSingleton<EMailEntwicklerView>();
+        services.AddSingleton<EMailEntwicklerViewModel>();
+
+        services.AddSingleton<EMailRundmailView>();
+        services.AddSingleton<EMailRundmailViewModel>();
+        
+        services.AddSingleton<BerichtsView>();
+        services.AddSingleton<BerichtsViewModel>();
+        
         services.AddSingleton<EinstellungenView>();
         services.AddSingleton<EinstellungenViewModel>();
     }
