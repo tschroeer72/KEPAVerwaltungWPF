@@ -1,5 +1,7 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
+using CommunityToolkit.Mvvm.Input;
 using KEPAVerwaltungWPF.Enums;
 using KEPAVerwaltungWPF.ViewModels;
 using KEPAVerwaltungWPF.Views.Pages;
@@ -135,5 +137,16 @@ public partial class MainWindow : MetroWindow
         MainViewModel.ZoomFactor = Properties.Settings.Default.ZoomFactor;
         MainViewModel.ZoomRadius = Properties.Settings.Default.ZoomRadius;
         EnableDisableZoom(MainViewModel.ZoomActive);
+    }
+
+    private void MainWindow_OnPreviewKeyDown(object sender, KeyEventArgs e)
+    {
+        base.OnPreviewKeyDown(e);
+
+        if (e.Key == System.Windows.Input.Key.F12)
+        {
+            EnableDisableZoom(!MainViewModel.ZoomActive);
+            e.Handled = true; // Verhindert, dass andere Ereignisse ausgelöst werden
+        }
     }
 }

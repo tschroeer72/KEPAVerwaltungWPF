@@ -4,6 +4,6 @@ public partial class ErgebniseingabeViewModel : BaseViewModel
 {
     public ErgebniseingabeViewModel()
     {
-        Titel = "Ergebnis";
+        Titel = "Ergebniseingabe";
     }
 }

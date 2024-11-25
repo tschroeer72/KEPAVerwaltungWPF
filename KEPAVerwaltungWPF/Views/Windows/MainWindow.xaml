@@ -30,7 +30,8 @@
         NonActiveBorderBrush="{DynamicResource TitleBrush}"
         Background="{DynamicResource BackgroundBrush}"
         ResizeMode="CanResizeWithGrip"
-        Loaded="MainWindow_OnLoaded">
+        Loaded="MainWindow_OnLoaded"
+        PreviewKeyDown="MainWindow_OnPreviewKeyDown">
     
     <i:Interaction.Triggers>
         <i:EventTrigger EventName="Loaded">
@@ -117,6 +118,7 @@
                                   Background="{DynamicResource BackgroundBrush}"
                                   FontWeight="ExtraBold"
                                   Cursor="Hand" 
+                                  InputGestureText="F12"
                                   Click="OpenPageOnMain">
                             <MenuItem.Header>
                                 <StackPanel Orientation="Horizontal">

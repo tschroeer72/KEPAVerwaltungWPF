@@ -21,4 +21,6 @@ public partial class MainWindowModel : BaseViewModel
     {
         DelGoBackOrGotoHome?.Invoke();
     }
+    
+    
 }
