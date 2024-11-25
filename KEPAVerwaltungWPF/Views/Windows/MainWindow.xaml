@@ -1,0 +1,151 @@
+﻿<mw:MetroWindow x:Class="KEPAVerwaltungWPF.Views.Windows.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:KEPAVerwaltungWPF.Views.Windows"
+        xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes" 
+        xmlns:mw="http://metro.mahapps.com/winfx/xaml/controls"
+        xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
+        xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+        xmlns:vm="clr-namespace:KEPAVerwaltungWPF.ViewModels"
+        xmlns:uc="clr-namespace:KEPAVerwaltungWPF.UserControls"
+        d:DataContext="{d:DesignInstance Type=vm:MainWindowModel}"
+        mc:Ignorable="d"
+        Title="Kegelgruppe KEPA 1958 Verwaltung" 
+        SnapsToDevicePixels="True"
+        UseLayoutRounding="True"   
+        Height="900" 
+        MinHeight="900"
+        Width="1500"     
+        MinWidth="1500" 
+        BorderThickness="1"
+        TitleBarHeight="36"   
+        TitleForeground="Transparent"
+        WindowStartupLocation="CenterScreen"        
+        SaveWindowPosition="True"                
+        UseNoneWindowStyle="False"
+        WindowTitleBrush="{DynamicResource TitleBrush}"
+        NonActiveWindowTitleBrush="{DynamicResource TitleBrush}"
+        NonActiveBorderBrush="{DynamicResource TitleBrush}"
+        Background="{DynamicResource BackgroundBrush}"
+        ResizeMode="CanResizeWithGrip">
+    
+    <i:Interaction.Triggers>
+        <i:EventTrigger EventName="Loaded">
+            <i:InvokeCommandAction Command="{Binding ShowSplashViewCommand}"/>
+        </i:EventTrigger>
+    </i:Interaction.Triggers>
+    
+    <mw:MetroWindow.LeftWindowCommands>
+        <mw:WindowCommands ShowLastSeparator="False">
+            <TextBlock Text="{Binding Titel}" Margin="2 0"
+                       VerticalAlignment="Center"
+                       FontSize="32" FontFamily="Forte">
+            </TextBlock>
+        </mw:WindowCommands>
+    </mw:MetroWindow.LeftWindowCommands>
+    
+    <mw:MetroWindow.Flyouts>
+        <mw:FlyoutsControl Background="{DynamicResource BackgroundBrush}">
+            <mw:Flyout x:Name="InfoFlyout"
+                       Position="Bottom"
+                       CloseButtonVisibility="Collapsed"
+                       TitleVisibility="Collapsed"
+                       IsAutoCloseEnabled="True" AutoCloseInterval="5000"
+                       Background="{DynamicResource BackgroundBrush}">
+                <Grid HorizontalAlignment="Left" Height="42"
+                      Background="{DynamicResource BackgroundBrush}">
+                    <StackPanel Orientation="Horizontal"
+                                HorizontalAlignment="Left" Margin="0 0 100 0"
+                                Background="{DynamicResource BackgroundBrush}"
+                                VerticalAlignment="Center">
+                        <md:PackIcon Kind="InformationVariant"
+                                     Width="40" Height="40"
+                                     Foreground="White">
+                        </md:PackIcon>
+
+                        <Label Name="LblFlyoutInfo" 
+                               FontSize="26" FontWeight="ExtraBold"
+                               Foreground="White"
+                               Background="Transparent"
+                               Margin="10 0 0 0">
+                        </Label>
+                    </StackPanel>
+
+                    <Button x:Name="BtnCloseFlyoutInfo" HorizontalAlignment="Right"
+                            ToolTip="Schließen" Cursor="Hand"
+                            BorderThickness="1" BorderBrush="{DynamicResource PrimaryBrush}"
+                            Style="{StaticResource MahApps.Styles.Button.Circle}">
+                        <md:PackIcon Kind="ArrowDownBoldCircle" 
+                                     Width="40" Height="40" Foreground="{DynamicResource PrimaryBrush}">
+                        </md:PackIcon>
+
+                        <i:Interaction.Triggers>
+                            <i:EventTrigger EventName="Click">
+                                <i:ChangePropertyAction TargetName="InfoFlyout" 
+                                                        PropertyName="IsOpen" Value="False"/>
+                            </i:EventTrigger>
+                        </i:Interaction.Triggers>
+                    </Button>
+                </Grid>
+            </mw:Flyout>
+        </mw:FlyoutsControl>
+    </mw:MetroWindow.Flyouts>
+    
+    <Grid Background="{DynamicResource BackgroundBrush}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <Grid Grid.Row="0">
+            <StackPanel x:Name="TitleBar"
+                        Grid.Row="0" 
+                        Height="38"
+                        Orientation="Horizontal"
+                        HorizontalAlignment="Center">
+                <RadioButton x:Name="BtnHome" GroupName="grpTitleBar"
+                             Style="{StaticResource BtnMainMenuStyle}"
+                             Content="Home" FontSize="30"
+                             Width="210" Height="44"
+                             Click="OpenPageOnMain">                
+                </RadioButton>
+                <RadioButton x:Name="BtnVerwaltung" GroupName="grpTitleBar"
+                             Style="{StaticResource BtnMainMenuStyle}"
+                             Content="Verwaltung" FontSize="30"
+                             Width="210" Height="44"
+                             Margin="10 0"
+                             Click="OpenPageOnMain">
+                </RadioButton>
+                <RadioButton x:Name="BtnEinstellungen" GroupName="grpTitleBar"
+                             Style="{StaticResource BtnMainMenuStyle}"
+                             Content="Einstellungen" FontSize="30"
+                             Width="210" Height="44"
+                             Click="OpenPageOnMain">
+                </RadioButton>
+            </StackPanel>
+        </Grid>
+        
+        <Border Grid.Row="1"
+                BorderThickness="0 1 0 0"
+                BorderBrush="{DynamicResource PrimaryBrush}">
+            <uc:AnimatedContentControl x:Name="AnimatedContentControl">
+                
+            </uc:AnimatedContentControl>
+        </Border>
+
+        <xctk:MagnifierManager.Magnifier>
+            <xctk:Magnifier Name="MyMagnifier" 
+                            Radius="{Binding ZoomRadius, UpdateSourceTrigger=PropertyChanged}" 
+                            ZoomFactor="{Binding ZoomFactor, UpdateSourceTrigger=PropertyChanged}" 
+                            FrameType="Circle"
+                            Visibility="Collapsed"
+                            IsUsingZoomOnMouseWheel="True"
+                            ZoomFactorOnMouseWheel="0.1"
+                            BorderThickness="3" 
+                            BorderBrush="Black">
+            </xctk:Magnifier>
+        </xctk:MagnifierManager.Magnifier>
+    </Grid>
+</mw:MetroWindow>
