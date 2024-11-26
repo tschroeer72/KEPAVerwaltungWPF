@@ -1,7 +1,6 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using CommunityToolkit.Mvvm.Input;
 using KEPAVerwaltungWPF.Enums;
 using KEPAVerwaltungWPF.ViewModels;
 using KEPAVerwaltungWPF.Views.Pages;
@@ -104,17 +103,18 @@ public partial class MainWindow : MetroWindow
             MyMagnifier.ZoomFactor = MainViewModel.ZoomFactor;
             MyMagnifier.Visibility = Visibility.Visible;
             MainViewModel.ZoomActive = enable;
-            Properties.Settings.Default.ZoomActive = enable;
-            Properties.Settings.Default.Save();
         }
         else
         {
             //MyMagnifier.ZoomFactor = 0;
             MyMagnifier.Visibility = Visibility.Collapsed;
             MainViewModel.ZoomActive = enable;
-            Properties.Settings.Default.ZoomActive = enable;
-            Properties.Settings.Default.Save();
         }
+
+        Properties.Settings.Default.ZoomActive = enable;
+        Properties.Settings.Default.ZoomFactor = MainViewModel.ZoomFactor;
+        Properties.Settings.Default.ZoomRadius = MainViewModel.ZoomRadius;
+        Properties.Settings.Default.Save();
     }
 
     private void MainWindow_OnLoaded(object sender, RoutedEventArgs e)
@@ -136,6 +136,15 @@ public partial class MainWindow : MetroWindow
         MainViewModel.ZoomActive = Properties.Settings.Default.ZoomActive;
         MainViewModel.ZoomFactor = Properties.Settings.Default.ZoomFactor;
         MainViewModel.ZoomRadius = Properties.Settings.Default.ZoomRadius;
+        switch (Properties.Settings.Default.ZoomType)
+        {
+            case "Circle":
+                MainViewModel.ZoomType = MagnifyType.Circle;
+                break;
+            case "Rectangle":
+                MainViewModel.ZoomType = MagnifyType.Rectangle;
+                break;
+        }
         EnableDisableZoom(MainViewModel.ZoomActive);
     }
 
@@ -143,7 +152,7 @@ public partial class MainWindow : MetroWindow
     {
         base.OnPreviewKeyDown(e);
 
-        if (e.Key == System.Windows.Input.Key.F12)
+        if (e.Key == Key.F12)
         {
             EnableDisableZoom(!MainViewModel.ZoomActive);
             e.Handled = true; // Verhindert, dass andere Ereignisse ausgelöst werden

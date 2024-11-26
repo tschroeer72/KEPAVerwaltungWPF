@@ -1,5 +1,6 @@
 using System.Windows;
 using System.Windows.Controls;
+using KEPAVerwaltungWPF.Enums;
 using KEPAVerwaltungWPF.ViewModels;
 
 namespace KEPAVerwaltungWPF.Views.Pages;
@@ -16,8 +17,19 @@ public partial class EinstellungenView : UserControl
         EinstellungenViewModel.InitBaseViewModelDelegateAndEvents();
     }
 
-    private void TglBtnActive_OnClick(object sender, RoutedEventArgs e)
+    private void ZoomTypeSelection_OnClick(object sender, RoutedEventArgs e)
     {
-        EinstellungenViewModel.IsActive = TglBtnActive.IsChecked!.Value;
+        if (sender is RadioButton rbZoomType)
+        {
+            switch (rbZoomType.Name)
+            {
+                case "RbCircle":
+                    EinstellungenViewModel.ZoomTypeChanged(MagnifyType.Circle);
+                    break;
+                case "RbRectangle":
+                    EinstellungenViewModel.ZoomTypeChanged(MagnifyType.Rectangle);
+                    break;
+            }
+        }
     }
 }

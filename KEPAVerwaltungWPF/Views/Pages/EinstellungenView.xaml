@@ -10,26 +10,55 @@
              mc:Ignorable="d"
              d:DataContext="{d:DesignInstance Type=vm:EinstellungenViewModel}"
              d:DesignHeight="300" d:DesignWidth="500">
+    
+    <i:Interaction.Triggers>
+        <i:EventTrigger EventName="Loaded">
+            <i:InvokeCommandAction Command="{Binding LoadPropertiesCommand}"/>
+        </i:EventTrigger>
+    </i:Interaction.Triggers>
+    
     <Grid Background="{DynamicResource BackgroundBrush}">
         <Grid.RowDefinitions>
             <RowDefinition Height="50"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
+        <!-- Titelzeile -->
         <Grid Grid.Row="0">
             <Grid HorizontalAlignment="Left">
                 <TextBlock Text="{Binding Titel}" MinWidth="200"
                            Style="{StaticResource TitelTxtBxStyle}">
                 </TextBlock>
             </Grid>
-        
-            <Grid HorizontalAlignment="Right">
-
-            </Grid>
         </Grid>
         
+        <!-- Einstellungen -->
         <Grid Grid.Row="1">
             <StackPanel Orientation="Vertical" Margin="10 20">
+                <!-- ZoomType -->
+                <StackPanel Orientation="Horizontal" Margin="0 0 0 20">
+                    <Label Content="Lupenform" Margin="0 0 10 0"/>
+                    <RadioButton x:Name="RbCircle"
+                                 GroupName="grpZoomType"
+                                 Style="{DynamicResource MaterialDesignRadioButton}"
+                                 Content="Kreis" 
+                                 FontSize="20"
+                                 Cursor="Hand"
+                                 IsChecked="{Binding ZoomTypeIsCircle, UpdateSourceTrigger=PropertyChanged}"
+                                 Click="ZoomTypeSelection_OnClick">
+                    </RadioButton>
+                    <RadioButton x:Name="RbRectangle"
+                                 GroupName="grpZoomType"
+                                 Style="{DynamicResource MaterialDesignRadioButton}"
+                                 Content="Rechteck" 
+                                 FontSize="20"
+                                 Cursor="Hand"
+                                 Margin="10 0"
+                                 IsChecked="{Binding ZoomTypeIsRectangle, UpdateSourceTrigger=PropertyChanged}"
+                                 Click="ZoomTypeSelection_OnClick">
+                    </RadioButton>
+                </StackPanel>
+                <!-- ZoomFactor -->
                 <StackPanel Orientation="Horizontal">
                     <Label Content="Zoomfaktor" Margin="0 0 10 0" />
                     <Slider Name="sliderZoom" 
@@ -49,7 +78,7 @@
                     </Slider> 
                     <Label Content="{Binding ZoomFactor}" Width="100" Margin=" 10 0" />
                 </StackPanel>
-                
+                <!-- ZoomRadius -->
                 <StackPanel Orientation="Horizontal" Margin="0 20">
                     <Label Content="Zoomradius" Margin="0 0 10 0" />
                     <Slider Name="sliderRadius" 
@@ -69,19 +98,7 @@
                     </Slider>  
                     <Label Content="{Binding ZoomRadius}" Width="100" Margin=" 10 0" />
                 </StackPanel>
-                <StackPanel Orientation="Horizontal" Margin="0 20">
-                    <Label Content="Ein/Aus"/>
-                    <ToggleButton x:Name="TglBtnActive" 
-                                  Margin=" 10 0" 
-                                  IsChecked="True"
-                                  Style="{DynamicResource MaterialDesignSwitchToggleButton}"
-                                  Click="TglBtnActive_OnClick">
-                        
-                    </ToggleButton>
-                </StackPanel>
             </StackPanel>
         </Grid>
-        
-        
     </Grid>
 </UserControl>

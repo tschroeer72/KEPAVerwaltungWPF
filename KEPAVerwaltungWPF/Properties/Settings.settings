@@ -8,8 +8,11 @@
     <Setting Name="ZoomFactor" Type="System.Double" Scope="User">
       <Value Profile="(Default)">0.2</Value>
     </Setting>
-    <Setting Name="ZoomRadius" Type="System.Int32" Scope="User">
-      <Value Profile="(Default)">100</Value>
+    <Setting Name="ZoomRadius" Type="System.Double" Scope="User">
+      <Value Profile="(Default)">100.0</Value>
+    </Setting>
+    <Setting Name="ZoomType" Type="System.String" Scope="User">
+      <Value Profile="(Default)">Circle</Value>
     </Setting>
     <Setting Name="Theme" Type="System.String" Scope="User">
       <Value Profile="(Default">Light</Value>

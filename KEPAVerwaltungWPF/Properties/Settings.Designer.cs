@@ -48,13 +48,25 @@ namespace KEPAVerwaltungWPF.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("100")]
-        public int ZoomRadius {
+        [global::System.Configuration.DefaultSettingValueAttribute("100.0")]
+        public double ZoomRadius {
             get {
-                return ((int)(this["ZoomRadius"]));
+                return ((double)(this["ZoomRadius"]));
             }
             set {
                 this["ZoomRadius"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Circle")]
+        public string ZoomType {
+            get {
+                return ((string)(this["ZoomType"]));
+            }
+            set {
+                this["ZoomType"] = value;
             }
         }
         
