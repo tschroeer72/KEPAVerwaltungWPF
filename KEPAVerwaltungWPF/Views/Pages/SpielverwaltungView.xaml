@@ -13,11 +13,11 @@
     
     <Grid Background="{DynamicResource BackgroundBrush}">
         <Grid.RowDefinitions>
-            <RowDefinition Height="50"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <Grid Grid.Row="0">
+        <Grid Grid.Row="0" Margin="10 10">
             <Grid HorizontalAlignment="Left">
                 <TextBlock Text="{Binding Titel}"
                            Style="{StaticResource TitelTxtBxStyle}">

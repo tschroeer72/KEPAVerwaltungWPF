@@ -13,16 +13,17 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <Grid Grid.Row="0">
+        <Grid Grid.Row="0" Margin="20 20">
             <Grid HorizontalAlignment="Left">
                 <TextBlock Text="{Binding Titel}" MinWidth="200"
-                           Style="{StaticResource TitelTxtBxStyle}">
+                           Style="{StaticResource TitelTxtBxStyle}"
+                           Visibility="Collapsed">
                 </TextBlock>
             </Grid>
+        </Grid>
         
-            <Grid HorizontalAlignment="Right">
-
-            </Grid>
+        <Grid Grid.Row="1">
+            <Image Source="../../Images/Vereinspokal.png" Stretch="Uniform"/>
         </Grid>
     </Grid>
 </UserControl>

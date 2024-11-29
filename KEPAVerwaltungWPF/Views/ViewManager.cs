@@ -7,6 +7,7 @@ using KEPAVerwaltungWPF.ViewModels;
 using KEPAVerwaltungWPF.Views.Pages;
 using KEPAVerwaltungWPF.Views.Windows;
 using Microsoft.Extensions.DependencyInjection;
+using Xceed.Wpf.AvalonDock.Properties;
 
 namespace KEPAVerwaltungWPF.Views;
 
@@ -118,7 +119,7 @@ public class ViewManager
     private static void ShowMainInfoFlyout(string sMessage, bool bWarnung)
     {
         MainView!.LblFlyoutInfo.Content = sMessage;
-        MainView!.LblFlyoutInfo.Foreground = (bWarnung) ? Brushes.DarkRed : Brushes.White;
+        MainView!.LblFlyoutInfo.Foreground = (bWarnung) ? Brushes.DarkRed : (Brush)Application.Current.FindResource("PrimaryBrush");;
         MainView!.InfoFlyout.IsOpen = true;
     }
     public static bool ShowInformationWindow(string sMessage)

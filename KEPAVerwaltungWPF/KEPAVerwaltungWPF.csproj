@@ -6,6 +6,7 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
+    <ApplicationIcon>bowling_pins.ico</ApplicationIcon>
   </PropertyGroup>
 
   <ItemGroup>
@@ -24,6 +25,14 @@
     <Resource Include="ThemeAndStyle\DarkTheme.xaml" />
     <Page Remove="ThemeAndStyle\LightTheme.xaml" />
     <Resource Include="ThemeAndStyle\LightTheme.xaml" />
+    <None Remove="Images\Vereinspokal.png" />
+    <Resource Include="Images\Vereinspokal.png" />
+    <None Remove="bowling_pins.ico" />
+    <Resource Include="bowling_pins.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Images\" />
   </ItemGroup>
 
 </Project>

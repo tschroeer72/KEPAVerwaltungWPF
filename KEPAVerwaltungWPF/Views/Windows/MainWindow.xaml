@@ -156,12 +156,12 @@
                                 VerticalAlignment="Center">
                         <md:PackIcon Kind="InformationVariant"
                                      Width="40" Height="40"
-                                     Foreground="White">
+                                     Foreground="{DynamicResource PrimaryBrush}">
                         </md:PackIcon>
 
                         <Label Name="LblFlyoutInfo" 
                                FontSize="26" FontWeight="ExtraBold"
-                               Foreground="White"
+                               Foreground="{DynamicResource PrimaryBrush}"
                                Background="Transparent"
                                Margin="10 0 0 0">
                         </Label>

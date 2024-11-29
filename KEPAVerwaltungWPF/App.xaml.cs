@@ -1,4 +1,7 @@
-﻿using System.Windows;
+﻿using System.Diagnostics;
+using System.Globalization;
+using System.Windows;
+using System.Windows.Markup;
 using KEPAVerwaltungWPF.ViewModels;
 using KEPAVerwaltungWPF.Views;
 using KEPAVerwaltungWPF.Views.Pages;
@@ -33,6 +36,8 @@ public partial class App : Application
         ViewManager.InitViewManager(mainView!, _ServiceProvider);
         mainView!.Show();
 
+        FrameworkElement.LanguageProperty.OverrideMetadata(typeof(FrameworkElement), new FrameworkPropertyMetadata(XmlLanguage.GetLanguage(CultureInfo.CurrentUICulture.Name)));
+        
         base.OnStartup(e);
     }
     
@@ -66,8 +71,8 @@ public partial class App : Application
         services.AddSingleton<ErgebniseingabeView>();
         services.AddSingleton<ErgebniseingabeViewModel>();
 
-        services.AddSingleton<ErgebnisausgabeView>();
-        services.AddSingleton<ErgebnisausgabeViewModel>();
+        services.AddSingleton<ErgebnisuebersichtView>();
+        services.AddSingleton<ErgebnisuebersichtViewModel>();
 
         services.AddSingleton<StatistikView>();
         services.AddSingleton<StatistikViewModel>();

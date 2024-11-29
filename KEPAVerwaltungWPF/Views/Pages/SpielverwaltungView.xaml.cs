@@ -26,7 +26,7 @@ public partial class SpielverwaltungView : UserControl
                     ViewManager.ShowUnderPageOn<ErgebniseingabeView>(AnimatedContentControl);
                     break;
                 case "BtnAusgabe":
-                    ViewManager.ShowUnderPageOn<ErgebnisausgabeView>(AnimatedContentControl);
+                    ViewManager.ShowUnderPageOn<ErgebnisuebersichtView>(AnimatedContentControl);
                     break;
             }
         }

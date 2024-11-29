@@ -2,7 +2,7 @@
 
 namespace KEPAVerwaltungWPF.ViewModels;
 
-public partial class BaseViewModel : ObservableRecipient
+public partial class BaseViewModel : ObservableObject
 {
     public delegate bool DelShowInformationWindowType(string iMessage);
     public DelShowInformationWindowType? DelShowInformationWindow { get; set; }

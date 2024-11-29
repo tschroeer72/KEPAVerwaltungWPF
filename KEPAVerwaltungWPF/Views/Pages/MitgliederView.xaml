@@ -3,28 +3,295 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes" 
+             xmlns:mw="http://metro.mahapps.com/winfx/xaml/controls" 
              xmlns:local="clr-namespace:KEPAVerwaltungWPF.Views.Pages"
              xmlns:vm="clr-namespace:KEPAVerwaltungWPF.ViewModels"
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors" 
              mc:Ignorable="d"
-             d:DesignHeight="300" d:DesignWidth="300"
+             d:DesignHeight="800" d:DesignWidth="900"
              d:DataContext="{d:DesignInstance Type=vm:MitgliederViewModel}">
+    
+    <i:Interaction.Triggers>
+        <i:EventTrigger EventName="Loaded">
+            <i:InvokeCommandAction Command="{Binding GetInitialDataCommand}"/>
+        </i:EventTrigger>
+    </i:Interaction.Triggers>
     
     <Grid Background="{DynamicResource BackgroundBrush}">
         <Grid.RowDefinitions>
-            <RowDefinition Height="50"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <Grid Grid.Row="0">
+        <!-- Titelzeile -->
+        <Grid Grid.Row="0" Margin="10 0">
             <Grid HorizontalAlignment="Left">
                 <TextBlock Text="{Binding Titel}" MinWidth="200"
                            Style="{StaticResource TitelTxtBxStyle}">
                 </TextBlock>
             </Grid>
+        </Grid>
         
-            <Grid HorizontalAlignment="Right">
+        <!-- Inhalt -->
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            
+            <!-- Treeview -->
+            <Grid Grid.Column="0" Margin="20 20">
+                <md:Card HorizontalAlignment="Left" 
+                         VerticalAlignment="Top"
+                         Background="{DynamicResource BackgroundBrush}"
+                         md:ElevationAssist.Elevation="Dp3">
+                    <StackPanel Margin="20 20">
+                        <TextBlock Text="Mitgliederliste" 
+                                   Margin="0 0 0 20"
+                                   Style="{StaticResource MaterialDesignSubtitle1TextBlock}">
+                        </TextBlock>
+                        <Border BorderBrush="{DynamicResource PrimaryBrush}"
+                                BorderThickness="0">
+                            <TreeView x:Name="tvMitglieder"
+                                  ItemsSource="{Binding MitgliederTree}">
+                                <TreeView.ItemContainerStyle>
+                                    <Style TargetType="TreeViewItem">
+                                        <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}" />
+                                        <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}" />
+                                    </Style>
+                                </TreeView.ItemContainerStyle>
+                                <TreeView.ItemTemplate>
+                                    <HierarchicalDataTemplate ItemsSource="{Binding Children}">
+                                        <TextBlock Text="{Binding Name}" />
+                                    </HierarchicalDataTemplate>
+                                </TreeView.ItemTemplate>
+                                
+                                <i:Interaction.Triggers>
+                                    <i:EventTrigger EventName="SelectedItemChanged">
+                                        <i:InvokeCommandAction Command="{Binding TvSelectedItemChangedCommand}"
+                                                               CommandParameter="{Binding ElementName=tvMitglieder, Path=SelectedItem}">
+                                        </i:InvokeCommandAction>
+                                    </i:EventTrigger>
+                                </i:Interaction.Triggers>
+                            </TreeView>
+                        </Border>
+                    </StackPanel>
+                </md:Card>
+            </Grid>
+            
+            <Grid Grid.Column="1"  Margin="0 20" >
+                <md:Card HorizontalAlignment="Left"
+                         VerticalAlignment="Top"
+                         Background="{DynamicResource BackgroundBrush}"
+                         md:ElevationAssist.Elevation="Dp3">
+                    <StackPanel Margin="20 20"
+                                VerticalAlignment="Top"
+                                HorizontalAlignment="Left">
+                        <mw:MetroAnimatedTabControl Background="{DynamicResource BackgroundBrush}"
+                                                    MinHeight="500">
+                            <mw:MetroTabItem Header="Persönliches"  HeaderTemplate="{StaticResource TabButtonTemplate}"
+                                             VerticalContentAlignment="Top">
+                                <WrapPanel Margin="0 10">
+                                    <TextBox md:HintAssist.Hint="Anrede" 
+                                             Margin="10 10"
+                                             MinWidth="60"
+                                             Text="{Binding CurrentMitglied.Anrede, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                             Style="{StaticResource TextBxAngabenStyle}">
+                                    </TextBox>
+                                    <TextBox md:HintAssist.Hint="Vorname" 
+                                             Margin="10 10"
+                                             MinWidth="140"
+                                             Text="{Binding CurrentMitglied.Vorname, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                             Style="{StaticResource TextBxAngabenStyle}">
+                                    </TextBox>
+                                    <TextBox md:HintAssist.Hint="Nachname" 
+                                             Margin="10 10"
+                                             MinWidth="140"
+                                             Text="{Binding CurrentMitglied.Nachname, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                             Style="{StaticResource TextBxAngabenStyle}">
+                                    </TextBox>
+                                    <TextBox md:HintAssist.Hint="Spitzname" 
+                                             Margin="10 10"
+                                             MinWidth="140"
+                                             Text="{Binding CurrentMitglied.Spitzname, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                             Style="{StaticResource TextBxAngabenStyle}">
+                                    </TextBox>
+                                    <TextBox md:HintAssist.Hint="Straße" 
+                                             Margin="10 10"
+                                             MinWidth="200"
+                                             Text="{Binding CurrentMitglied.Straße, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                             Style="{StaticResource TextBxAngabenStyle}">
+                                    </TextBox>
+                                    <TextBox md:HintAssist.Hint="PLZ" 
+                                             Margin="10 10"
+                                             MinWidth="50"
+                                             Text="{Binding CurrentMitglied.PLZ, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                             Style="{StaticResource TextBxAngabenStyle}">
+                                    </TextBox>
+                                    <TextBox md:HintAssist.Hint="Ort" 
+                                             Margin="10 10"
+                                             MinWidth="200"
+                                             Text="{Binding CurrentMitglied.Ort, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                             Style="{StaticResource TextBxAngabenStyle}">
+                                    </TextBox>
+                                    <TextBox md:HintAssist.Hint="Festnetz" 
+                                             Margin="10 10"
+                                             MinWidth="200"
+                                             Text="{Binding CurrentMitglied.TelefonPrivat, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                             Style="{StaticResource TextBxAngabenStyle}">
+                                    </TextBox>
+                                    <TextBox md:HintAssist.Hint="Mobil" 
+                                             Margin="10 10"
+                                             MinWidth="200"
+                                             Text="{Binding CurrentMitglied.TelefonMobil, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                             Style="{StaticResource TextBxAngabenStyle}">
+                                    </TextBox>
+                                    <TextBox md:HintAssist.Hint="E-Mail" 
+                                             Margin="10 10"
+                                             MinWidth="200"
+                                             Text="{Binding CurrentMitglied.EMail, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                             Style="{StaticResource TextBxAngabenStyle}">
+                                    </TextBox>
+                                    <DatePicker md:HintAssist.Hint="Geburtsdatum"
+                                                Margin="10 10"
+                                                SelectedDate="{Binding CurrentMitglied.Geburtsdatum, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource DateYearOneToEmptyDateConverter}}"
+                                                MinWidth="120">
+                                    </DatePicker>
+                                    <DatePicker md:HintAssist.Hint="Mitglied seit"
+                                                Margin="10 10"
+                                                SelectedDate="{Binding CurrentMitglied.MitgliedSeit, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource DateYearOneToEmptyDateConverter}}"
+                                                MinWidth="120">
+                                    </DatePicker>
+                                    <DatePicker md:HintAssist.Hint="Passiv seit"
+                                                Margin="10 10"
+                                                SelectedDate="{Binding CurrentMitglied.PassivSeit, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource DateYearOneToEmptyDateConverter}}"
+                                                MinWidth="120">
+                                    </DatePicker>
+                                    <DatePicker md:HintAssist.Hint="Ausgeschieden am"
+                                                Margin="10 10"
+                                                SelectedDate="{Binding CurrentMitglied.AusgeschiedenAm, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource DateYearOneToEmptyDateConverter}}"
+                                                MinWidth="120">
+                                    </DatePicker>
+                                    <CheckBox Content="Ehemaliger"
+                                              Margin="10 10"
+                                              IsChecked="{Binding CurrentMitglied.Ehemaliger, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                              Style="{StaticResource MaterialDesignCheckBox}">
+                                    </CheckBox>
+                                </WrapPanel>
+                            </mw:MetroTabItem>
+                            
+                            <mw:MetroTabItem Header="Notizen"  HeaderTemplate="{StaticResource TabButtonTemplate}"
+                                             VerticalContentAlignment="Top">
+                                <StackPanel VerticalAlignment="Top" Margin="0 10">
+                                    <TextBox md:HintAssist.Hint="Notizen" 
+                                             Margin="10 10"
+                                             MinWidth="200"
+                                             MinHeight="200"
+                                             TextWrapping="Wrap"
+                                             Text="{Binding CurrentMitglied.Notizen, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                             VerticalAlignment="Top"
+                                             VerticalContentAlignment="Top"
+                                             HorizontalAlignment="Stretch">
+                                    </TextBox>
+                                    <TextBox md:HintAssist.Hint="Bemerkungen" 
+                                             Margin="10 10"
+                                             MinWidth="200"
+                                             MinHeight="200"
+                                             TextWrapping="Wrap"
+                                             Text="{Binding CurrentMitglied.Bemerkungen, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                             VerticalContentAlignment="Top"
+                                             HorizontalAlignment="Stretch">
+                                    </TextBox>
+                                </StackPanel>
+                            </mw:MetroTabItem>
+                            
+                            <mw:MetroTabItem Header="Ergebnisse"  HeaderTemplate="{StaticResource TabButtonTemplate}"
+                                             VerticalContentAlignment="Top">
+                                <Grid Margin="0 10">
+                                    <DataGrid x:Name="dgErgebnisse"
+                                              ItemsSource="{Binding Haeuser}">
+                                        <DataGrid.Columns>
+                                            <DataGridTextColumn Header="Spieltag" Binding="{Binding AuftragID}" MinWidth="100" Width="*"/>
+                                            <DataGridTextColumn Header="Meisterschaft" Binding="{Binding ZimmerAnzahl}" MinWidth="170"  Width="*"/>
+                                            <DataGridTextColumn Header="Gegenspieler" Binding="{Binding Preis}" MinWidth="170"  Width="*"/>
+                                            <DataGridTextColumn Header="Ergebnis" Binding="{Binding Anschrift}" MinWidth="120"  Width="*"/>
+                                            <DataGridTextColumn Header="Holz" Binding="{Binding Anschrift}" MinWidth="80"  Width="*"/>
+                                            <DataGridTextColumn Header="6-Tage-Rennen Runden" Binding="{Binding Anschrift}" MinWidth="200"  Width="*"/>
+                                            <DataGridTextColumn Header="6-Tage-Rennen Punkte" Binding="{Binding Anschrift}" MinWidth="200"  Width="*"/>
+                                            <DataGridTextColumn Header="6-Tage-Rennen Platz" Binding="{Binding Anschrift}" MinWidth="200"  Width="*"/>
+                                            <DataGridTextColumn Header="Sarg" Binding="{Binding Anschrift}" MinWidth="100"  Width="*"/>
+                                            <DataGridTextColumn Header="Pokal" Binding="{Binding Anschrift}"  MinWidth="100" Width="*"/>
+                                            <DataGridTextColumn Header="Neuner" Binding="{Binding Anschrift}" MinWidth="100"  Width="*"/>
+                                            <DataGridTextColumn Header="Ratten" Binding="{Binding Anschrift}"  MinWidth="100" Width="*"/>
+                                        </DataGrid.Columns>
+                                    </DataGrid>
+                                </Grid>
+                            </mw:MetroTabItem>
 
+                            <mw:MetroTabItem Header="Statistik"  HeaderTemplate="{StaticResource TabButtonTemplate}"
+                                             VerticalContentAlignment="Top">
+                                <Grid Margin="0 10">
+                                    <DataGrid x:Name="dgStatistik"
+                                              ItemsSource="{Binding Haeuser}">
+                                        <DataGrid.Columns>
+                                            <DataGridTextColumn Header="HolzMeisterSumme" Binding="{Binding AuftragID}" Width="*"/>
+                                            <DataGridTextColumn Header="HolzMeisterMax" Binding="{Binding ZimmerAnzahl}" Width="*"/>
+                                            <DataGridTextColumn Header="HolzMeisterMin" Binding="{Binding Preis}" Width="*"/>
+                                            <DataGridTextColumn Header="HolzMeisterAVG" Binding="{Binding Anschrift}" Width="*"/>
+                                            
+                                            <DataGridTextColumn Header="HolzBlitzSumme" Binding="{Binding AuftragID}" Width="*"/>
+                                            <DataGridTextColumn Header="HolzBlitzMax" Binding="{Binding ZimmerAnzahl}" Width="*"/>
+                                            <DataGridTextColumn Header="HolzBlitzMin" Binding="{Binding Preis}" Width="*"/>
+                                            <DataGridTextColumn Header="HolzBlitzAVG" Binding="{Binding Anschrift}" Width="*"/>
+                                            
+                                            <DataGridTextColumn Header="HolzSumme" Binding="{Binding AuftragID}" Width="*"/>
+                                            <DataGridTextColumn Header="HolzMax" Binding="{Binding ZimmerAnzahl}" Width="*"/>
+                                            <DataGridTextColumn Header="HolzMin" Binding="{Binding Preis}" Width="*"/>
+                                            <DataGridTextColumn Header="HolzAVG" Binding="{Binding Anschrift}" Width="*"/>
+                                            
+                                            
+                                            <DataGridTextColumn Header="RattenSummer" Binding="{Binding AuftragID}" Width="*"/>
+                                            <DataGridTextColumn Header="RattenMax" Binding="{Binding ZimmerAnzahl}" Width="*"/>
+                                            <DataGridTextColumn Header="NeunerSumme" Binding="{Binding Preis}" Width="*"/>
+                                            <DataGridTextColumn Header="NeunerMax" Binding="{Binding Anschrift}" Width="*"/>
+                                        </DataGrid.Columns>
+                                    </DataGrid>
+                                </Grid>
+                            </mw:MetroTabItem>
+
+                        </mw:MetroAnimatedTabControl>
+                        
+                        <StackPanel Orientation="Horizontal">
+                            <Button Margin="8,4,8,8"
+                                    HorizontalAlignment="Left"
+                                    Content="Neues Mitglied">
+                            </Button>
+                            <Button Margin="8,4,8,8"
+                                    HorizontalAlignment="Left"
+                                    Content="Bearbeiten">
+                            </Button>
+                            <Button Margin="8,4,8,8"
+                                    HorizontalAlignment="Left"
+                                    Content="Speichern"
+                                    Click="ButtonBase_OnClick">
+                            </Button>
+                        </StackPanel>
+                    </StackPanel>
+                </md:Card>
+                
+                <!--ProgressRing-->
+                <mw:ProgressRing
+                    IsActive="True"
+                    Visibility="{Binding IsPageBusy, Converter={StaticResource BoolToVisConverter}}"
+                    VerticalAlignment="Center"
+                    HorizontalAlignment="Center"
+                    Foreground="{DynamicResource PrimaryBrush}"
+                    Height="100" Width="100">
+                </mw:ProgressRing>
             </Grid>
         </Grid>
+        
+        
     </Grid>
 </UserControl>
