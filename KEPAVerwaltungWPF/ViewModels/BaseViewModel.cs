@@ -10,6 +10,9 @@ public partial class BaseViewModel : ObservableObject
     public delegate bool DelShowConfirmationWindowType(string iMessage);
     public DelShowConfirmationWindowType? DelShowConfirmationWindow { get; set; }
 
+    public delegate bool DelShowErrorWindowType(string sModul, string sMethod, string sErrorMessage);
+    public DelShowErrorWindowType? DelShowErrorWindow { get; set; }
+    
     public delegate string DelShowInputWindowType(string iMessage);
     public DelShowInputWindowType? DelShowInputWindow { get; set; }
 

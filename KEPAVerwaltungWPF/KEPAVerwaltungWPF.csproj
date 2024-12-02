@@ -35,4 +35,11 @@
     <Folder Include="Images\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Remove="Anleitung.pdf" />
+    <Content Include="Anleitung.pdf">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
 </Project>

@@ -1,0 +1,100 @@
+﻿<Window x:Class="KEPAVerwaltungWPF.Views.Windows.ErrorWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes" 
+        xmlns:local="clr-namespace:KEPAVerwaltungWPF.Views.Windows"
+        mc:Ignorable="d"
+        Title="ErrorWindow" Height="500" Width="800">
+    <Grid>
+        <md:TransitioningContent  OpeningEffect="{md:TransitionEffect Duration=0:0:0.5, Kind=ExpandIn}">
+            <Border BorderThickness="1"
+                    BorderBrush="{DynamicResource PrimaryBrush}">
+                <Grid Background="{DynamicResource BackgroundBrush}">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="40"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="40"/>
+                    </Grid.RowDefinitions>
+                    
+                    <!-- Titel und Close -->
+                    <Grid Grid.Row="0">
+                        <md:Card md:ElevationAssist.Elevation="Dp2">
+                            <Grid Background="{DynamicResource PrimaryBrush}">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="40"/>
+                                </Grid.ColumnDefinitions>
+                                <Grid Grid.Column="0"  Cursor="Hand"
+                                      PreviewMouseLeftButtonDown="Grid_PreviewMouseLeftButtonDown" >
+                                    <Label x:Name="lblTitle" Content="Titel" 
+                                           Margin="8 0"
+                                           Height="40"
+                                           BorderThickness="0" 
+                                           Foreground="White" FontWeight="Bold" 
+                                           FontSize="20" VerticalContentAlignment="Center">
+                                    </Label>
+                                </Grid>
+
+                                <Button Grid.Column="1"  
+                                        Width="35"
+                                        Height="35" Panel.ZIndex="10"
+                                        Background="White" 
+                                        Style="{StaticResource MaterialDesignFloatingActionButton}"
+                                        Click="BtnSchliessen_Click" Cursor="Hand">
+                                    <md:PackIcon Kind="Close" Foreground="Red" />
+                                </Button>
+                            </Grid>
+                        </md:Card>
+                    </Grid>
+                    
+                    <!-- Inhalt -->
+                    <Grid Grid.Row="1">
+                        <StackPanel Margin="20">
+                            <StackPanel Orientation="Horizontal">
+                                <Label Content="Fehler im Modul"/>
+                                <Label x:Name="LblModul"
+                                       Content="Modul"
+                                       Margin="20 0"
+                                       FontWeight="Bold"/>
+                            </StackPanel>
+                            <Label Content="Fehlermeldung"/>
+                            <TextBlock x:Name="TxtMessage"
+                                       TextWrapping="Wrap">
+                                
+                            </TextBlock>
+                        </StackPanel>
+                    </Grid>
+                    
+                    <!-- OK und E-Mail -->
+                    <Grid Grid.Row="2">
+                        <Button x:Name="BtnEMail" Content="Info an Entwickler"
+                                Style="{StaticResource MaterialDesignRaisedButton}"
+                                Margin="0 0 0 10"
+                                HorizontalAlignment="Right"
+                                BorderThickness="0"
+                                Background="{DynamicResource BackgroundBrush}" 
+                                Foreground="{DynamicResource PrimaryBrush}" 
+                                FontWeight="Bold" 
+                                Width="180"
+                                Click="BtnEMail_OnClick">
+                        </Button>
+                        <Button x:Name="BtnOK"
+                                Content="OK"                            
+                                Style="{StaticResource MaterialDesignRaisedButton}" 
+                                Margin="0 0 0 10"
+                                HorizontalAlignment="Center"
+                                BorderThickness="0"
+                                Background="{DynamicResource BackgroundBrush}" 
+                                Foreground="{DynamicResource PrimaryBrush}"  
+                                FontWeight="Bold" 
+                                Width="80"
+                                Click="BtnOK_OnClick">
+                        </Button>
+                    </Grid>
+                </Grid>
+            </Border>
+        </md:TransitioningContent>
+    </Grid>
+</Window>

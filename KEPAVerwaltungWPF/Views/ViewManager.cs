@@ -23,7 +23,6 @@ public class ViewManager
         ServiceProvider = serviceProvider;
     }
     
-    
     public static void ShowPageOnMainView<T>(bool bFullPage = false) where T : UserControl
     {
 		try
@@ -114,7 +113,6 @@ public class ViewManager
             ShowInformationWindow(ex.ToString());
         }
     }
-
     
     private static void ShowMainInfoFlyout(string sMessage, bool bWarnung)
     {
@@ -122,6 +120,7 @@ public class ViewManager
         MainView!.LblFlyoutInfo.Foreground = (bWarnung) ? Brushes.DarkRed : (Brush)Application.Current.FindResource("PrimaryBrush");;
         MainView!.InfoFlyout.IsOpen = true;
     }
+    
     public static bool ShowInformationWindow(string sMessage)
     {
         return new InfoWindow(sMessage, IWDialogType.Information).ShowDialog() ?? false;
@@ -138,6 +137,11 @@ public class ViewManager
         myInfoWindow.ShowDialog();
         return myInfoWindow.InputText;
     }
+
+    public static bool ShowErrorWindow(string sModul, string sMethod, string sErrorMessage)
+    {
+        return new ErrorWindow(sModul, sMethod, sErrorMessage).ShowDialog() ?? false;    
+    }
     
     public static void InitBaseDelEvents(BaseViewModel baseViewModel)
     {
@@ -146,6 +150,7 @@ public class ViewManager
         baseViewModel.DelShowInformationWindow += (msg) => ShowInformationWindow(msg);
         baseViewModel.DelShowConfirmationWindow += (msg) => ShowConfirmationWindow(msg);
         baseViewModel.DelShowInputWindow += (msg) => ShowInputWindow(msg);
+        baseViewModel.DelShowErrorWindow += (mod, proc, msg) => ShowErrorWindow(mod, proc, msg);
         
         baseViewModel.DelShowMainInfoFlyout += (msg, warnung) => ShowMainInfoFlyout(msg, warnung);
     }

@@ -210,20 +210,20 @@
                                              VerticalContentAlignment="Top">
                                 <Grid Margin="0 10">
                                     <DataGrid x:Name="dgErgebnisse"
-                                              ItemsSource="{Binding Haeuser}">
+                                              ItemsSource="{Binding StatistikSpielerErgebnisse}">
                                         <DataGrid.Columns>
-                                            <DataGridTextColumn Header="Spieltag" Binding="{Binding AuftragID}" MinWidth="100" Width="*"/>
-                                            <DataGridTextColumn Header="Meisterschaft" Binding="{Binding ZimmerAnzahl}" MinWidth="170"  Width="*"/>
-                                            <DataGridTextColumn Header="Gegenspieler" Binding="{Binding Preis}" MinWidth="170"  Width="*"/>
-                                            <DataGridTextColumn Header="Ergebnis" Binding="{Binding Anschrift}" MinWidth="120"  Width="*"/>
-                                            <DataGridTextColumn Header="Holz" Binding="{Binding Anschrift}" MinWidth="80"  Width="*"/>
-                                            <DataGridTextColumn Header="6-Tage-Rennen Runden" Binding="{Binding Anschrift}" MinWidth="200"  Width="*"/>
-                                            <DataGridTextColumn Header="6-Tage-Rennen Punkte" Binding="{Binding Anschrift}" MinWidth="200"  Width="*"/>
-                                            <DataGridTextColumn Header="6-Tage-Rennen Platz" Binding="{Binding Anschrift}" MinWidth="200"  Width="*"/>
-                                            <DataGridTextColumn Header="Sarg" Binding="{Binding Anschrift}" MinWidth="100"  Width="*"/>
-                                            <DataGridTextColumn Header="Pokal" Binding="{Binding Anschrift}"  MinWidth="100" Width="*"/>
-                                            <DataGridTextColumn Header="Neuner" Binding="{Binding Anschrift}" MinWidth="100"  Width="*"/>
-                                            <DataGridTextColumn Header="Ratten" Binding="{Binding Anschrift}"  MinWidth="100" Width="*"/>
+                                            <DataGridTextColumn Header="Spieltag" Binding="{Binding Spieltag, StringFormat=\{0:dd.MM.yyyy\}}" MinWidth="130" Width="*"/>
+                                            <DataGridTextColumn Header="Meisterschaft" Binding="{Binding Meisterschaft}" MinWidth="250"  Width="*"/>
+                                            <DataGridTextColumn Header="Gegenspieler" Binding="{Binding Gegenspieler}" MinWidth="250"  Width="*"/>
+                                            <DataGridTextColumn Header="Erg." Binding="{Binding Ergebnis}" MinWidth="50"  Width="*"/>
+                                            <DataGridTextColumn Header="Holz" Binding="{Binding Holz}" MinWidth="50"  Width="*"/>
+                                            <DataGridTextColumn Header="6-Tage-Rennen Runden" Binding="{Binding SechsTageRennen_Runden}" MinWidth="250"  Width="*"/>
+                                            <DataGridTextColumn Header="6-Tage-Rennen Punkte" Binding="{Binding SechsTageRennen_Punkte}" MinWidth="250"  Width="*"/>
+                                            <DataGridTextColumn Header="6-Tage-Rennen Platz" Binding="{Binding SechsTageRennen_Platz}" MinWidth="250"  Width="*"/>
+                                            <DataGridTextColumn Header="Sarg" Binding="{Binding Sarg}" MinWidth="60"  Width="*"/>
+                                            <DataGridTextColumn Header="Pokal" Binding="{Binding Pokal}"  MinWidth="70" Width="*"/>
+                                            <DataGridTextColumn Header="Neuner" Binding="{Binding Neuner}" MinWidth="100"  Width="*"/>
+                                            <DataGridTextColumn Header="Ratten" Binding="{Binding Ratten}"  MinWidth="90" Width="*"/>
                                         </DataGrid.Columns>
                                     </DataGrid>
                                 </Grid>
@@ -233,28 +233,28 @@
                                              VerticalContentAlignment="Top">
                                 <Grid Margin="0 10">
                                     <DataGrid x:Name="dgStatistik"
-                                              ItemsSource="{Binding Haeuser}">
+                                              ItemsSource="{Binding StatistikSpieler}">
                                         <DataGrid.Columns>
-                                            <DataGridTextColumn Header="HolzMeisterSumme" Binding="{Binding AuftragID}" Width="*"/>
-                                            <DataGridTextColumn Header="HolzMeisterMax" Binding="{Binding ZimmerAnzahl}" Width="*"/>
-                                            <DataGridTextColumn Header="HolzMeisterMin" Binding="{Binding Preis}" Width="*"/>
-                                            <DataGridTextColumn Header="HolzMeisterAVG" Binding="{Binding Anschrift}" Width="*"/>
+                                            <DataGridTextColumn Header="HolzMeisterSumme" Binding="{Binding HolzMeisterSumme}" MinWidth="220" Width="*"/>
+                                            <DataGridTextColumn Header="HolzMeisterMax" Binding="{Binding HolzMeisterMax}" MinWidth="200" Width="*"/>
+                                            <DataGridTextColumn Header="HolzMeisterMin" Binding="{Binding HolzMeisterMin}" MinWidth="200" Width="*"/>
+                                            <DataGridTextColumn Header="HolzMeisterAVG" Binding="{Binding HolzMeisterAVG}" MinWidth="200" Width="*"/>
                                             
-                                            <DataGridTextColumn Header="HolzBlitzSumme" Binding="{Binding AuftragID}" Width="*"/>
-                                            <DataGridTextColumn Header="HolzBlitzMax" Binding="{Binding ZimmerAnzahl}" Width="*"/>
-                                            <DataGridTextColumn Header="HolzBlitzMin" Binding="{Binding Preis}" Width="*"/>
-                                            <DataGridTextColumn Header="HolzBlitzAVG" Binding="{Binding Anschrift}" Width="*"/>
+                                            <DataGridTextColumn Header="HolzBlitzSumme" Binding="{Binding HolzBlitzSumme}" MinWidth="200" Width="*"/>
+                                            <DataGridTextColumn Header="HolzBlitzMax" Binding="{Binding HolzBlitzMax}" MinWidth="200" Width="*"/>
+                                            <DataGridTextColumn Header="HolzBlitzMin" Binding="{Binding HolzBlitzMin}" MinWidth="200" Width="*"/>
+                                            <DataGridTextColumn Header="HolzBlitzAVG" Binding="{Binding HolzBlitzAVG}" MinWidth="200" Width="*"/>
                                             
-                                            <DataGridTextColumn Header="HolzSumme" Binding="{Binding AuftragID}" Width="*"/>
-                                            <DataGridTextColumn Header="HolzMax" Binding="{Binding ZimmerAnzahl}" Width="*"/>
-                                            <DataGridTextColumn Header="HolzMin" Binding="{Binding Preis}" Width="*"/>
-                                            <DataGridTextColumn Header="HolzAVG" Binding="{Binding Anschrift}" Width="*"/>
+                                            <DataGridTextColumn Header="HolzSumme" Binding="{Binding HolzSumme}" MinWidth="200" Width="*"/>
+                                            <DataGridTextColumn Header="HolzMax" Binding="{Binding HolzMax}" MinWidth="200" Width="*"/>
+                                            <DataGridTextColumn Header="HolzMin" Binding="{Binding HolzMin}" MinWidth="200" Width="*"/>
+                                            <DataGridTextColumn Header="HolzAVG" Binding="{Binding HolzAVG}" MinWidth="200" Width="*"/>
                                             
                                             
-                                            <DataGridTextColumn Header="RattenSummer" Binding="{Binding AuftragID}" Width="*"/>
-                                            <DataGridTextColumn Header="RattenMax" Binding="{Binding ZimmerAnzahl}" Width="*"/>
-                                            <DataGridTextColumn Header="NeunerSumme" Binding="{Binding Preis}" Width="*"/>
-                                            <DataGridTextColumn Header="NeunerMax" Binding="{Binding Anschrift}" Width="*"/>
+                                            <DataGridTextColumn Header="RattenSummer" Binding="{Binding RattenSumme}" MinWidth="200" Width="*"/>
+                                            <DataGridTextColumn Header="RattenMax" Binding="{Binding RattenMax}" MinWidth="200" Width="*"/>
+                                            <DataGridTextColumn Header="NeunerSumme" Binding="{Binding NeunerSumme}" MinWidth="200" Width="*"/>
+                                            <DataGridTextColumn Header="NeunerMax" Binding="{Binding NeunerMax}" MinWidth="200" Width="*"/>
                                         </DataGrid.Columns>
                                     </DataGrid>
                                 </Grid>
@@ -291,7 +291,5 @@
                 </mw:ProgressRing>
             </Grid>
         </Grid>
-        
-        
     </Grid>
 </UserControl>

@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using System.Diagnostics;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using KEPAVerwaltungWPF.Enums;
@@ -21,8 +22,6 @@ public partial class MainWindow : MetroWindow
         MainViewModel = mainViewModel;
         DataContext = MainViewModel;
         MainViewModel.InitBaseViewModelDelegateAndEvents();
-        
-        //EnableDisableZoom(true);
     }
     
     private void OpenPageOnMain(object sender, RoutedEventArgs e)
@@ -58,6 +57,9 @@ public partial class MainWindow : MetroWindow
         {
             switch (objMenuItem.Name)
             {
+                case "MnuBtnAnleitung":
+                    ShowAnleitung();
+                    break;
                 case "MnuBtnLightTheme":
                     ChangeTheme(DarkLight.Light);
                     break;
@@ -69,6 +71,15 @@ public partial class MainWindow : MetroWindow
                     break;
             }
         }
+    }
+
+    private void ShowAnleitung()
+    {
+        ProcessStartInfo psi = new ProcessStartInfo("Anleitung.pdf")
+        {
+            UseShellExecute = true
+        };
+        Process.Start(psi);
     }
     
     private void ChangeTheme(DarkLight darkLight)
@@ -92,6 +103,23 @@ public partial class MainWindow : MetroWindow
                 Properties.Settings.Default.Save();
                 MnuBtnLightTheme.IsEnabled = true;
                 MnuBtnDarkTheme.IsEnabled = false;
+                break;
+        }
+    }
+    
+    private void SwitchThemeMode()
+    {
+        switch (Properties.Settings.Default.Theme)
+        {
+            case "Light":
+                ChangeTheme(DarkLight.Dark);
+                MnuBtnLightTheme.IsEnabled = true;
+                MnuBtnDarkTheme.IsEnabled = false;
+                break;
+            case "Dark":
+                ChangeTheme(DarkLight.Light);
+                MnuBtnLightTheme.IsEnabled = false;
+                MnuBtnDarkTheme.IsEnabled = true;
                 break;
         }
     }
@@ -152,10 +180,24 @@ public partial class MainWindow : MetroWindow
     {
         base.OnPreviewKeyDown(e);
 
-        if (e.Key == Key.F12)
+        // if (e.Key == Key.F12)
+        // {
+        //     EnableDisableZoom(!MainViewModel.ZoomActive);
+        //     e.Handled = true; // Verhindert, dass andere Ereignisse ausgelöst werden
+        // }
+
+        switch (e.Key)
         {
-            EnableDisableZoom(!MainViewModel.ZoomActive);
-            e.Handled = true; // Verhindert, dass andere Ereignisse ausgelöst werden
+            case Key.F1:
+                ShowAnleitung();
+                break;
+            case Key.F11:
+                SwitchThemeMode();
+                break;
+            case Key.F12:
+                EnableDisableZoom(!MainViewModel.ZoomActive);
+                e.Handled = true; // Verhindert, dass andere Ereignisse ausgelöst werden
+                break;
         }
     }
 }

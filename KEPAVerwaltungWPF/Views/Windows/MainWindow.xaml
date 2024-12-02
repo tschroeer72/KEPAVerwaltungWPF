@@ -74,11 +74,33 @@
                                          Background="{DynamicResource PrimaryBrush}"/>
                         </MenuItem.Header>
 
+                        <MenuItem x:Name="MnuBtnAnleitung"
+                                  Height="50" 
+                                  Background="{DynamicResource BackgroundBrush}"
+                                  FontWeight="ExtraBold"
+                                  Cursor="Hand"  
+                                  InputGestureText="F1"
+                                  Click="OpenPageOnMain">
+                            <MenuItem.Header>
+                                <StackPanel Orientation="Horizontal">
+                                    <md:PackIcon Kind="Info"
+                                                 Height="30" Width="30"
+                                                 Foreground="{DynamicResource TitleBrush}"/>
+                                    <Label Content="Anleitung" 
+                                           Foreground="{DynamicResource TitleBrush}"
+                                           FontSize="20" FontWeight="ExtraBold"
+                                           VerticalContentAlignment="Center">
+                                    </Label>
+                                </StackPanel>
+                            </MenuItem.Header>
+                        </MenuItem>
+                        
                         <MenuItem x:Name="MnuBtnLightTheme"
                                   Height="50" 
                                   Background="{DynamicResource BackgroundBrush}"
                                   FontWeight="ExtraBold"
                                   Cursor="Hand"  
+                                  InputGestureText="F10"
                                   Click="OpenPageOnMain">
                             <MenuItem.Header>
                                 <StackPanel Orientation="Horizontal">
@@ -99,6 +121,7 @@
                                   Background="{DynamicResource BackgroundBrush}"
                                   FontWeight="ExtraBold"
                                   Cursor="Hand" 
+                                  InputGestureText="F11"
                                   Click="OpenPageOnMain">
                             <MenuItem.Header>
                                 <StackPanel Orientation="Horizontal">

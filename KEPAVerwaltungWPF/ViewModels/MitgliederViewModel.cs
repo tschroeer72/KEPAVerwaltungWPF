@@ -2,60 +2,79 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using KEPAVerwaltungWPF.DTOs;
+using KEPAVerwaltungWPF.Services;
+using KEPAVerwaltungWPF.Views;
 
 namespace KEPAVerwaltungWPF.ViewModels;
 
 public partial class MitgliederViewModel : BaseViewModel
 {
-    public MitgliederViewModel()
+    private readonly DBService _dbService;
+
+    public MitgliederViewModel(DBService dbService)
     {
+        _dbService = dbService;
         Titel = "Mitglieder";
     }
 
     private void LoadAndSetData()
     {
-        Mitgliederliste objMitglied1 = new();
-        objMitglied1.ID = 1;
-        objMitglied1.Vorname = "Karl-Heinz";
-        objMitglied1.Nachname = "Bohn";
-        
-        Mitgliederliste objMitglied2 = new();
-        objMitglied2.ID = 2;
-        objMitglied2.Vorname = "Thorsten";
-        objMitglied2.Nachname = "Schröer";
-        
-        Mitgliederliste objMitglied3 = new();
-        objMitglied3.ID = 3;
-        objMitglied3.Vorname = "Wolfgang";
-        objMitglied3.Nachname = "Schmidt";
-        
-        MitgliederTree = new ObservableCollection<TreeNode>
+        try
         {
-            new TreeNode("B (1)")
+            if (IsPageNotBusy)
             {
-                Children = new ObservableCollection<TreeNode>
+                IsPageBusy = true;
+                
+                foreach (var item in _dbService.GetMitgliederliste())
                 {
-                    new TreeNode("Bohn, Karl-Heinz", objMitglied1),
-                },
-                IsExpanded = true
-            },
-            new TreeNode("S (2)")
-            {
-                Children = new ObservableCollection<TreeNode>
+                    TreeNode objNode = new(item.Anzeigename);
+                    //objNode.Name = item.Anzeigename;
+                    objNode.Mitglied = item;
+
+                    TreeNode? objFind = MitgliederTree.FirstOrDefault(f => f.Name == item.Initial);
+                    if (objFind == null)
+                    {
+                        TreeNode objFirst = new(item.Initial);
+                        //objFirst.Name = item.Initial;
+                        objFirst.Mitglied = null;
+                        objFirst.Children.Add(objNode);
+                        MitgliederTree.Add(objFirst);
+                    }
+                    else
+                    {
+                        objFind.Children.Add(objNode);
+                    }
+                }
+
+                foreach (var item in MitgliederTree)
                 {
-                    new TreeNode("Schröer, Thorsten", objMitglied2),
-                    new TreeNode("Schmidt, Wolfgang", objMitglied3),
-                },
-                IsExpanded = true
+                    string strNodeText = item.Name;
+                    Int32 intCountChilds = item.Children.Count;
+                    Int32 intPos = strNodeText.IndexOf(' ');
+                    string strNodeNewText = string.Empty;
+                    if (intPos == -1)
+                        strNodeNewText += $" ({intCountChilds})";
+                    else
+                        strNodeNewText = strNodeText.Substring(0, intPos - 1) + $" ({intCountChilds})";
+            
+                    item.Name = strNodeNewText;
+                }
             }
-        };
+        }
+        catch (Exception ex)
+        {
+            ViewManager.ShowErrorWindow("MitgliederViewModel", "LoadAndSetData", ex.ToString());
+        }
+        finally
+        {
+            IsPageBusy = false;
+        }
     }
 
-    [ObservableProperty] 
-    ObservableCollection<TreeNode> mitgliederTree;
-    
-    [ObservableProperty] 
-    MitgliedDetails currentMitglied = new();
+    [ObservableProperty] private ObservableCollection<TreeNode> mitgliederTree = new();
+    [ObservableProperty] private MitgliedDetails currentMitglied = new();
+    [ObservableProperty] private List<StatistikSpielerErgebnisse> statistikSpielerErgebnisse = new();
+    [ObservableProperty] private List<StatistikSpieler> statistikSpieler = new();
     
     [RelayCommand]
     public void GetInitialData()
@@ -70,13 +89,36 @@ public partial class MitgliederViewModel : BaseViewModel
     [RelayCommand]
     public void TvSelectedItemChanged(TreeNode selectedNode)
     {
-        CurrentMitglied = new();
-        CurrentMitglied.ID = selectedNode.Mitglied.ID;
-        CurrentMitglied.Vorname = selectedNode.Mitglied.Vorname;
-        CurrentMitglied.Nachname = selectedNode.Mitglied.Nachname;
-        CurrentMitglied.Notizen = selectedNode.Mitglied.Vorname;
-        CurrentMitglied.Bemerkungen = selectedNode.Mitglied.Nachname;
+        try
+        {
+            if (IsPageNotBusy)
+            {
+                IsPageBusy = true;
+
+                if (selectedNode.Mitglied != null)
+                {
+                    CurrentMitglied = _dbService.GetMitgliedDetails(selectedNode.Mitglied.ID);
+                    StatistikSpielerErgebnisse = _dbService.GetStatistikSpielerErgebnisse(selectedNode.Mitglied.ID);
+                    StatistikSpieler = _dbService.GetStatistikSpieler(selectedNode.Mitglied.ID);
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            ViewManager.ShowErrorWindow("MitgliederViewModel", "LoadAndSetData", ex.ToString());
+        }
+        finally
+        {
+            IsPageBusy = false;
+        }
         
-        DelShowMainInfoFlyout?.Invoke($"{CurrentMitglied.Nachname} wurde ausgewählt");
+        // CurrentMitglied = new();
+        // CurrentMitglied.ID = selectedNode.Mitglied.ID;
+        // CurrentMitglied.Vorname = selectedNode.Mitglied.Vorname;
+        // CurrentMitglied.Nachname = selectedNode.Mitglied.Nachname;
+        // CurrentMitglied.Notizen = selectedNode.Mitglied.Vorname;
+        // CurrentMitglied.Bemerkungen = selectedNode.Mitglied.Nachname;
+        //
+        // DelShowMainInfoFlyout?.Invoke($"{CurrentMitglied.Nachname} wurde ausgewählt");
     }
 }

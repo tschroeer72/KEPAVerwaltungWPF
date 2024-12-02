@@ -2,6 +2,7 @@
 using System.Globalization;
 using System.Windows;
 using System.Windows.Markup;
+using KEPAVerwaltungWPF.Services;
 using KEPAVerwaltungWPF.ViewModels;
 using KEPAVerwaltungWPF.Views;
 using KEPAVerwaltungWPF.Views.Pages;
@@ -52,7 +53,7 @@ public partial class App : Application
         //Views und ViewModels
         services.AddSingleton<MainWindow>();
         services.AddSingleton<MainWindowModel>();
-
+        
         services.AddSingleton<HomeView>();
         services.AddSingleton<HomeViewModel>();
 
@@ -91,5 +92,7 @@ public partial class App : Application
         
         services.AddSingleton<EinstellungenView>();
         services.AddSingleton<EinstellungenViewModel>();
+
+        services.AddSingleton<DBService>();
     }
 }
