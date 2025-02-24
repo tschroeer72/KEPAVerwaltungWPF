@@ -52,16 +52,16 @@ public partial class ErrorWindow : Window
     private void BtnEMail_OnClick(object sender, RoutedEventArgs e)
     {
         StringBuilder sb = new StringBuilder();
-        ClsMail objMail = new ClsMail();
+        MailService objMailService = new MailService();
 
-        objMail.SMTPServer = "w01bdc60.kasserver.com";
-        objMail.SMTPUser = "m06aaec5";
-        objMail.SMTPPassword = "BodnXC5Pt3pMwQE4jPCU";
-        objMail.SMTPPort = 587;
-        objMail.TLS = true;
+        objMailService.SMTPServer = "w01bdc60.kasserver.com";
+        objMailService.SMTPUser = "m06aaec5";
+        objMailService.SMTPPassword = "BodnXC5Pt3pMwQE4jPCU";
+        objMailService.SMTPPort = 587;
+        objMailService.TLS = true;
         string strBetreff = "KEPAVerwaltung Exception ";
 
-        objMail.Subject = strBetreff;
+        objMailService.Subject = strBetreff;
 
         sb.AppendLine("Fehler im");
         sb.Append("Modul: " + _strModul);
@@ -72,14 +72,14 @@ public partial class ErrorWindow : Window
         sb.AppendLine();
         sb.AppendLine("Exception:");
         sb.AppendLine(_strErrorMessage);
-        objMail.Body = sb.ToString();
-        objMail.From = "issue@kegelgruppe-kepa.de";
+        objMailService.Body = sb.ToString();
+        objMailService.From = "issue@kegelgruppe-kepa.de";
 
         List<string> lstTo = new List<string>();
         lstTo.Add("t.schroeer@web.de");
-        objMail.To = lstTo;
+        objMailService.To = lstTo;
 
-        objMail.Send();
+        objMailService.Send();
 
         MessageBox.Show("Fehlermeldung wurde versendet", "Mailversand", MessageBoxButton.OK, MessageBoxImage.Information);
     }

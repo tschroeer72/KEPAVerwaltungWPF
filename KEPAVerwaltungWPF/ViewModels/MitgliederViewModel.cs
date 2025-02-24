@@ -17,7 +17,7 @@ public partial class MitgliederViewModel : BaseViewModel
         Titel = "Mitglieder";
     }
 
-    private void LoadAndSetData()
+    private async Task LoadAndSetData()
     {
         try
         {
@@ -25,7 +25,8 @@ public partial class MitgliederViewModel : BaseViewModel
             {
                 IsPageBusy = true;
                 
-                foreach (var item in _dbService.GetMitgliederliste())
+                MitgliederTree.Clear();
+                foreach (var item in await _dbService.GetMitgliederlisteAsync())
                 {
                     TreeNode objNode = new(item.Anzeigename);
                     //objNode.Name = item.Anzeigename;
@@ -45,7 +46,7 @@ public partial class MitgliederViewModel : BaseViewModel
                         objFind.Children.Add(objNode);
                     }
                 }
-
+                /*
                 foreach (var item in MitgliederTree)
                 {
                     string strNodeText = item.Name;
@@ -53,12 +54,13 @@ public partial class MitgliederViewModel : BaseViewModel
                     Int32 intPos = strNodeText.IndexOf(' ');
                     string strNodeNewText = string.Empty;
                     if (intPos == -1)
-                        strNodeNewText += $" ({intCountChilds})";
+                        strNodeNewText = strNodeText + $" ({intCountChilds})";
                     else
                         strNodeNewText = strNodeText.Substring(0, intPos - 1) + $" ({intCountChilds})";
             
                     item.Name = strNodeNewText;
                 }
+                */
             }
         }
         catch (Exception ex)
@@ -75,6 +77,12 @@ public partial class MitgliederViewModel : BaseViewModel
     [ObservableProperty] private MitgliedDetails currentMitglied = new();
     [ObservableProperty] private List<StatistikSpielerErgebnisse> statistikSpielerErgebnisse = new();
     [ObservableProperty] private List<StatistikSpieler> statistikSpieler = new();
+    [ObservableProperty] private bool btnNeuEnabled = true;
+    [ObservableProperty] private bool btnBearbeitenEnabled = false;
+    [ObservableProperty] private bool btnSpeichernEnabled = false;
+    [ObservableProperty] private bool btnDruckenEnabled = false;
+    [ObservableProperty] [NotifyPropertyChangedFor(nameof(IsFieldReadonly))] private bool areFieldsEditable = false;
+    public bool IsFieldReadonly => !AreFieldsEditable;
     
     [RelayCommand]
     public void GetInitialData()
@@ -87,7 +95,7 @@ public partial class MitgliederViewModel : BaseViewModel
     }
 
     [RelayCommand]
-    public void TvSelectedItemChanged(TreeNode selectedNode)
+    public async void TvSelectedItemChanged(TreeNode selectedNode)
     {
         try
         {
@@ -97,9 +105,14 @@ public partial class MitgliederViewModel : BaseViewModel
 
                 if (selectedNode.Mitglied != null)
                 {
-                    CurrentMitglied = _dbService.GetMitgliedDetails(selectedNode.Mitglied.ID);
-                    StatistikSpielerErgebnisse = _dbService.GetStatistikSpielerErgebnisse(selectedNode.Mitglied.ID);
-                    StatistikSpieler = _dbService.GetStatistikSpieler(selectedNode.Mitglied.ID);
+                    CurrentMitglied = await _dbService.GetMitgliedDetailsAsync(selectedNode.Mitglied.ID);
+                    StatistikSpielerErgebnisse = await _dbService.GetStatistikSpielerErgebnisseAsync(selectedNode.Mitglied.ID);
+                    StatistikSpieler = await _dbService.GetStatistikSpielerAsync(selectedNode.Mitglied.ID);
+                    
+                    BtnNeuEnabled = true;
+                    BtnBearbeitenEnabled = true;
+                    BtnSpeichernEnabled = false;
+                    BtnDruckenEnabled = true;
                 }
             }
         }
@@ -120,5 +133,44 @@ public partial class MitgliederViewModel : BaseViewModel
         // CurrentMitglied.Bemerkungen = selectedNode.Mitglied.Nachname;
         //
         // DelShowMainInfoFlyout?.Invoke($"{CurrentMitglied.Nachname} wurde ausgewählt");
+    }
+
+    [RelayCommand]
+    public void NeuesMitglied()
+    {
+        CurrentMitglied = new();
+        AreFieldsEditable = true;
+        BtnNeuEnabled = false;
+        BtnBearbeitenEnabled = false;
+        BtnSpeichernEnabled = true;
+        BtnDruckenEnabled = false;
+    }
+
+    [RelayCommand]
+    public void MitgliedBearbeiten()
+    {
+        AreFieldsEditable = true;
+        BtnNeuEnabled = false;
+        BtnBearbeitenEnabled = false;
+        BtnSpeichernEnabled = true;
+        BtnDruckenEnabled = false;
+    }
+    
+    [RelayCommand]
+    public async Task MitgliedSpeichern()
+    {
+        if (ViewManager.ShowConfirmationWindow("Wollen Sie die geänderten Daten speichern?"))
+        {
+            await _dbService.SaveMitgliedAsync(CurrentMitglied);
+            await LoadAndSetData();
+            
+            CurrentMitglied = new();
+            
+            AreFieldsEditable = false;
+            BtnNeuEnabled = true;
+            BtnBearbeitenEnabled = true;
+            BtnSpeichernEnabled = false;
+            BtnDruckenEnabled = false;
+        }
     }
 }

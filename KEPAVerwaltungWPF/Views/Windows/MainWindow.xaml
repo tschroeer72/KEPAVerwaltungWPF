@@ -100,7 +100,7 @@
                                   Background="{DynamicResource BackgroundBrush}"
                                   FontWeight="ExtraBold"
                                   Cursor="Hand"  
-                                  InputGestureText="F10"
+                                  InputGestureText="F11"
                                   Click="OpenPageOnMain">
                             <MenuItem.Header>
                                 <StackPanel Orientation="Horizontal">

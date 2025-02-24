@@ -9,13 +9,18 @@ public class DateYearOneToEmptyDateConverter : IValueConverter
     {
         try
         {
-            DateTime valDate = (DateTime)value;
-            DateTime YearOneDateTime = new();
-            if (valDate.ToShortDateString().Equals(YearOneDateTime.ToShortDateString()))
+            if (value != null)
             {
-                return string.Empty;
+                DateTime valDate = (DateTime)value;
+                DateTime YearOneDateTime = new();
+                if (valDate.ToShortDateString().Equals(YearOneDateTime.ToShortDateString()))
+                {
+                    return string.Empty;
+                }
+
+                return valDate;
             }
-            return valDate;
+            else return string.Empty;
         }
         catch (Exception)
         {

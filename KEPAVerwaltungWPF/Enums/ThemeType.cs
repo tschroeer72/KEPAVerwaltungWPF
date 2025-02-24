@@ -1,6 +1,6 @@
 ﻿namespace KEPAVerwaltungWPF.Enums;
 
-public enum DarkLight
+public enum ThemeType
 {
     Light, Dark
 }

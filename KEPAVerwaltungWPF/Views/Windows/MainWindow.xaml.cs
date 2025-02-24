@@ -61,10 +61,10 @@ public partial class MainWindow : MetroWindow
                     ShowAnleitung();
                     break;
                 case "MnuBtnLightTheme":
-                    ChangeTheme(DarkLight.Light);
+                    ChangeTheme(ThemeType.Light);
                     break;
                 case "MnuBtnDarkTheme":
-                    ChangeTheme(DarkLight.Dark);
+                    ChangeTheme(ThemeType.Dark);
                     break;
                 case "MnuBtnZoom":
                     EnableDisableZoom(!MainViewModel.ZoomActive);
@@ -82,22 +82,22 @@ public partial class MainWindow : MetroWindow
         Process.Start(psi);
     }
     
-    private void ChangeTheme(DarkLight darkLight)
+    private void ChangeTheme(ThemeType themeType)
     {
         //Resources.MergedDictionaries.Remove(Resources.MergedDictionaries.Last());
         //Resources.MergedDictionaries.Add(theme);
 
         int intLastIndex = Application.Current.Resources.MergedDictionaries.Count - 1;
-        switch (darkLight)
+        switch (themeType)
         {
-            case DarkLight.Light:
+            case ThemeType.Light:
                 Application.Current.Resources.MergedDictionaries[intLastIndex].Source = new Uri("pack://application:,,,/KEPAVerwaltungWPF;component/ThemeAndStyle/LightTheme.xaml", UriKind.RelativeOrAbsolute);
                 Properties.Settings.Default.Theme = "Light";
                 Properties.Settings.Default.Save();
                 MnuBtnLightTheme.IsEnabled = false;
                 MnuBtnDarkTheme.IsEnabled = true;
                 break;
-            case DarkLight.Dark:
+            case ThemeType.Dark:
                 Application.Current.Resources.MergedDictionaries[intLastIndex].Source = new Uri("pack://application:,,,/KEPAVerwaltungWPF;component/ThemeAndStyle/DarkTheme.xaml", UriKind.RelativeOrAbsolute);
                 Properties.Settings.Default.Theme = "Dark";
                 Properties.Settings.Default.Save();
@@ -112,12 +112,12 @@ public partial class MainWindow : MetroWindow
         switch (Properties.Settings.Default.Theme)
         {
             case "Light":
-                ChangeTheme(DarkLight.Dark);
+                ChangeTheme(ThemeType.Dark);
                 MnuBtnLightTheme.IsEnabled = true;
                 MnuBtnDarkTheme.IsEnabled = false;
                 break;
             case "Dark":
-                ChangeTheme(DarkLight.Light);
+                ChangeTheme(ThemeType.Light);
                 MnuBtnLightTheme.IsEnabled = false;
                 MnuBtnDarkTheme.IsEnabled = true;
                 break;
@@ -150,12 +150,12 @@ public partial class MainWindow : MetroWindow
         switch (Properties.Settings.Default.Theme)
         {
             case "Light":
-                ChangeTheme(DarkLight.Light);
+                ChangeTheme(ThemeType.Light);
                 MnuBtnLightTheme.IsEnabled = false;
                 MnuBtnDarkTheme.IsEnabled = true;
                 break;
             case "Dark":
-                ChangeTheme(DarkLight.Dark);
+                ChangeTheme(ThemeType.Dark);
                 MnuBtnLightTheme.IsEnabled = true;
                 MnuBtnDarkTheme.IsEnabled = false;
                 break;

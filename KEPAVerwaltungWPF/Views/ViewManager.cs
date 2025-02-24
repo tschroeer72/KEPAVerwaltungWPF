@@ -123,17 +123,17 @@ public class ViewManager
     
     public static bool ShowInformationWindow(string sMessage)
     {
-        return new InfoWindow(sMessage, IWDialogType.Information).ShowDialog() ?? false;
+        return new InfoWindow(sMessage, DialogType.Information).ShowDialog() ?? false;
     }
 
-    private static bool ShowConfirmationWindow(string sMessage)
+    public static bool ShowConfirmationWindow(string sMessage)
     {
-        return new InfoWindow(sMessage, IWDialogType.Confirmation).ShowDialog() ?? false;
+        return new InfoWindow(sMessage, DialogType.Confirmation).ShowDialog() ?? false;
     }
 
-    private static string ShowInputWindow(string sMessage)
+    public static string ShowInputWindow(string sMessage)
     {
-        var myInfoWindow = new InfoWindow(sMessage, IWDialogType.Input);
+        var myInfoWindow = new InfoWindow(sMessage, DialogType.Input);
         myInfoWindow.ShowDialog();
         return myInfoWindow.InputText;
     }

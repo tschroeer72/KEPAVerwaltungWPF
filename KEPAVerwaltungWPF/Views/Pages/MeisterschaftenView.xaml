@@ -7,151 +7,201 @@
              xmlns:mw="http://metro.mahapps.com/winfx/xaml/controls" 
              xmlns:local="clr-namespace:KEPAVerwaltungWPF.Views.Pages"
              xmlns:vm="clr-namespace:KEPAVerwaltungWPF.ViewModels"
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors" 
              mc:Ignorable="d"
              d:DesignHeight="800" d:DesignWidth="900" 
              d:DataContext="{d:DesignInstance Type=vm:MeisterschaftenViewModel}">
-    
-    <Grid Background="{DynamicResource BackgroundBrush}">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-        </Grid.RowDefinitions>
-
-        <!-- Titelzeile -->
-        <Grid Grid.Row="0" Margin="10 0">
-            <Grid HorizontalAlignment="Left">
-                <TextBlock Text="{Binding Titel}" MinWidth="200"
-                           Style="{StaticResource TitelTxtBxStyle}">
-                </TextBlock>
-            </Grid>
-        </Grid>
         
-        <!-- Inhalt -->
-        <Grid Grid.Row="1">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
-            
-            <!-- Meisterschaftenliste -->
-            <Grid Grid.Column="0" Margin="20 20">
-                <md:Card HorizontalAlignment="Left" 
-                         VerticalAlignment="Top"
-                         Background="{DynamicResource BackgroundBrush}"
-                         md:ElevationAssist.Elevation="Dp3">
-                    <StackPanel MinHeight="300" Margin="10 10">
-                        <Label Content="Meisterschaftsliste"/>
-                        <DataGrid x:Name="dgMeisterschaften"
-                                  ItemsSource="{Binding Haeuser}">
-                            <DataGrid.Columns>
-                                <DataGridTextColumn Header="Bezeichnung" Binding="{Binding AuftragID}" Width="*"/>
-                                <DataGridTextColumn Header="Beginn" Binding="{Binding ZimmerAnzahl}" Width="*"/>
-                                <DataGridTextColumn Header="Ende" Binding="{Binding Preis}" Width="*"/>
-                                <DataGridTextColumn Header="Meisterschaftstyp" Binding="{Binding Anschrift}" Width="*"/>
-                                <DataGridCheckBoxColumn Header="Aktiv" Width="*"/>
-                            </DataGrid.Columns>
-                        </DataGrid>
-                    </StackPanel>
-                </md:Card>
-                
-                <!--ProgressRing-->
-                <mw:ProgressRing
-                    IsActive="True"
-                    Visibility="{Binding IsPageBusy, Converter={StaticResource BoolToVisConverter}}"
-                    VerticalAlignment="Center"
-                    HorizontalAlignment="Center"
-                    Foreground="{DynamicResource PrimaryBrush}"
-                    Height="100" Width="100">
-                </mw:ProgressRing>
+    <UserControl.Resources>
+        <DataTemplate x:Key="DragVisualTemplate">
+            <Border Background="LightBlue" Padding="5" CornerRadius="4" Opacity="0.8">
+                <TextBlock Text="{Binding Anzeigename}" FontSize="14" FontWeight="Bold" />
+            </Border>
+        </DataTemplate>
+    </UserControl.Resources>
+    
+    <i:Interaction.Triggers>
+        <i:EventTrigger EventName="Loaded">
+            <i:InvokeCommandAction Command="{Binding GetInitialDataCommand}"/>
+        </i:EventTrigger>
+    </i:Interaction.Triggers>
+
+    
+    <AdornerDecorator>
+        <Grid Background="{DynamicResource BackgroundBrush}">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <!-- Titelzeile -->
+            <Grid Grid.Row="0" Margin="10 0">
+                <Grid HorizontalAlignment="Left">
+                    <TextBlock Text="{Binding Titel}" MinWidth="200"
+                               Style="{StaticResource TitelTxtBxStyle}">
+                    </TextBlock>
+                </Grid>
             </Grid>
             
-            <Grid Grid.Column="1" Margin="0 20">
-                <md:Card HorizontalAlignment="Left" 
-                         VerticalAlignment="Top"
-                         Background="{DynamicResource BackgroundBrush}"
-                         md:ElevationAssist.Elevation="Dp3">
-                    
-                    <StackPanel Margin="10 10">
-                        <mw:MetroAnimatedTabControl Background="{DynamicResource BackgroundBrush}"
-                                                    MinHeight="500">
-                            <mw:MetroTabItem Header="Meisterschaftsdaten"  HeaderTemplate="{StaticResource TabButtonTemplate}"
-                                             VerticalContentAlignment="Top">
-                                <WrapPanel>
-                                    <TextBox md:HintAssist.Hint="Bezeichnung" 
-                                             Margin="10 10"
-                                             MinWidth="150"
-                                             Text="{Binding CurrentMitglied.Anrede, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                             Style="{StaticResource TextBxAngabenStyle}">
-                                    </TextBox>
-                                    <DatePicker md:HintAssist.Hint="Beginn"
-                                                Margin="10 10"
-                                                SelectedDate="{Binding CurrentMitglied.Geburtsdatum, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource DateYearOneToEmptyDateConverter}}"
-                                                MinWidth="120">
-                                    </DatePicker>
-                                    <DatePicker md:HintAssist.Hint="Ende"
-                                                Margin="10 10"
-                                                SelectedDate="{Binding CurrentMitglied.Geburtsdatum, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource DateYearOneToEmptyDateConverter}}"
-                                                MinWidth="120">
-                                    </DatePicker>
-                                    <ComboBox md:HintAssist.Hint="Meisterschaftstyp"
-                                              MinWidth="150">
-                                        
-                                    </ComboBox>
-                                    <CheckBox Content="Aktiv"
-                                              Margin="10 10"
-                                              IsChecked="{Binding CurrentMitglied.Ehemaliger, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                              Style="{StaticResource MaterialDesignCheckBox}">
-                                    </CheckBox>
-                                </WrapPanel>
-                            </mw:MetroTabItem>
-                            
-                            <mw:MetroTabItem Header="Mitspieler"  HeaderTemplate="{StaticResource TabButtonTemplate}"
-                                             VerticalContentAlignment="Top">
-                                <StackPanel Margin="10 10">
-                                    <Label Content="Aktive Mitglieder"/>
-                                    <DataGrid x:Name="dgAktiveMitglieder"
-                                              ItemsSource="{Binding Haeuser}">
-                                        <DataGrid.Columns>
-                                            <DataGridTextColumn Header="ID" Binding="{Binding AuftragID}" Width="*"/>
-                                            <DataGridTextColumn Header="Anzeigename" Binding="{Binding ZimmerAnzahl}" Width="*"/>
-                                            <DataGridTextColumn Header="Vorname" Binding="{Binding Preis}" Width="*"/>
-                                            <DataGridTextColumn Header="Nachname" Binding="{Binding Anschrift}" Width="*"/>
-                                            <DataGridTextColumn Header="Spitzname" Binding="{Binding Anschrift}" Width="*"/>
-                                        </DataGrid.Columns>
-                                    </DataGrid>
-                                    
-                                    <Label Content="Aktive Spieler" Margin="0 20 0 0"/>
-                                    <DataGrid x:Name="dgAktiveSpieler"
-                                              ItemsSource="{Binding Haeuser}">
-                                        <DataGrid.Columns>
-                                            <DataGridTextColumn Header="ID" Binding="{Binding AuftragID}" Width="*"/>
-                                            <DataGridTextColumn Header="Anzeigename" Binding="{Binding ZimmerAnzahl}" Width="*"/>
-                                            <DataGridTextColumn Header="Vorname" Binding="{Binding Preis}" Width="*"/>
-                                            <DataGridTextColumn Header="Nachname" Binding="{Binding Anschrift}" Width="*"/>
-                                            <DataGridTextColumn Header="Spitzname" Binding="{Binding Anschrift}" Width="*"/>
-                                        </DataGrid.Columns>
-                                    </DataGrid>
-                                </StackPanel>
-                            </mw:MetroTabItem>
-                        </mw:MetroAnimatedTabControl>
-                        <StackPanel Orientation="Horizontal">
-                            <Button Margin="8,4,8,8"
-                                    HorizontalAlignment="Left"
-                                    Content="Neue Meisterschaft">
-                            </Button>
-                            <Button Margin="8,4,8,8"
-                                    HorizontalAlignment="Left"
-                                    Content="Bearbeiten">
-                            </Button>
-                            <Button Margin="8,4,8,8"
-                                    HorizontalAlignment="Left"
-                                    Content="Speichern">
-                            </Button>
+            <!-- Inhalt -->
+            <Grid Grid.Row="1">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                
+                <!-- Meisterschaftenliste -->
+                <Grid Grid.Column="0" Margin="20 20">
+                    <md:Card HorizontalAlignment="Left" 
+                             VerticalAlignment="Top"
+                             Background="{DynamicResource BackgroundBrush}"
+                             md:ElevationAssist.Elevation="Dp3">
+                        <StackPanel MinHeight="300" Margin="10 10">
+                            <Label Content="Meisterschaftsliste"
+                                   Margin="0 0 0 5"
+                                   Style="{StaticResource CardHeaderStyle}"/>
+                            <DataGrid x:Name="dgMeisterschaften"
+                                      ItemsSource="{Binding Meisterschaften}">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="ID" Binding="{Binding ID}" Visibility="Collapsed" />
+                                    <DataGridTextColumn Header="Bezeichnung" Binding="{Binding Bezeichnung}" MinWidth="260" Width="*"/>
+                                    <DataGridTextColumn Header="Beginn" Binding="{Binding Beginn, StringFormat=\{0:dd.MM.yyyy\}}" MinWidth="130" Width="*"/>
+                                    <DataGridTextColumn Header="Ende" Binding="{Binding Ende, StringFormat=\{0:dd.MM.yyyy\}}" MinWidth="130" Width="*"/>
+                                    <DataGridTextColumn Header="Meisterschaftstyp" Binding="{Binding Meisterschaftstyp}" MinWidth="260" Width="*"/>
+                                    <DataGridCheckBoxColumn Header="Aktiv" MinWidth="60" Width="*"/>
+                                </DataGrid.Columns>
+                                
+                                <i:Interaction.Triggers>
+                                    <i:EventTrigger EventName="SelectionChanged">
+                                        <i:InvokeCommandAction Command="{Binding SelectMeisterschaftCommand}"
+                                                               CommandParameter="{Binding ElementName=dgMeisterschaften, Path=SelectedItem}">
+                                        </i:InvokeCommandAction>
+                                    </i:EventTrigger>
+                                </i:Interaction.Triggers>
+                            </DataGrid>
                         </StackPanel>
+                    </md:Card>
+                    
+                    <!--ProgressRing-->
+                    <mw:ProgressRing
+                        IsActive="True"
+                        Visibility="{Binding IsPageBusy, Converter={StaticResource BoolToVisConverter}}"
+                        VerticalAlignment="Center"
+                        HorizontalAlignment="Center"
+                        Foreground="{DynamicResource PrimaryBrush}"
+                        Height="100" Width="100">
+                    </mw:ProgressRing>
+                </Grid>
+                
+                <Grid Grid.Column="1" Margin="0 20">
+                    <md:Card HorizontalAlignment="Left" 
+                             VerticalAlignment="Top"
+                             Background="{DynamicResource BackgroundBrush}"
+                             md:ElevationAssist.Elevation="Dp3">
+                        
+                        <StackPanel Margin="10 10">
+                            <mw:MetroAnimatedTabControl Background="{DynamicResource BackgroundBrush}"
+                                                        MinHeight="500">
+                                <mw:MetroTabItem Header="Meisterschaftsdaten"  HeaderTemplate="{StaticResource TabButtonTemplate}"
+                                                 VerticalContentAlignment="Top">
+                                    <WrapPanel>
+                                        <TextBox md:HintAssist.Hint="Bezeichnung" 
+                                                 Margin="10 10"
+                                                 MinWidth="150"
+                                                 Text="{Binding CurrentMeisterschaft.Bezeichnung, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                 Style="{StaticResource TextBxAngabenStyle}">
+                                        </TextBox>
+                                        <DatePicker md:HintAssist.Hint="Beginn"
+                                                    Margin="10 10"
+                                                    SelectedDate="{Binding CurrentMeisterschaft.Beginn, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource DateYearOneToEmptyDateConverter}}"
+                                                    MinWidth="120">
+                                        </DatePicker>
+                                        <DatePicker md:HintAssist.Hint="Ende"
+                                                    Margin="10 10"
+                                                    SelectedDate="{Binding CurrentMeisterschaft.Ende, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource DateYearOneToEmptyDateConverter}}"
+                                                    MinWidth="120">
+                                        </DatePicker>
+                                        <ComboBox md:HintAssist.Hint="Meisterschaftstyp"
+                                                  MinWidth="150"
+                                                  ItemsSource="{Binding Meisterschaftstypen}"
+                                                  ItemContainerStyle="{StaticResource ComboBoxItemIDValueStyle}"
+                                                  SelectedItem="{Binding CurrentMeisterschaftstyp}">
+                                            <ComboBox.ItemTemplate>
+                                                <DataTemplate>
+                                                    <StackPanel Orientation="Horizontal">
+                                                        <Label Content="{Binding ID}" Visibility="Collapsed"/>
+                                                        <Label Content="{Binding Value}"/>
+                                                    </StackPanel>
+                                                </DataTemplate>
+                                            </ComboBox.ItemTemplate>
+                                        </ComboBox>
+                                        <CheckBox Content="Aktiv"
+                                                  Margin="10 10"
+                                                  IsChecked="{Binding CurrentMeisterschaft.Aktiv, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                  Style="{StaticResource MaterialDesignCheckBox}">
+                                        </CheckBox>
+                                    </WrapPanel>
+                                </mw:MetroTabItem>
+                                
+                                <mw:MetroTabItem Header="Mitspieler"  HeaderTemplate="{StaticResource TabButtonTemplate}"
+                                                 VerticalContentAlignment="Top">
+                                    <StackPanel Margin="10 10">
+                                        <Label Content="Aktive Mitglieder"/>
+                                        <DataGrid x:Name="dgAktiveMitglieder"
+                                                  ItemsSource="{Binding AktiveMitglieder}"
+                                                  AllowDrop="True"
+                                                  DragEnter="DataGrid_DragEnter"
+                                                  Drop="DataGrid_Drop"
+                                                  DragOver="DataGrid_DragOver"
+                                                  PreviewMouseLeftButtonDown="DataGrid_PreviewMouseLeftButtonDown">
+                                            <DataGrid.Columns>
+                                                <DataGridTextColumn Header="ID" Binding="{Binding ID}" Visibility="Collapsed" Width="*"/>
+                                                <DataGridTextColumn Header="Anzeigename" Binding="{Binding Anzeigename}" MinWidth="200" Width="*"/>
+                                                <DataGridTextColumn Header="Vorname" Binding="{Binding Vorname}" MinWidth="100" Width="*"/>
+                                                <DataGridTextColumn Header="Nachname" Binding="{Binding Nachname}" MinWidth="100" Width="*"/>
+                                                <DataGridTextColumn Header="Spitzname" Binding="{Binding Spitzname}" MinWidth="100" Width="*"/>
+                                            </DataGrid.Columns>
+                                        </DataGrid>
+                                        
+                                        <Label Content="Aktive Spieler" Margin="0 20 0 0"/>
+                                        <DataGrid x:Name="dgAktiveSpieler"
+                                                  ItemsSource="{Binding AktiveTeilnehmer}"
+                                                  AllowDrop="True"
+                                                  DragEnter="DataGrid_DragEnter"
+                                                  Drop="DataGrid_Drop"
+                                                  DragOver="DataGrid_DragOver"
+                                                  PreviewMouseLeftButtonDown="DataGrid_PreviewMouseLeftButtonDown">
+                                            <DataGrid.Columns>
+                                                <DataGridTextColumn Header="ID" Binding="{Binding ID}" Visibility="Collapsed" Width="*"/>
+                                                <DataGridTextColumn Header="Anzeigename" Binding="{Binding Anzeigename}" MinWidth="200" Width="*"/>
+                                                <DataGridTextColumn Header="Vorname" Binding="{Binding Vorname}" MinWidth="100" Width="*"/>
+                                                <DataGridTextColumn Header="Nachname" Binding="{Binding Nachname}" MinWidth="100" Width="*"/>
+                                                <DataGridTextColumn Header="Spitzname" Binding="{Binding Spitzname}" MinWidth="100" Width="*"/>
+                                            </DataGrid.Columns>
+                                        </DataGrid>
+                                    </StackPanel>
+                                </mw:MetroTabItem>
+                            </mw:MetroAnimatedTabControl>
+                            
+                            <StackPanel Orientation="Horizontal">
+                                <Button Margin="8,4,8,8"
+                                        HorizontalAlignment="Left"
+                                        Content="Neue Meisterschaft">
+                                </Button>
+                                <Button Margin="8,4,8,8"
+                                        HorizontalAlignment="Left"
+                                        Content="Bearbeiten">
+                                </Button>
+                                <Button Margin="8,4,8,8"
+                                        HorizontalAlignment="Left"
+                                        Content="Speichern">
+                                </Button>
+                            </StackPanel>
 
-                    </StackPanel>
-                </md:Card>
+                        </StackPanel>
+                    </md:Card>
+                </Grid>
             </Grid>
         </Grid>
-    </Grid>
+    </AdornerDecorator>
 </UserControl>

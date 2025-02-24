@@ -8,6 +8,7 @@
     <Conv:BoolToVisibilityConverter x:Key="BoolToVisConverter"/>
     <Conv:MagnifyEnumToMagnifyTypeConverter x:Key="MagnifyEnumToMagnifyTypeConverter" />
     <Conv:DateYearOneToEmptyDateConverter x:Key="DateYearOneToEmptyDateConverter" />
+    <Conv:BoolToCheckBoxImageConverter x:Key="BoolToCheckBoxImageConverter" />
     
     <!--Button-->
     <Style x:Key="GoBackBtnStyle" TargetType="Button" BasedOn="{StaticResource MaterialDesignPaperButton}">
@@ -41,6 +42,9 @@
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
                             <Setter TargetName="BtnCard" Property="md:ElevationAssist.Elevation" Value="Dp6"/>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter Property="Foreground" Value="{DynamicResource DisabledBrush}"/>
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
@@ -221,50 +225,67 @@
         <Setter Property="FontWeight" Value="ExtraBold"/>
     </Style>
     
-    <!-- Label -->
-    <!-- <Style TargetType="Label"> -->
-    <!--     <Setter Property="Foreground" Value="{DynamicResource PrimaryBrush}" /> -->
-    <!--     <Setter Property="FontSize" Value="20"/> -->
-    <!-- </Style> -->
+    <!-- Card Header Label -->
+    <Style x:Key="CardHeaderStyle" TargetType="Label">
+        <Setter Property="Foreground" Value="{DynamicResource PrimaryBrush}" />
+        <Setter Property="FontWeight" Value="Bold"/>
+        <Setter Property="FontSize" Value="20"/>
+    </Style>
     
     <!--TextBox-->
     <Style TargetType="TextBox" BasedOn="{StaticResource MaterialDesignFloatingHintTextBox}">
         <Setter Property="FontSize" Value="16"/>
         <Setter Property="Cursor" Value="Arrow"/>
-        <Setter Property="FontWeight" Value="Bold"/>
+        <Setter Property="FontWeight" Value="Regular"/>
         <Setter Property="BorderBrush" Value="{DynamicResource PrimaryBrush}"/>
         <Setter Property="md:HintAssist.Foreground" Value="{DynamicResource PrimaryBrush}"/>
         <Setter Property="md:HintAssist.HintOpacity" Value="1"/>
-        <Setter Property="md:HintAssist.FloatingScale" Value="1.1"/>
+        <Setter Property="md:HintAssist.FloatingScale" Value="1.0"/>
     </Style>
 
     <Style x:Key="TextBxAngabenStyle" TargetType="TextBox" BasedOn="{StaticResource MaterialDesignFloatingHintTextBox}">
         <Setter Property="FontSize" Value="16"/>
         <Setter Property="Cursor" Value="Arrow"/>
-        <Setter Property="FontFamily" Value="Roboto"/>
+        <!-- <Setter Property="FontFamily" Value="Roboto"/> -->
         <Setter Property="Foreground" Value="{DynamicResource PrimaryBrush}"/>
         <Setter Property="BorderBrush" Value="{DynamicResource PrimaryBrush}"/>                
         <Setter Property="md:HintAssist.Foreground" Value="{DynamicResource PrimaryBrush}"/>
         <Setter Property="md:HintAssist.HintOpacity" Value="1"/>
-        <Setter Property="md:HintAssist.FloatingScale" Value="1.1"/>                
+        <Setter Property="md:HintAssist.FloatingScale" Value="1.0"/>                
         <Setter Property="md:TextFieldAssist.UnderlineBrush" Value="{DynamicResource PrimaryBrush}"/>                
-        <!-- <Setter Property="md:ValidationAssist.PopupPlacement" Value="Bottom"/> -->
-        <!-- <Setter Property="md:ValidationAssist.UsePopup" Value="False"/>                 -->
-        <!-- <Setter Property="md:ValidationAssist.Background" Value="Transparent"/> -->
-        <!-- <Setter Property="md:ValidationAssist.OnlyShowOnFocus" Value="True"/>                 -->
+        <Setter Property="md:ValidationAssist.PopupPlacement" Value="Bottom"/>
+        <Setter Property="md:ValidationAssist.UsePopup" Value="False"/>
+        <Setter Property="md:ValidationAssist.Background" Value="Transparent"/>
+        <Setter Property="md:ValidationAssist.OnlyShowOnFocus" Value="True"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
         <Setter Property="UseLayoutRounding" Value="True"/>
     </Style>
     
+    <!-- Checkbox -->
+    <Style TargetType="CheckBox" BasedOn="{StaticResource MaterialDesignCheckBox}">
+        <Setter Property="FontSize" Value="16"/>
+        <Setter Property="Foreground" Value="{DynamicResource PrimaryBrush}"/>
+    </Style>
+    
     <!--ComboBoxItem und ComboBox-->
     <!--ComboBoxItem-->
-    <Style x:Key="ComboBoxItemStyle" TargetType="ComboBoxItem" BasedOn="{StaticResource MaterialDesignComboBoxItemStyle}">
+    <Style x:Key="ComboBoxItemIDValueStyle" TargetType="ComboBoxItem" BasedOn="{StaticResource MaterialDesignComboBoxItemStyle}">
         <Setter Property="SnapsToDevicePixels" Value="True"/>
         <Setter Property="UseLayoutRounding" Value="True"/>
         <Setter Property="Foreground" Value="{DynamicResource PrimaryBrush}"/>
         <Setter Property="Background" Value="{DynamicResource BackgroundBrush}"/>
         <Setter Property="FontSize" Value="16"/>
         <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ComboBoxItem">
+                    <StackPanel Orientation="Horizontal">
+                        <Label Content="{Binding ID}" Visibility="Collapsed"/>
+                        <Label Content="{Binding Value}"/>
+                    </StackPanel>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
         <Style.Triggers>
             <Trigger Property="IsMouseOver" Value="True">
                 <Setter Property="Background" Value="{DynamicResource HoverBrush}"/>
@@ -275,9 +296,35 @@
         </Style.Triggers>
     </Style>
 
+    <Style x:Key="ComboBoxItemValueStyle" TargetType="ComboBoxItem" BasedOn="{StaticResource MaterialDesignComboBoxItemStyle}">
+        <Setter Property="SnapsToDevicePixels" Value="True"/>
+        <Setter Property="UseLayoutRounding" Value="True"/>
+        <Setter Property="Foreground" Value="{DynamicResource PrimaryBrush}"/>
+        <Setter Property="Background" Value="{DynamicResource BackgroundBrush}"/>
+        <Setter Property="FontSize" Value="16"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ComboBoxItem">
+                    <StackPanel Orientation="Horizontal">
+                        <Label Content="{Binding }"/>
+                    </StackPanel>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Background" Value="{DynamicResource HoverBrush}"/>
+            </Trigger>
+            <Trigger Property="IsSelected" Value="True">
+                <Setter Property="Background" Value="{DynamicResource PrimaryBrush}"/>
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+    
     <!--ComboBox-->
     <Style TargetType="ComboBox" BasedOn="{StaticResource MaterialDesignComboBox}">
-        <Setter Property="ItemContainerStyle" Value="{StaticResource ComboBoxItemStyle}"/>
+        <!-- <Setter Property="ItemContainerStyle" Value="{StaticResource ComboBoxItemStyle}"/> -->
         <Setter Property="SnapsToDevicePixels" Value="True"/>
         <Setter Property="UseLayoutRounding" Value="True"/>
         <Setter Property="VerticalAlignment" Value="Center"/>
@@ -286,26 +333,54 @@
         <Setter Property="BorderThickness" Value="0 0 0 1"/>
         <Setter Property="BorderBrush" Value="{DynamicResource PrimaryBrush}"/>
         <Setter Property="md:TextFieldAssist.UnderlineBrush" Value="{DynamicResource PrimaryBrush}"/>
+        <Setter Property="md:HintAssist.IsFloating" Value="True"/>
+        <Setter Property="md:HintAssist.FloatingScale" Value="1.0"/>
+        <Setter Property="md:HintAssist.Foreground" Value="{DynamicResource PrimaryBrush}"/>
     </Style>
     
     <!--DatePicker Property="DisplayDateStart" Value="{x:Static system:DateTime.Now}"-->
     <Style TargetType="DatePicker" BasedOn="{StaticResource MaterialDesignFloatingHintDatePicker}">
         <Setter Property="SelectedDateFormat" Value="Short"/>
+        <Setter Property="Foreground" Value="{DynamicResource PrimaryBrush}"/>
         <Setter Property="FontSize" Value="16"/>
-        <Setter Property="Background" Value="Transparent"/>
+        <!-- <Setter Property="Background" Value="Transparent"/> -->
         <Setter Property="BorderBrush" Value="{DynamicResource PrimaryBrush}"/>
         <Setter Property="md:TextFieldAssist.UnderlineBrush" Value="{DynamicResource PrimaryBrush}"/>
-        <Setter Property="md:HintAssist.FloatingScale" Value="1.1"/>
+        <Setter Property="md:HintAssist.FloatingScale" Value="1.0"/>
         <Setter Property="md:HintAssist.Foreground" Value="{DynamicResource PrimaryBrush}"/>
     </Style>
+    
+    <!--<Style x:Key="TabControlWrap" TargetType="TabControl" BasedOn="{StaticResource MahApps.Styles.TabControl.Animated}">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="TabControl">
+                    <Grid>
+                        ~1~ Tab Headers @1@
+                        <DockPanel>
+                            <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+                                <WrapPanel IsItemsHost="True" Orientation="Horizontal" />
+                            </ScrollViewer>
+                        </DockPanel>
+
+                        ~1~ Tab Content @1@
+                        <ContentPresenter ContentSource="SelectedContent" />
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>-->
     
     <!--TabButtonTemplate-->
     <DataTemplate x:Key="TabButtonTemplate" DataType="Border">
         <Border MinWidth="150">
             <Border BorderBrush="{DynamicResource PrimaryBrush}"
-                    Width="{Binding}" Height="35" Cursor="Hand" Margin="4" 
+                    Width="{Binding}" 
+                    Height="30" 
+                    Cursor="Hand" 
+                    Margin="4" 
                     CornerRadius="10">
-                <Label Content="{Binding }" FontSize="20" 
+                <Label Content="{Binding }" 
+                       FontSize="18" 
                        HorizontalAlignment="Center" 
                        VerticalAlignment="Center" 
                        VerticalContentAlignment="Center"
@@ -352,7 +427,7 @@
         <Setter Property="UseLayoutRounding" Value="True"/>
         <Setter Property="Height" Value="30"/>
         <Setter Property="Padding" Value="6"/>
-        <Setter Property="FontSize" Value="22"/>
+        <Setter Property="FontSize" Value="18"/>
         <Setter Property="FontWeight" Value="Bold"/>
         <Setter Property="Foreground" Value="{DynamicResource BackgroundBrush}"/>
         <Setter Property="Cursor" Value="Hand"/>
@@ -374,17 +449,16 @@
     <Style TargetType="{x:Type DataGridCell}" BasedOn="{ StaticResource MaterialDesignDataGridCell}">
         <Setter Property="Height" Value="38"/>
         <Setter Property="Padding" Value="6 6"/>
-        <Setter Property="FontSize" Value="20"/>
+        <Setter Property="FontSize" Value="16"/>
         <Setter Property="FontWeight" Value="Bold"/>
         <Setter Property="Background" Value="Transparent"/>
-        <Setter Property="Foreground" Value="{DynamicResource BackgroundBrush}"/>
+        <Setter Property="Foreground" Value="{DynamicResource PrimaryBrush}"/>
         <Setter Property="BorderThickness" Value="0"/>
         <Style.Triggers>
             <Trigger Property="IsSelected" Value="True">
-                <Setter Property="FontSize" Value="24"/>
                 <Setter Property="Padding" Value="0 4"/>
-                <Setter Property="Foreground" Value="{DynamicResource PrimaryBrush}"/>
-                <Setter Property="Background" Value="{DynamicResource HoverBrush}"/>
+                <Setter Property="Foreground" Value="{DynamicResource BackgroundBrush}"/>
+                <Setter Property="Background" Value="{DynamicResource PrimaryBrush}"/>
             </Trigger>
         </Style.Triggers>
     </Style>
@@ -393,11 +467,12 @@
         <Setter Property="Height" Value="38"/>
         <Setter Property="BorderThickness" Value="0 0 0 1"/>
         <Setter Property="BorderBrush" Value="{DynamicResource HoverBrush}"/>
-        <Setter Property="Background" Value="White"/>
+        <Setter Property="Background" Value="{DynamicResource BackgroundBrush}"/>
         <Setter Property="Cursor" Value="Hand"/>
         <Style.Triggers>
             <Trigger Property="DataGridRow.IsMouseOver" Value="True">
-                <Setter Property="Background" Value="LightGray"/>
+                <Setter Property="Background" Value="{DynamicResource HoverBrush}"/>
+                <Setter Property="Foreground" Value="{DynamicResource BackgroundBrush}"/>
                 <Setter Property="BorderThickness" Value="0"/>
             </Trigger>
 

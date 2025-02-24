@@ -1,5 +1,6 @@
 ﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <SolidColorBrush x:Key="DisabledBrush" Color="#888888"/>
     <SolidColorBrush x:Key="PrimaryBrush" Color="#DDDDDD"/>
     <SolidColorBrush x:Key="PrimaryAccentBrush" Color="#999999"/>
     <SolidColorBrush x:Key="SubMenuPrimary" Color="#313031"/>

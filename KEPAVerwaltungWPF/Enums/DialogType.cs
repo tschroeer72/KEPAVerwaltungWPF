@@ -1,6 +1,6 @@
 ﻿namespace KEPAVerwaltungWPF.Enums;
 
-public enum IWDialogType
+public enum DialogType
 {
     Information, Confirmation, Input
 }

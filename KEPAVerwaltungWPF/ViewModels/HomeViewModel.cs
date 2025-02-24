@@ -1,20 +1,26 @@
 ﻿using CommunityToolkit.Mvvm.Input;
+using KEPAVerwaltungWPF.Models.Local;
+using KEPAVerwaltungWPF.Services;
 
 namespace KEPAVerwaltungWPF.ViewModels;
 
 public partial class HomeViewModel : BaseViewModel
 {
-    public HomeViewModel()
+    private readonly DBService _dbService;
+
+    public HomeViewModel(DBService dbService)
     {
         Titel = "Home";
+        _dbService = dbService;
     }
 
     [RelayCommand]
-    public  void GetInitialData()
+    public async void GetInitialData()
     {
         if (!IsViewModelLoaded)
         {
             //Datenbankabfrage
+            //await _dbService.UpdateLocalDBAsync();
         }
 
         IsViewModelLoaded = true;

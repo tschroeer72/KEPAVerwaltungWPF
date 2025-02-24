@@ -17,9 +17,4 @@ public partial class MitgliederView : UserControl
         MitgliederViewModel.InitBaseViewModelDelegateAndEvents();
     }
     
-    private void ButtonBase_OnClick(object sender, RoutedEventArgs e)
-    {
-        var m = MitgliederViewModel.CurrentMitglied;
-        Console.WriteLine(m);
-    }
 }

@@ -22,10 +22,8 @@
                 <!-- Eigene Styles und Themes-->
                 <ResourceDictionary Source="ThemeAndStyle/Style.xaml"/> 
                 <ResourceDictionary Source="ThemeAndStyle/LightTheme.xaml" />
-                
-                
-                
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
+        
     </Application.Resources>
 </Application>

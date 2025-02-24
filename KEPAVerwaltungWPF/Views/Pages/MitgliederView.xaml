@@ -7,7 +7,9 @@
              xmlns:mw="http://metro.mahapps.com/winfx/xaml/controls" 
              xmlns:local="clr-namespace:KEPAVerwaltungWPF.Views.Pages"
              xmlns:vm="clr-namespace:KEPAVerwaltungWPF.ViewModels"
-             xmlns:i="http://schemas.microsoft.com/xaml/behaviors" 
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+             xmlns:dtOs="clr-namespace:KEPAVerwaltungWPF.DTOs"
+             xmlns:helper="clr-namespace:KEPAVerwaltungWPF.Helper"
              mc:Ignorable="d"
              d:DesignHeight="800" d:DesignWidth="900"
              d:DataContext="{d:DesignInstance Type=vm:MitgliederViewModel}">
@@ -17,6 +19,172 @@
             <i:InvokeCommandAction Command="{Binding GetInitialDataCommand}"/>
         </i:EventTrigger>
     </i:Interaction.Triggers>
+    
+    <UserControl.Resources>
+        
+        <Style TargetType="TreeView">
+            <Setter Property="Background" Value="{DynamicResource BackgroundBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource PrimaryBrush}" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="Padding" Value="5" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TreeView">
+                        <Border Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}">
+                            <ScrollViewer Focusable="False">
+                                <ItemsPresenter />
+                            </ScrollViewer>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        
+           
+         <Style TargetType="TreeViewItem" BasedOn="{StaticResource MaterialDesignTreeViewItem}">
+             <Setter Property="Background" Value="{DynamicResource BackgroundBrush}"/>
+             <Setter Property="FontSize" Value="14" />
+             <Setter Property="Padding" Value="4,2,2,2" />
+         </Style> 
+        
+        <!--
+        <helper:TreeNodeTemplateSelector x:Key="TreeNodeTemplateSelector"
+                                         ParentTemplate="{StaticResource ParentTemplate}"
+                                         ChildTemplate="{StaticResource ChildTemplate}" />
+        
+        -->
+        
+        <HierarchicalDataTemplate x:Key="ParentTemplate" DataType="{x:Type dtOs:TreeNode}" ItemsSource="{Binding Children}">
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="{Binding Name}" Foreground="{DynamicResource PrimaryBrush}"/>
+                <TextBlock Text=" ("  Foreground="{DynamicResource PrimaryBrush}"/>
+                <TextBlock Text="{Binding Children.Count}"  Foreground="{DynamicResource PrimaryBrush}"/>
+                <TextBlock Text=")"  Foreground="{DynamicResource PrimaryBrush}"/>
+            </StackPanel>
+        </HierarchicalDataTemplate>
+
+        <!--
+        <DataTemplate x:Key="ChildTemplate">
+            <TextBlock Text="{Binding Name}" Foreground="{DynamicResource PrimaryBrush}" />
+        </DataTemplate>
+        -->
+        
+        <!-- <Style TargetType="TreeViewItem" BasedOn="{StaticResource MaterialDesignTreeViewItem}"> -->
+        <!--     <Setter Property="md:TreeViewAssist.ExpanderSize" Value="32" /> -->
+        <!--     <Setter Property="md:TreeViewAssist.ShowSelection" Value="true" /> -->
+        <!-- </Style> -->
+        <!-- <HierarchicalDataTemplate DataType="{x:Type dtOs:TreeNode}"> -->
+        <!--     <TextBlock Margin="3,2" Text="{Binding Name}" /> -->
+        <!-- </HierarchicalDataTemplate> -->
+        <!-- -->
+        <!-- <DataTemplate DataType="{x:Type dtOs:TreeNode}"> -->
+        <!--     <TextBlock Margin="3,2" -->
+        <!--                Text="{Binding Name}" /> -->
+        <!-- </DataTemplate> -->
+        
+        <!-- ~1~ Farben und Ressourcen @1@ -->
+        <!-- <SolidColorBrush x:Key="TreeViewBackground" Color="LightGray" /> -->
+        <!-- <SolidColorBrush x:Key="TreeViewItemHoverBrush" Color="LightBlue" /> -->
+        <!-- <SolidColorBrush x:Key="TreeViewItemSelectedBrush" Color="CornflowerBlue" /> -->
+        <!-- <SolidColorBrush x:Key="TreeViewItemForeground" Color="Black" /> -->
+        <!-- <SolidColorBrush x:Key="TreeViewItemSelectedForeground" Color="White" /> -->
+        <!-- -->
+        <!-- ~1~ Style für TreeView @1@ -->
+        <!-- <Style TargetType="TreeView"> -->
+        <!--     <Setter Property="Background" Value="{StaticResource TreeViewBackground}" /> -->
+        <!--     <Setter Property="BorderBrush" Value="Gray" /> -->
+        <!--     <Setter Property="BorderThickness" Value="1" /> -->
+        <!--     <Setter Property="Padding" Value="5" /> -->
+        <!--     <Setter Property="Template"> -->
+        <!--         <Setter.Value> -->
+        <!--             <ControlTemplate TargetType="TreeView"> -->
+        <!--                 <Border Background="{TemplateBinding Background}" -->
+        <!--                         BorderBrush="{TemplateBinding BorderBrush}" -->
+        <!--                         BorderThickness="{TemplateBinding BorderThickness}"> -->
+        <!--                     <ScrollViewer Focusable="False"> -->
+        <!--                         <ItemsPresenter /> -->
+        <!--                     </ScrollViewer> -->
+        <!--                 </Border> -->
+        <!--             </ControlTemplate> -->
+        <!--         </Setter.Value> -->
+        <!--     </Setter> -->
+        <!-- </Style> -->
+        <!-- -->
+        <!-- ~1~ Style für TreeViewItem @1@ -->
+        <!-- <Style TargetType="TreeViewItem"> -->
+        <!--     <Setter Property="FontSize" Value="14" /> -->
+        <!--     <Setter Property="Padding" Value="4,2,2,2" /> -->
+        <!--     <Setter Property="Template"> -->
+        <!--         <Setter.Value> -->
+        <!--             <ControlTemplate TargetType="TreeViewItem"> -->
+        <!--                 <StackPanel> -->
+        <!--                     ~1~ Header-Container @1@ -->
+        <!--                     <Border x:Name="Bd" -->
+        <!--                             Background="Transparent" -->
+        <!--                             Padding="{TemplateBinding Padding}"> -->
+        <!--                         <Grid> -->
+        <!--                             <Grid.ColumnDefinitions> -->
+        <!--                                 <ColumnDefinition Width="Auto" /> -->
+        <!--                                 <ColumnDefinition Width="*" /> -->
+        <!--                             </Grid.ColumnDefinitions> -->
+        <!--                             ~1~ ToggleButton für Expand/Collapse @1@ -->
+        <!--                             <ToggleButton x:Name="Expander" -->
+        <!--                                           Width="16" Height="16" -->
+        <!--                                           IsChecked="{Binding IsExpanded, RelativeSource={RelativeSource TemplatedParent}}" -->
+        <!--                                           Content="►" -->
+        <!--                                           VerticalAlignment="Center" -->
+        <!--                                           HorizontalAlignment="Center"> -->
+        <!--                                 <ToggleButton.Style> -->
+        <!--                                     <Style TargetType="ToggleButton"> -->
+        <!--                                         <Setter Property="Template"> -->
+        <!--                                             <Setter.Value> -->
+        <!--                                                 <ControlTemplate TargetType="ToggleButton"> -->
+        <!--                                                     <ContentPresenter /> -->
+        <!--                                                 </ControlTemplate> -->
+        <!--                                             </Setter.Value> -->
+        <!--                                         </Setter> -->
+        <!--                                     </Style> -->
+        <!--                                 </ToggleButton.Style> -->
+        <!--                             </ToggleButton> -->
+        <!--                             ~1~ Header-Inhalt @1@ -->
+        <!--                             <ContentPresenter Grid.Column="1" -->
+        <!--                                               ContentSource="Header" -->
+        <!--                                               RecognizesAccessKey="True" /> -->
+        <!--                         </Grid> -->
+        <!--                     </Border> -->
+        <!--                     ~1~ Sub-Items @1@ -->
+        <!--                     <ItemsPresenter x:Name="ItemsHost" /> -->
+        <!--                 </StackPanel> -->
+        <!--                 <ControlTemplate.Triggers> -->
+        <!--                     ~1~ Trigger für IsSelected @1@ -->
+        <!--                     <Trigger Property="IsSelected" Value="True"> -->
+        <!--                         <Setter TargetName="Bd" Property="Background" Value="{StaticResource TreeViewItemSelectedBrush}" /> -->
+        <!--                         ~1~ <Setter TargetName="Bd" Property="Foreground" Value="{StaticResource TreeViewItemSelectedForeground}" /> @1@ -->
+        <!--                     </Trigger> -->
+        <!--                     ~1~ Trigger für MouseOver @1@ -->
+        <!--                     <Trigger Property="IsMouseOver" Value="True"> -->
+        <!--                         <Setter TargetName="Bd" Property="Background" Value="{StaticResource TreeViewItemHoverBrush}" /> -->
+        <!--                     </Trigger> -->
+        <!--                     ~1~ Trigger für Expand @1@ -->
+        <!--                     <Trigger SourceName="Expander" Property="IsChecked" Value="True"> -->
+        <!--                         <Setter TargetName="ItemsHost" Property="Visibility" Value="Visible" /> -->
+        <!--                     </Trigger> -->
+        <!--                     <Trigger SourceName="Expander" Property="IsChecked" Value="False"> -->
+        <!--                         <Setter TargetName="ItemsHost" Property="Visibility" Value="Collapsed" /> -->
+        <!--                     </Trigger> -->
+        <!--                 </ControlTemplate.Triggers> -->
+        <!--             </ControlTemplate> -->
+        <!--         </Setter.Value> -->
+        <!--     </Setter> -->
+        <!-- </Style> -->
+        <!-- -->
+        <!-- ~1~ HierarchicalDataTemplate @1@ -->
+        <!-- <HierarchicalDataTemplate DataType="{x:Type dtOs:TreeNode}" ItemsSource="{Binding Children}"> -->
+        <!--     <TextBlock Text="{Binding Name}" Foreground="{StaticResource TreeViewItemForeground}" /> -->
+        <!-- </HierarchicalDataTemplate> -->
+    </UserControl.Resources>
     
     <Grid Background="{DynamicResource BackgroundBrush}">
         <Grid.RowDefinitions>
@@ -46,26 +214,57 @@
                          VerticalAlignment="Top"
                          Background="{DynamicResource BackgroundBrush}"
                          md:ElevationAssist.Elevation="Dp3">
-                    <StackPanel Margin="20 20">
-                        <TextBlock Text="Mitgliederliste" 
-                                   Margin="0 0 0 20"
-                                   Style="{StaticResource MaterialDesignSubtitle1TextBlock}">
-                        </TextBlock>
+                    <StackPanel Margin="10 5">
+                        <Label Content="Mitgliederliste"
+                               Margin="0 0 0 5"
+                               Style="{StaticResource CardHeaderStyle}">
+                        </Label>
                         <Border BorderBrush="{DynamicResource PrimaryBrush}"
                                 BorderThickness="0">
                             <TreeView x:Name="tvMitglieder"
-                                  ItemsSource="{Binding MitgliederTree}">
+                                      ItemsSource="{Binding MitgliederTree}">
                                 <TreeView.ItemContainerStyle>
                                     <Style TargetType="TreeViewItem">
                                         <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}" />
                                         <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}" />
+                                        <Setter Property="FontSize" Value="16"/>
                                     </Style>
                                 </TreeView.ItemContainerStyle>
                                 <TreeView.ItemTemplate>
-                                    <HierarchicalDataTemplate ItemsSource="{Binding Children}">
-                                        <TextBlock Text="{Binding Name}" />
+                                    <HierarchicalDataTemplate DataType="{x:Type dtOs:TreeNode}" ItemsSource="{Binding Children}">
+                                        <!-- <TextBlock Text="{Binding Name}" /> -->
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="{Binding Name}" Foreground="{DynamicResource PrimaryBrush}"/>
+                                            <TextBlock Text=" ("  Foreground="{DynamicResource PrimaryBrush}"/>
+                                            <TextBlock Text="{Binding Children.Count}"  Foreground="{DynamicResource PrimaryBrush}"/>
+                                            <TextBlock Text=")"  Foreground="{DynamicResource PrimaryBrush}"/>
+                                        </StackPanel>
                                     </HierarchicalDataTemplate>
                                 </TreeView.ItemTemplate>
+                                
+                                <!-- <TreeView.ItemContainerStyle> -->
+                                <!--     <Style TargetType="TreeViewItem"> -->
+                                <!--         <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}" /> -->
+                                <!--         <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}" /> -->
+                                <!--         <Setter Property="FontSize" Value="16"/> -->
+                                <!--          -->
+                                <!--         <Style.Triggers> -->
+                                <!--             <Trigger Property="IsMouseOver" Value="True"> -->
+                                <!--                 <Setter Property="Background" Value="{DynamicResource HoverBrush}"/> -->
+                                <!--                 <Setter Property="Foreground" Value="{DynamicResource BackgroundBrush}"/> -->
+                                <!--             </Trigger> -->
+                                <!--             <Trigger Property="IsSelected" Value="True"> -->
+                                <!--                 <Setter Property="Background" Value="{DynamicResource PrimaryBrush}"/> -->
+                                <!--                 <Setter Property="Foreground" Value="{DynamicResource BackgroundBrush}"/> -->
+                                <!--             </Trigger> -->
+                                <!--         </Style.Triggers> -->
+                                <!--     </Style> -->
+                                <!-- </TreeView.ItemContainerStyle> -->
+                                <!-- <TreeView.ItemTemplate> -->
+                                <!--     <HierarchicalDataTemplate ItemsSource="{Binding Children}"> -->
+                                <!--         <TextBlock Text="{Binding Name}" /> -->
+                                <!--     </HierarchicalDataTemplate> -->
+                                <!-- </TreeView.ItemTemplate> -->
                                 
                                 <i:Interaction.Triggers>
                                     <i:EventTrigger EventName="SelectedItemChanged">
@@ -96,87 +295,101 @@
                                     <TextBox md:HintAssist.Hint="Anrede" 
                                              Margin="10 10"
                                              MinWidth="60"
+                                             IsReadOnly="{Binding IsFieldReadonly, UpdateSourceTrigger=PropertyChanged}"
                                              Text="{Binding CurrentMitglied.Anrede, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                              Style="{StaticResource TextBxAngabenStyle}">
                                     </TextBox>
                                     <TextBox md:HintAssist.Hint="Vorname" 
                                              Margin="10 10"
                                              MinWidth="140"
+                                             IsReadOnly="{Binding IsFieldReadonly, UpdateSourceTrigger=PropertyChanged}"
                                              Text="{Binding CurrentMitglied.Vorname, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                              Style="{StaticResource TextBxAngabenStyle}">
                                     </TextBox>
                                     <TextBox md:HintAssist.Hint="Nachname" 
                                              Margin="10 10"
                                              MinWidth="140"
+                                             IsReadOnly="{Binding IsFieldReadonly, UpdateSourceTrigger=PropertyChanged}"
                                              Text="{Binding CurrentMitglied.Nachname, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                              Style="{StaticResource TextBxAngabenStyle}">
                                     </TextBox>
                                     <TextBox md:HintAssist.Hint="Spitzname" 
                                              Margin="10 10"
                                              MinWidth="140"
+                                             IsReadOnly="{Binding IsFieldReadonly, UpdateSourceTrigger=PropertyChanged}"
                                              Text="{Binding CurrentMitglied.Spitzname, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                              Style="{StaticResource TextBxAngabenStyle}">
                                     </TextBox>
                                     <TextBox md:HintAssist.Hint="Straße" 
                                              Margin="10 10"
                                              MinWidth="200"
+                                             IsReadOnly="{Binding IsFieldReadonly, UpdateSourceTrigger=PropertyChanged}"
                                              Text="{Binding CurrentMitglied.Straße, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                              Style="{StaticResource TextBxAngabenStyle}">
                                     </TextBox>
                                     <TextBox md:HintAssist.Hint="PLZ" 
                                              Margin="10 10"
                                              MinWidth="50"
+                                             IsReadOnly="{Binding IsFieldReadonly, UpdateSourceTrigger=PropertyChanged}"
                                              Text="{Binding CurrentMitglied.PLZ, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                              Style="{StaticResource TextBxAngabenStyle}">
                                     </TextBox>
                                     <TextBox md:HintAssist.Hint="Ort" 
                                              Margin="10 10"
                                              MinWidth="200"
+                                             IsReadOnly="{Binding IsFieldReadonly, UpdateSourceTrigger=PropertyChanged}"
                                              Text="{Binding CurrentMitglied.Ort, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                              Style="{StaticResource TextBxAngabenStyle}">
                                     </TextBox>
                                     <TextBox md:HintAssist.Hint="Festnetz" 
                                              Margin="10 10"
                                              MinWidth="200"
+                                             IsReadOnly="{Binding IsFieldReadonly, UpdateSourceTrigger=PropertyChanged}"
                                              Text="{Binding CurrentMitglied.TelefonPrivat, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                              Style="{StaticResource TextBxAngabenStyle}">
                                     </TextBox>
                                     <TextBox md:HintAssist.Hint="Mobil" 
                                              Margin="10 10"
                                              MinWidth="200"
+                                             IsReadOnly="{Binding IsFieldReadonly, UpdateSourceTrigger=PropertyChanged}"
                                              Text="{Binding CurrentMitglied.TelefonMobil, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                              Style="{StaticResource TextBxAngabenStyle}">
                                     </TextBox>
                                     <TextBox md:HintAssist.Hint="E-Mail" 
                                              Margin="10 10"
                                              MinWidth="200"
+                                             IsReadOnly="{Binding IsFieldReadonly, UpdateSourceTrigger=PropertyChanged}"
                                              Text="{Binding CurrentMitglied.EMail, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                              Style="{StaticResource TextBxAngabenStyle}">
                                     </TextBox>
                                     <DatePicker md:HintAssist.Hint="Geburtsdatum"
                                                 Margin="10 10"
                                                 SelectedDate="{Binding CurrentMitglied.Geburtsdatum, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource DateYearOneToEmptyDateConverter}}"
-                                                MinWidth="120">
+                                                MinWidth="130"
+                                                IsEnabled="{Binding AreFieldsEditable, UpdateSourceTrigger=PropertyChanged}">
                                     </DatePicker>
                                     <DatePicker md:HintAssist.Hint="Mitglied seit"
                                                 Margin="10 10"
                                                 SelectedDate="{Binding CurrentMitglied.MitgliedSeit, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource DateYearOneToEmptyDateConverter}}"
-                                                MinWidth="120">
+                                                MinWidth="130"
+                                                IsEnabled="{Binding AreFieldsEditable, UpdateSourceTrigger=PropertyChanged}">
                                     </DatePicker>
                                     <DatePicker md:HintAssist.Hint="Passiv seit"
                                                 Margin="10 10"
                                                 SelectedDate="{Binding CurrentMitglied.PassivSeit, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource DateYearOneToEmptyDateConverter}}"
-                                                MinWidth="120">
+                                                MinWidth="130"
+                                                IsEnabled="{Binding AreFieldsEditable, UpdateSourceTrigger=PropertyChanged}">
                                     </DatePicker>
                                     <DatePicker md:HintAssist.Hint="Ausgeschieden am"
                                                 Margin="10 10"
                                                 SelectedDate="{Binding CurrentMitglied.AusgeschiedenAm, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource DateYearOneToEmptyDateConverter}}"
-                                                MinWidth="120">
+                                                MinWidth="130"
+                                                IsEnabled="{Binding AreFieldsEditable, UpdateSourceTrigger=PropertyChanged}">
                                     </DatePicker>
                                     <CheckBox Content="Ehemaliger"
                                               Margin="10 10"
-                                              IsChecked="{Binding CurrentMitglied.Ehemaliger, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                              Style="{StaticResource MaterialDesignCheckBox}">
+                                              IsEnabled="{Binding AreFieldsEditable, UpdateSourceTrigger=PropertyChanged}"
+                                              IsChecked="{Binding CurrentMitglied.Ehemaliger, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
                                     </CheckBox>
                                 </WrapPanel>
                             </mw:MetroTabItem>
@@ -189,6 +402,7 @@
                                              MinWidth="200"
                                              MinHeight="200"
                                              TextWrapping="Wrap"
+                                             IsReadOnly="{Binding IsFieldReadonly, UpdateSourceTrigger=PropertyChanged}"
                                              Text="{Binding CurrentMitglied.Notizen, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                              VerticalAlignment="Top"
                                              VerticalContentAlignment="Top"
@@ -199,6 +413,7 @@
                                              MinWidth="200"
                                              MinHeight="200"
                                              TextWrapping="Wrap"
+                                             IsReadOnly="{Binding IsFieldReadonly, UpdateSourceTrigger=PropertyChanged}"
                                              Text="{Binding CurrentMitglied.Bemerkungen, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                              VerticalContentAlignment="Top"
                                              HorizontalAlignment="Stretch">
@@ -265,16 +480,39 @@
                         <StackPanel Orientation="Horizontal">
                             <Button Margin="8,4,8,8"
                                     HorizontalAlignment="Left"
-                                    Content="Neues Mitglied">
+                                    Content="Neues Mitglied"
+                                    IsEnabled="{Binding BtnNeuEnabled, UpdateSourceTrigger=PropertyChanged}">
+                                <i:Interaction.Triggers>
+                                    <i:EventTrigger EventName="Click">
+                                        <i:InvokeCommandAction Command="{Binding NeuesMitgliedCommand}"/>
+                                    </i:EventTrigger>
+                                </i:Interaction.Triggers>
                             </Button>
                             <Button Margin="8,4,8,8"
                                     HorizontalAlignment="Left"
-                                    Content="Bearbeiten">
+                                    Content="Bearbeiten"
+                                    IsEnabled="{Binding BtnBearbeitenEnabled, UpdateSourceTrigger=PropertyChanged}">
+                                <i:Interaction.Triggers>
+                                    <i:EventTrigger EventName="Click">
+                                        <i:InvokeCommandAction Command="{Binding MitgliedBearbeitenCommand}"/>
+                                    </i:EventTrigger>
+                                </i:Interaction.Triggers>
                             </Button>
                             <Button Margin="8,4,8,8"
                                     HorizontalAlignment="Left"
                                     Content="Speichern"
-                                    Click="ButtonBase_OnClick">
+                                    IsEnabled="{Binding BtnSpeichernEnabled, UpdateSourceTrigger=PropertyChanged}">
+                                <i:Interaction.Triggers>
+                                    <i:EventTrigger EventName="Click">
+                                        <i:InvokeCommandAction Command="{Binding MitgliedSpeichernCommand}"/>
+                                    </i:EventTrigger>
+                                </i:Interaction.Triggers>
+                            </Button>
+                            <Button Margin="8,4,8,8"
+                                    HorizontalAlignment="Left"
+                                    Content="Drucken"
+                                    IsEnabled="{Binding BtnDruckenEnabled, UpdateSourceTrigger=PropertyChanged}">
+                                
                             </Button>
                         </StackPanel>
                     </StackPanel>

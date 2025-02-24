@@ -2,7 +2,7 @@
 
 namespace KEPAVerwaltungWPF.Helper;
 
-public class ClsMail
+public class MailService
 {
     private string _strFrom;
     private List<string> _lstTo;
@@ -161,7 +161,7 @@ public class ClsMail
         }
     }
 
-    public ClsMail()
+    public MailService()
     {
         _strFrom = string.Empty;
         _lstTo = new List<string>();

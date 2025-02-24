@@ -4,7 +4,7 @@ namespace KEPAVerwaltungWPF.DTOs;
 
 public partial class MitgliedDetails : ObservableObject
 {
-    [ObservableProperty] private int iD;
+    [ObservableProperty] private int iD = -1;
     [ObservableProperty] private string vorname;
     [ObservableProperty] private string nachname;
     [ObservableProperty] private string spitzname;
