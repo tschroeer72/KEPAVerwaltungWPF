@@ -10,4 +10,5 @@
     <SolidColorBrush x:Key="TitleBrush" Color="#DDDDDD"/>
     <SolidColorBrush x:Key="TitleBackgroundBrush" Color="#313031"/>
     <SolidColorBrush x:Key="WindowTitledBrush" Color="#313031"/>
+    <SolidColorBrush x:Key="ValidationErrorBrush" Color="#FF0000"/>
 </ResourceDictionary>

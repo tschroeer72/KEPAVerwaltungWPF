@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using KEPAVerwaltungWPF.DTOs;
 using KEPAVerwaltungWPF.Services;
+using KEPAVerwaltungWPF.Validations;
 using KEPAVerwaltungWPF.Views;
 
 namespace KEPAVerwaltungWPF.ViewModels;
@@ -10,10 +11,14 @@ namespace KEPAVerwaltungWPF.ViewModels;
 public partial class MitgliederViewModel : BaseViewModel
 {
     private readonly DBService _dbService;
+    private readonly MitgliedAnlegenValidation _mitgliedAnlegenValidation;
+    private readonly MitgliedAktualisierenValidation _mitgliedAktualisierenValidation;
 
-    public MitgliederViewModel(DBService dbService)
+    public MitgliederViewModel(DBService dbService, MitgliedAnlegenValidation mitgliedAnlegenValidation, MitgliedAktualisierenValidation mitgliedAktualisierenValidation)
     {
         _dbService = dbService;
+        _mitgliedAnlegenValidation = mitgliedAnlegenValidation;
+        _mitgliedAktualisierenValidation = mitgliedAktualisierenValidation;
         Titel = "Mitglieder";
     }
 
@@ -77,12 +82,15 @@ public partial class MitgliederViewModel : BaseViewModel
     [ObservableProperty] private MitgliedDetails currentMitglied = new();
     [ObservableProperty] private List<StatistikSpielerErgebnisse> statistikSpielerErgebnisse = new();
     [ObservableProperty] private List<StatistikSpieler> statistikSpieler = new();
+    [ObservableProperty] private string validationMessage = string.Empty;
     [ObservableProperty] private bool btnNeuEnabled = true;
     [ObservableProperty] private bool btnBearbeitenEnabled = false;
     [ObservableProperty] private bool btnSpeichernEnabled = false;
     [ObservableProperty] private bool btnDruckenEnabled = false;
     [ObservableProperty] [NotifyPropertyChangedFor(nameof(IsFieldReadonly))] private bool areFieldsEditable = false;
     public bool IsFieldReadonly => !AreFieldsEditable;
+    [ObservableProperty] private bool druckErgebnisse = true;
+    [ObservableProperty] private bool druckStatistik = true;
     
     [RelayCommand]
     public void GetInitialData()
@@ -161,8 +169,30 @@ public partial class MitgliederViewModel : BaseViewModel
     {
         if (ViewManager.ShowConfirmationWindow("Wollen Sie die geänderten Daten speichern?"))
         {
+            if (CurrentMitglied.ID == -1)
+            {
+                var validationResult = await _mitgliedAnlegenValidation.ValidateAsync(CurrentMitglied);
+                if (!validationResult.IsValid)
+                {
+                    ValidationMessage = validationResult.ToString();
+                    return;
+                }
+            }
+            else
+            {
+                var validationResult = await _mitgliedAktualisierenValidation.ValidateAsync(CurrentMitglied);
+                if (!validationResult.IsValid)
+                {
+                    ValidationMessage = validationResult.ToString();
+                    return;
+                }
+            }
+           
             await _dbService.SaveMitgliedAsync(CurrentMitglied);
             await LoadAndSetData();
+            
+            if(CurrentMitglied.ID == -1) DelShowMainInfoFlyout.Invoke($"{CurrentMitglied.Vorname} {currentMitglied.Nachname} wurde angelegt");
+            else DelShowMainInfoFlyout.Invoke($"{CurrentMitglied.Vorname} {currentMitglied.Nachname} wurde aktualisiert");
             
             CurrentMitglied = new();
             
@@ -173,4 +203,9 @@ public partial class MitgliederViewModel : BaseViewModel
             BtnDruckenEnabled = false;
         }
     }
+
+    // public VpeControl DruckSpielerErgebnisseStatistik()
+    // {
+    //     
+    // }
 }

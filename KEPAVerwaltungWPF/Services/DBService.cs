@@ -2949,7 +2949,7 @@ public class DBService(LocalDbContext _localDbContext, WebDbContext _webDbContex
 
         try
         {
-           var erg = await (_localDbContext.TblMeisterschaftens
+           var erg = await _localDbContext.TblMeisterschaftens
                 .Join(_localDbContext.TblSpieltags,
                     m => m.Id,
                     st => st.MeisterschaftsId,
@@ -2958,7 +2958,7 @@ public class DBService(LocalDbContext _localDbContext, WebDbContext _webDbContex
                         m.Bezeichnung,
                         SpieltagID = st.Id,
                         st.Spieltag
-                    })).ToListAsync();
+                    }).ToListAsync();
 
             foreach (var item in erg)
             {
@@ -3328,7 +3328,7 @@ public class DBService(LocalDbContext _localDbContext, WebDbContext _webDbContex
                     objMitglied.TelefonMobil = currentMietglied.TelefonMobil;
                     objMitglied.Geburtsdatum = currentMietglied.Geburtsdatum;
                     objMitglied.MitgliedSeit = currentMietglied.MitgliedSeit.Value;
-                    if (!Convert.IsDBNull(currentMietglied.PassivSeit))
+                    if (currentMietglied.PassivSeit.HasValue)
                     {
                         objMitglied.PassivSeit = currentMietglied.PassivSeit;
                     }
@@ -3336,7 +3336,16 @@ public class DBService(LocalDbContext _localDbContext, WebDbContext _webDbContex
                     {
                         objMitglied.PassivSeit = null;
                     }
-
+                    
+                    if (currentMietglied.AusgeschiedenAm.HasValue)
+                    {
+                        objMitglied.AusgeschiedenAm = currentMietglied.AusgeschiedenAm;
+                    }
+                    else
+                    {
+                        objMitglied.AusgeschiedenAm = null;
+                    }
+                    
                     objMitglied.Email = currentMietglied.EMail;
                     objMitglied.Ehemaliger = currentMietglied.Ehemaliger;
                     objMitglied.Notizen = currentMietglied.Notizen;
@@ -3359,7 +3368,7 @@ public class DBService(LocalDbContext _localDbContext, WebDbContext _webDbContex
                     sb.Append("'").Append(currentMietglied.TelefonMobil).Append("', ");
                     sb.Append("'").Append(currentMietglied.Geburtsdatum.ToString("yyyyMMdd")).Append("', ");
                     sb.Append("'").Append(currentMietglied.MitgliedSeit.Value.ToString("yyyyMMdd")).Append("', ");
-                    if (!Convert.IsDBNull(currentMietglied.PassivSeit))
+                    if (currentMietglied.PassivSeit.HasValue)
                     {
                         sb.Append("'").Append(((DateTime)currentMietglied.PassivSeit.Value).ToString("yyyyMMdd"))
                             .Append("', ");
@@ -3369,7 +3378,7 @@ public class DBService(LocalDbContext _localDbContext, WebDbContext _webDbContex
                         sb.Append("NULL, ");
                     }
 
-                    if (!Convert.IsDBNull(currentMietglied.AusgeschiedenAm))
+                    if (currentMietglied.AusgeschiedenAm.HasValue)
                     {
                         sb.Append("'").Append((currentMietglied.AusgeschiedenAm.Value).ToString("yyyyMMdd"))
                             .Append("', ");

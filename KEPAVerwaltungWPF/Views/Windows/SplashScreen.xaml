@@ -8,9 +8,11 @@
         xmlns:vm="clr-namespace:KEPAVerwaltungWPF.ViewModels"
         mc:Ignorable="d"
         Title="{Binding Titel}" 
+        Icon="../../bowling_pins.ico"
         WindowStartupLocation="CenterScreen"
         WindowStyle="None"
         ResizeMode="NoResize"
+        ShowInTaskbar="True"
         Height="450" 
         Width="950"
         d:DataContext="{d:DesignInstance Type=vm:SplashScreenViewModel}">

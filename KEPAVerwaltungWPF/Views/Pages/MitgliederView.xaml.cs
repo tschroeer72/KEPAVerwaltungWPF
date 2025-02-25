@@ -16,5 +16,20 @@ public partial class MitgliederView : UserControl
         DataContext = MitgliederViewModel;
         MitgliederViewModel.InitBaseViewModelDelegateAndEvents();
     }
-    
+
+    private void BtnDrucken_OnClick(object sender, RoutedEventArgs e)
+    {
+        try
+        {
+            if (MitgliederViewModel.StatistikSpielerErgebnisse.Count == 0) MitgliederViewModel.DruckErgebnisse = false;
+            if (MitgliederViewModel.StatistikSpieler.Count == 0) MitgliederViewModel.DruckStatistik = false;
+            
+            // VpeControl vpe = MitgliederViewModel.DruckSpielerErgebnisseStatistik();
+            // vpe.Preview();
+        }
+        catch (Exception ex)
+        {
+            ViewManager.ShowErrorWindow("MitgliederView", "BtnDrucken_OnClick", ex.ToString());
+        }
+    }
 }

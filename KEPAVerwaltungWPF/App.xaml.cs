@@ -6,6 +6,7 @@ using System.Windows.Markup;
 using KEPAVerwaltungWPF.Models.Local;
 using KEPAVerwaltungWPF.Models.Web;
 using KEPAVerwaltungWPF.Services;
+using KEPAVerwaltungWPF.Validations;
 using KEPAVerwaltungWPF.ViewModels;
 using KEPAVerwaltungWPF.Views;
 using KEPAVerwaltungWPF.Views.Pages;
@@ -111,7 +112,12 @@ public partial class App : Application
         services.AddSingleton<EinstellungenView>();
         services.AddSingleton<EinstellungenViewModel>();
 
+        //Services
         services.AddSingleton<DBService>();
+        
+        //Validations
+        services.AddSingleton<MitgliedAnlegenValidation>();
+        services.AddSingleton<MitgliedAktualisierenValidation>();
         
         // DbContexts
         var localDbConnectionString = ConfigurationManager.ConnectionStrings["LocalDB"].ConnectionString;
