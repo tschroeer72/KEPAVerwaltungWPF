@@ -41,7 +41,6 @@
                 </Setter.Value>
             </Setter>
         </Style>
-        
            
          <Style TargetType="TreeViewItem" BasedOn="{StaticResource MaterialDesignTreeViewItem}">
              <Setter Property="Background" Value="{DynamicResource BackgroundBrush}"/>
@@ -49,14 +48,7 @@
              <Setter Property="Padding" Value="4,2,2,2" />
          </Style> 
         
-        <!--
-        <helper:TreeNodeTemplateSelector x:Key="TreeNodeTemplateSelector"
-                                         ParentTemplate="{StaticResource ParentTemplate}"
-                                         ChildTemplate="{StaticResource ChildTemplate}" />
-        
-        -->
-        
-        <HierarchicalDataTemplate x:Key="ParentTemplate" DataType="{x:Type dtOs:TreeNode}" ItemsSource="{Binding Children}">
+        <HierarchicalDataTemplate x:Key="TemplateParent" DataType="{x:Type dtOs:TreeNode}" ItemsSource="{Binding Children}">
             <StackPanel Orientation="Horizontal">
                 <TextBlock Text="{Binding Name}" Foreground="{DynamicResource PrimaryBrush}"/>
                 <TextBlock Text=" ("  Foreground="{DynamicResource PrimaryBrush}"/>
@@ -64,126 +56,15 @@
                 <TextBlock Text=")"  Foreground="{DynamicResource PrimaryBrush}"/>
             </StackPanel>
         </HierarchicalDataTemplate>
-
-        <!--
-        <DataTemplate x:Key="ChildTemplate">
+        
+        <DataTemplate x:Key="TemplateChild">
             <TextBlock Text="{Binding Name}" Foreground="{DynamicResource PrimaryBrush}" />
         </DataTemplate>
-        -->
         
-        <!-- <Style TargetType="TreeViewItem" BasedOn="{StaticResource MaterialDesignTreeViewItem}"> -->
-        <!--     <Setter Property="md:TreeViewAssist.ExpanderSize" Value="32" /> -->
-        <!--     <Setter Property="md:TreeViewAssist.ShowSelection" Value="true" /> -->
-        <!-- </Style> -->
-        <!-- <HierarchicalDataTemplate DataType="{x:Type dtOs:TreeNode}"> -->
-        <!--     <TextBlock Margin="3,2" Text="{Binding Name}" /> -->
-        <!-- </HierarchicalDataTemplate> -->
-        <!-- -->
-        <!-- <DataTemplate DataType="{x:Type dtOs:TreeNode}"> -->
-        <!--     <TextBlock Margin="3,2" -->
-        <!--                Text="{Binding Name}" /> -->
-        <!-- </DataTemplate> -->
+        <helper:TreeNodeTemplateSelector x:Key="TreeNodeTemplateSelector"
+                                         ParentTemplate="{StaticResource TemplateParent}"
+                                         ChildTemplate="{StaticResource TemplateChild}" />
         
-        <!-- ~1~ Farben und Ressourcen @1@ -->
-        <!-- <SolidColorBrush x:Key="TreeViewBackground" Color="LightGray" /> -->
-        <!-- <SolidColorBrush x:Key="TreeViewItemHoverBrush" Color="LightBlue" /> -->
-        <!-- <SolidColorBrush x:Key="TreeViewItemSelectedBrush" Color="CornflowerBlue" /> -->
-        <!-- <SolidColorBrush x:Key="TreeViewItemForeground" Color="Black" /> -->
-        <!-- <SolidColorBrush x:Key="TreeViewItemSelectedForeground" Color="White" /> -->
-        <!-- -->
-        <!-- ~1~ Style für TreeView @1@ -->
-        <!-- <Style TargetType="TreeView"> -->
-        <!--     <Setter Property="Background" Value="{StaticResource TreeViewBackground}" /> -->
-        <!--     <Setter Property="BorderBrush" Value="Gray" /> -->
-        <!--     <Setter Property="BorderThickness" Value="1" /> -->
-        <!--     <Setter Property="Padding" Value="5" /> -->
-        <!--     <Setter Property="Template"> -->
-        <!--         <Setter.Value> -->
-        <!--             <ControlTemplate TargetType="TreeView"> -->
-        <!--                 <Border Background="{TemplateBinding Background}" -->
-        <!--                         BorderBrush="{TemplateBinding BorderBrush}" -->
-        <!--                         BorderThickness="{TemplateBinding BorderThickness}"> -->
-        <!--                     <ScrollViewer Focusable="False"> -->
-        <!--                         <ItemsPresenter /> -->
-        <!--                     </ScrollViewer> -->
-        <!--                 </Border> -->
-        <!--             </ControlTemplate> -->
-        <!--         </Setter.Value> -->
-        <!--     </Setter> -->
-        <!-- </Style> -->
-        <!-- -->
-        <!-- ~1~ Style für TreeViewItem @1@ -->
-        <!-- <Style TargetType="TreeViewItem"> -->
-        <!--     <Setter Property="FontSize" Value="14" /> -->
-        <!--     <Setter Property="Padding" Value="4,2,2,2" /> -->
-        <!--     <Setter Property="Template"> -->
-        <!--         <Setter.Value> -->
-        <!--             <ControlTemplate TargetType="TreeViewItem"> -->
-        <!--                 <StackPanel> -->
-        <!--                     ~1~ Header-Container @1@ -->
-        <!--                     <Border x:Name="Bd" -->
-        <!--                             Background="Transparent" -->
-        <!--                             Padding="{TemplateBinding Padding}"> -->
-        <!--                         <Grid> -->
-        <!--                             <Grid.ColumnDefinitions> -->
-        <!--                                 <ColumnDefinition Width="Auto" /> -->
-        <!--                                 <ColumnDefinition Width="*" /> -->
-        <!--                             </Grid.ColumnDefinitions> -->
-        <!--                             ~1~ ToggleButton für Expand/Collapse @1@ -->
-        <!--                             <ToggleButton x:Name="Expander" -->
-        <!--                                           Width="16" Height="16" -->
-        <!--                                           IsChecked="{Binding IsExpanded, RelativeSource={RelativeSource TemplatedParent}}" -->
-        <!--                                           Content="►" -->
-        <!--                                           VerticalAlignment="Center" -->
-        <!--                                           HorizontalAlignment="Center"> -->
-        <!--                                 <ToggleButton.Style> -->
-        <!--                                     <Style TargetType="ToggleButton"> -->
-        <!--                                         <Setter Property="Template"> -->
-        <!--                                             <Setter.Value> -->
-        <!--                                                 <ControlTemplate TargetType="ToggleButton"> -->
-        <!--                                                     <ContentPresenter /> -->
-        <!--                                                 </ControlTemplate> -->
-        <!--                                             </Setter.Value> -->
-        <!--                                         </Setter> -->
-        <!--                                     </Style> -->
-        <!--                                 </ToggleButton.Style> -->
-        <!--                             </ToggleButton> -->
-        <!--                             ~1~ Header-Inhalt @1@ -->
-        <!--                             <ContentPresenter Grid.Column="1" -->
-        <!--                                               ContentSource="Header" -->
-        <!--                                               RecognizesAccessKey="True" /> -->
-        <!--                         </Grid> -->
-        <!--                     </Border> -->
-        <!--                     ~1~ Sub-Items @1@ -->
-        <!--                     <ItemsPresenter x:Name="ItemsHost" /> -->
-        <!--                 </StackPanel> -->
-        <!--                 <ControlTemplate.Triggers> -->
-        <!--                     ~1~ Trigger für IsSelected @1@ -->
-        <!--                     <Trigger Property="IsSelected" Value="True"> -->
-        <!--                         <Setter TargetName="Bd" Property="Background" Value="{StaticResource TreeViewItemSelectedBrush}" /> -->
-        <!--                         ~1~ <Setter TargetName="Bd" Property="Foreground" Value="{StaticResource TreeViewItemSelectedForeground}" /> @1@ -->
-        <!--                     </Trigger> -->
-        <!--                     ~1~ Trigger für MouseOver @1@ -->
-        <!--                     <Trigger Property="IsMouseOver" Value="True"> -->
-        <!--                         <Setter TargetName="Bd" Property="Background" Value="{StaticResource TreeViewItemHoverBrush}" /> -->
-        <!--                     </Trigger> -->
-        <!--                     ~1~ Trigger für Expand @1@ -->
-        <!--                     <Trigger SourceName="Expander" Property="IsChecked" Value="True"> -->
-        <!--                         <Setter TargetName="ItemsHost" Property="Visibility" Value="Visible" /> -->
-        <!--                     </Trigger> -->
-        <!--                     <Trigger SourceName="Expander" Property="IsChecked" Value="False"> -->
-        <!--                         <Setter TargetName="ItemsHost" Property="Visibility" Value="Collapsed" /> -->
-        <!--                     </Trigger> -->
-        <!--                 </ControlTemplate.Triggers> -->
-        <!--             </ControlTemplate> -->
-        <!--         </Setter.Value> -->
-        <!--     </Setter> -->
-        <!-- </Style> -->
-        <!-- -->
-        <!-- ~1~ HierarchicalDataTemplate @1@ -->
-        <!-- <HierarchicalDataTemplate DataType="{x:Type dtOs:TreeNode}" ItemsSource="{Binding Children}"> -->
-        <!--     <TextBlock Text="{Binding Name}" Foreground="{StaticResource TreeViewItemForeground}" /> -->
-        <!-- </HierarchicalDataTemplate> -->
     </UserControl.Resources>
     
     <Grid Background="{DynamicResource BackgroundBrush}">
@@ -222,50 +103,8 @@
                         <Border BorderBrush="{DynamicResource PrimaryBrush}"
                                 BorderThickness="0">
                             <TreeView x:Name="tvMitglieder"
+                                      ItemTemplateSelector="{StaticResource TreeNodeTemplateSelector}"
                                       ItemsSource="{Binding MitgliederTree}">
-                                <TreeView.ItemContainerStyle>
-                                    <Style TargetType="TreeViewItem">
-                                        <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}" />
-                                        <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}" />
-                                        <Setter Property="FontSize" Value="16"/>
-                                    </Style>
-                                </TreeView.ItemContainerStyle>
-                                <TreeView.ItemTemplate>
-                                    <HierarchicalDataTemplate DataType="{x:Type dtOs:TreeNode}" ItemsSource="{Binding Children}">
-                                        <!-- <TextBlock Text="{Binding Name}" /> -->
-                                        <StackPanel Orientation="Horizontal">
-                                            <TextBlock Text="{Binding Name}" Foreground="{DynamicResource PrimaryBrush}"/>
-                                            <TextBlock Text=" ("  Foreground="{DynamicResource PrimaryBrush}"/>
-                                            <TextBlock Text="{Binding Children.Count}"  Foreground="{DynamicResource PrimaryBrush}"/>
-                                            <TextBlock Text=")"  Foreground="{DynamicResource PrimaryBrush}"/>
-                                        </StackPanel>
-                                    </HierarchicalDataTemplate>
-                                </TreeView.ItemTemplate>
-                                
-                                <!-- <TreeView.ItemContainerStyle> -->
-                                <!--     <Style TargetType="TreeViewItem"> -->
-                                <!--         <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}" /> -->
-                                <!--         <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}" /> -->
-                                <!--         <Setter Property="FontSize" Value="16"/> -->
-                                <!--          -->
-                                <!--         <Style.Triggers> -->
-                                <!--             <Trigger Property="IsMouseOver" Value="True"> -->
-                                <!--                 <Setter Property="Background" Value="{DynamicResource HoverBrush}"/> -->
-                                <!--                 <Setter Property="Foreground" Value="{DynamicResource BackgroundBrush}"/> -->
-                                <!--             </Trigger> -->
-                                <!--             <Trigger Property="IsSelected" Value="True"> -->
-                                <!--                 <Setter Property="Background" Value="{DynamicResource PrimaryBrush}"/> -->
-                                <!--                 <Setter Property="Foreground" Value="{DynamicResource BackgroundBrush}"/> -->
-                                <!--             </Trigger> -->
-                                <!--         </Style.Triggers> -->
-                                <!--     </Style> -->
-                                <!-- </TreeView.ItemContainerStyle> -->
-                                <!-- <TreeView.ItemTemplate> -->
-                                <!--     <HierarchicalDataTemplate ItemsSource="{Binding Children}"> -->
-                                <!--         <TextBlock Text="{Binding Name}" /> -->
-                                <!--     </HierarchicalDataTemplate> -->
-                                <!-- </TreeView.ItemTemplate> -->
-                                
                                 <i:Interaction.Triggers>
                                     <i:EventTrigger EventName="SelectedItemChanged">
                                         <i:InvokeCommandAction Command="{Binding TvSelectedItemChangedCommand}"
@@ -487,13 +326,27 @@
                         </mw:MetroAnimatedTabControl>
                         
                         <StackPanel Orientation="Horizontal">
-                            <Button Margin="8,4,8,8"
+                            <Button x:Name="BtnNeuesMitglied"
+                                    Margin="8,4,8,8"
                                     HorizontalAlignment="Left"
                                     Content="Neues Mitglied"
+                                    Visibility="{Binding BtnNeuVisibility, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource BoolToVisConverter}}"
                                     IsEnabled="{Binding BtnNeuEnabled, UpdateSourceTrigger=PropertyChanged}">
                                 <i:Interaction.Triggers>
                                     <i:EventTrigger EventName="Click">
                                         <i:InvokeCommandAction Command="{Binding NeuesMitgliedCommand}"/>
+                                    </i:EventTrigger>
+                                </i:Interaction.Triggers>
+                            </Button>
+                            <Button x:Name="BtnAbbrechen"
+                                    Margin="8,4,8,8"
+                                    HorizontalAlignment="Left"
+                                    Content="Abbrechen"
+                                    Visibility="{Binding BtnAbbrechenVisibility, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource BoolToVisConverter}}"
+                                    IsEnabled="{Binding BtnAbbrechenEnabled, UpdateSourceTrigger=PropertyChanged}">
+                                <i:Interaction.Triggers>
+                                    <i:EventTrigger EventName="Click">
+                                        <i:InvokeCommandAction Command="{Binding AbbrechenCommand}"/>
                                     </i:EventTrigger>
                                 </i:Interaction.Triggers>
                             </Button>

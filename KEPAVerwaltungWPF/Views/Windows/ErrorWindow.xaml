@@ -53,8 +53,8 @@
                     <Grid Grid.Row="1">
                         <StackPanel Margin="20">
                             <StackPanel Orientation="Horizontal">
-                                <Label Content="Fehler im Modul"/>
-                                <Label x:Name="LblModul"
+                                <Label Content="Fehler i Methode"/>
+                                <Label x:Name="LblMethode"
                                        Content="Modul"
                                        Margin="20 0"
                                        FontWeight="Bold"/>

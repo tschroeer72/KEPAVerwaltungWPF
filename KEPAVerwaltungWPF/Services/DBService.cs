@@ -3355,7 +3355,7 @@ public class DBService(LocalDbContext _localDbContext, WebDbContext _webDbContex
                     await _localDbContext.SaveChangesAsync();
 
                     sb.Append(
-                        "insert into tblMitglieder(Anrede, Vorname, Nachname, Spitzname, Straße, PLZ, Ort, TelefonPrivat, TelefonMobil, Geburtsdatum, MitgliedSeit, PassivSeit, EMail, Ehemaliger, Notizen, Bemerkungen) ");
+                        "insert into tblMitglieder(Anrede, Vorname, Nachname, Spitzname, Straße, PLZ, Ort, TelefonPrivat, TelefonMobil, Geburtsdatum, MitgliedSeit, AusgeschiedenAm, PassivSeit, EMail, Ehemaliger, Notizen, Bemerkungen) ");
                     sb.Append("values(");
                     sb.Append("'").Append(currentMietglied.Anrede).Append("', ");
                     sb.Append("'").Append(currentMietglied.Vorname).Append("', ");

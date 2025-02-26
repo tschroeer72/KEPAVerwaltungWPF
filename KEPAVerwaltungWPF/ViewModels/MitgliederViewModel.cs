@@ -84,11 +84,17 @@ public partial class MitgliederViewModel : BaseViewModel
     [ObservableProperty] private List<StatistikSpieler> statistikSpieler = new();
     [ObservableProperty] private string validationMessage = string.Empty;
     [ObservableProperty] private bool btnNeuEnabled = true;
+    [ObservableProperty] private bool btnAbbrechenEnabled = true;
     [ObservableProperty] private bool btnBearbeitenEnabled = false;
     [ObservableProperty] private bool btnSpeichernEnabled = false;
     [ObservableProperty] private bool btnDruckenEnabled = false;
+    
     [ObservableProperty] [NotifyPropertyChangedFor(nameof(IsFieldReadonly))] private bool areFieldsEditable = false;
     public bool IsFieldReadonly => !AreFieldsEditable;
+    
+    [ObservableProperty] [NotifyPropertyChangedFor(nameof(BtnAbbrechenVisibility))] private bool btnNeuVisibility = true;
+    public bool BtnAbbrechenVisibility => !BtnNeuVisibility;
+    
     [ObservableProperty] private bool druckErgebnisse = true;
     [ObservableProperty] private bool druckStatistik = true;
     
@@ -147,6 +153,7 @@ public partial class MitgliederViewModel : BaseViewModel
     public void NeuesMitglied()
     {
         CurrentMitglied = new();
+        BtnNeuVisibility = false;
         AreFieldsEditable = true;
         BtnNeuEnabled = false;
         BtnBearbeitenEnabled = false;
@@ -154,6 +161,21 @@ public partial class MitgliederViewModel : BaseViewModel
         BtnDruckenEnabled = false;
     }
 
+    [RelayCommand]
+    public void Abbrechen()
+    {
+        if (ViewManager.ShowConfirmationWindow("Wollen Sie die Bearbeitung wirklich abbrechen?"))
+        {
+            //CurrentMitglied = new();
+            AreFieldsEditable = false;
+            BtnNeuEnabled = true;
+            BtnNeuVisibility = true;
+            BtnBearbeitenEnabled = false;
+            BtnSpeichernEnabled = false;
+            BtnDruckenEnabled = false;
+        }
+    }
+    
     [RelayCommand]
     public void MitgliedBearbeiten()
     {

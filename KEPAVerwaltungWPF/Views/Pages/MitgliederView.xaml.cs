@@ -24,8 +24,7 @@ public partial class MitgliederView : UserControl
             if (MitgliederViewModel.StatistikSpielerErgebnisse.Count == 0) MitgliederViewModel.DruckErgebnisse = false;
             if (MitgliederViewModel.StatistikSpieler.Count == 0) MitgliederViewModel.DruckStatistik = false;
             
-            // VpeControl vpe = MitgliederViewModel.DruckSpielerErgebnisseStatistik();
-            // vpe.Preview();
+            //Eventuell QuestPDF oder PDFSharp oder Alternative
         }
         catch (Exception ex)
         {

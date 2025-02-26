@@ -68,6 +68,11 @@ public partial class MeisterschaftenViewModel : BaseViewModel
     [ObservableProperty] private Meisterschaftstyp currentMeisterschaftstyp = new();
     [ObservableProperty] private ObservableCollection<AktiveSpieler> aktiveMitglieder = new();
     [ObservableProperty] private ObservableCollection<AktiveSpieler> aktiveTeilnehmer = new();
+    [ObservableProperty] private bool btnNeuEnabled = true;
+    [ObservableProperty] private bool btnBearbeitenEnabled = false;
+    [ObservableProperty] private bool btnSpeichernEnabled = false;
+    [ObservableProperty] [NotifyPropertyChangedFor(nameof(IsFieldReadonly))] private bool areFieldsEditable = false;
+    public bool IsFieldReadonly => !AreFieldsEditable;
     
     [RelayCommand]
     public void GetInitialData()
@@ -88,5 +93,34 @@ public partial class MeisterschaftenViewModel : BaseViewModel
         CurrentMeisterschaftstyp.Value = CurrentMeisterschaft.Meisterschaftstyp;
 
         //AktiveTeilnehmer = _dbService.GetAktiveTeilnehmer(CurrentMeisterschaft.ID);
+    }
+
+    [RelayCommand]
+    public void NeueMeisterschaft()
+    {
+        CurrentMeisterschaft = new();
+        
+        AreFieldsEditable = true;
+        BtnNeuEnabled = false;
+        BtnBearbeitenEnabled = false;
+        BtnSpeichernEnabled = true;
+    }
+    
+    [RelayCommand]
+    public void MeisterschaftBearbeiten()
+    {
+        AreFieldsEditable = true;
+        BtnNeuEnabled = false;
+        BtnBearbeitenEnabled = false;
+        BtnSpeichernEnabled = true;
+    }
+    
+    [RelayCommand]
+    public void MeisterschaftSpeichern()
+    {
+        AreFieldsEditable = false;
+        BtnNeuEnabled = true;
+        BtnBearbeitenEnabled = true;
+        BtnSpeichernEnabled = false;
     }
 }

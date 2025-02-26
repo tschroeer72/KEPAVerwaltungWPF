@@ -19,7 +19,8 @@ public partial class ErrorWindow : Window
         _strMethod = sMethod;
         _strErrorMessage = sErrorMessage;
         
-        LblModul.Content = _strModul;
+        lblTitle.Content = "Fehler in " + _strModul;
+        LblMethode.Content = _strMethod;
         TxtMessage.Text = _strErrorMessage;
     }
     

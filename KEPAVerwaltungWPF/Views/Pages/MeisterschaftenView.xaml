@@ -108,21 +108,25 @@
                                         <TextBox md:HintAssist.Hint="Bezeichnung" 
                                                  Margin="10 10"
                                                  MinWidth="150"
+                                                 IsReadOnly="{Binding IsFieldReadonly, UpdateSourceTrigger=PropertyChanged}"
                                                  Text="{Binding CurrentMeisterschaft.Bezeichnung, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                                  Style="{StaticResource TextBxAngabenStyle}">
                                         </TextBox>
                                         <DatePicker md:HintAssist.Hint="Beginn"
                                                     Margin="10 10"
+                                                    IsEnabled="{Binding AreFieldsEditable, UpdateSourceTrigger=PropertyChanged}"
                                                     SelectedDate="{Binding CurrentMeisterschaft.Beginn, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource DateYearOneToEmptyDateConverter}}"
                                                     MinWidth="120">
                                         </DatePicker>
                                         <DatePicker md:HintAssist.Hint="Ende"
                                                     Margin="10 10"
+                                                    IsEnabled="{Binding AreFieldsEditable, UpdateSourceTrigger=PropertyChanged}"
                                                     SelectedDate="{Binding CurrentMeisterschaft.Ende, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource DateYearOneToEmptyDateConverter}}"
                                                     MinWidth="120">
                                         </DatePicker>
                                         <ComboBox md:HintAssist.Hint="Meisterschaftstyp"
                                                   MinWidth="150"
+                                                  IsReadOnly="{Binding IsFieldReadonly, UpdateSourceTrigger=PropertyChanged}"
                                                   ItemsSource="{Binding Meisterschaftstypen}"
                                                   ItemContainerStyle="{StaticResource ComboBoxItemIDValueStyle}"
                                                   SelectedItem="{Binding CurrentMeisterschaftstyp}">
@@ -137,6 +141,7 @@
                                         </ComboBox>
                                         <CheckBox Content="Aktiv"
                                                   Margin="10 10"
+                                                  IsEnabled="{Binding AreFieldsEditable, UpdateSourceTrigger=PropertyChanged}"
                                                   IsChecked="{Binding CurrentMeisterschaft.Aktiv, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                                   Style="{StaticResource MaterialDesignCheckBox}">
                                         </CheckBox>
@@ -186,15 +191,33 @@
                             <StackPanel Orientation="Horizontal">
                                 <Button Margin="8,4,8,8"
                                         HorizontalAlignment="Left"
-                                        Content="Neue Meisterschaft">
+                                        Content="Neue Meisterschaft"
+                                        IsEnabled="{Binding BtnNeuEnabled, UpdateSourceTrigger=PropertyChanged}">
+                                    <i:Interaction.Triggers>
+                                        <i:EventTrigger EventName="Click">
+                                            <i:InvokeCommandAction Command="{Binding NeueMeisterschaftCommand}"/>
+                                        </i:EventTrigger>
+                                    </i:Interaction.Triggers>
                                 </Button>
                                 <Button Margin="8,4,8,8"
                                         HorizontalAlignment="Left"
-                                        Content="Bearbeiten">
+                                        Content="Bearbeiten"
+                                        IsEnabled="{Binding BtnBearbeitenEnabled, UpdateSourceTrigger=PropertyChanged}">
+                                    <i:Interaction.Triggers>
+                                        <i:EventTrigger EventName="Click">
+                                            <i:InvokeCommandAction Command="{Binding MeisterschaftBearbeitenCommand}"/>
+                                        </i:EventTrigger>
+                                    </i:Interaction.Triggers>
                                 </Button>
                                 <Button Margin="8,4,8,8"
                                         HorizontalAlignment="Left"
-                                        Content="Speichern">
+                                        Content="Speichern"
+                                        IsEnabled="{Binding BtnSpeichernEnabled, UpdateSourceTrigger=PropertyChanged}">
+                                    <i:Interaction.Triggers>
+                                        <i:EventTrigger EventName="Click">
+                                            <i:InvokeCommandAction Command="{Binding MeisterschaftSpeichernCommand}"/>
+                                        </i:EventTrigger>
+                                    </i:Interaction.Triggers>
                                 </Button>
                             </StackPanel>
 
