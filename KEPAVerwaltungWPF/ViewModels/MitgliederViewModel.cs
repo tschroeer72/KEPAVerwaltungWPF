@@ -1,4 +1,5 @@
 ﻿using System.Collections.ObjectModel;
+using AutoMapper;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using KEPAVerwaltungWPF.DTOs;
@@ -10,12 +11,14 @@ namespace KEPAVerwaltungWPF.ViewModels;
 
 public partial class MitgliederViewModel : BaseViewModel
 {
+    private readonly IMapper _mapper;
     private readonly DBService _dbService;
     private readonly MitgliedAnlegenValidation _mitgliedAnlegenValidation;
     private readonly MitgliedAktualisierenValidation _mitgliedAktualisierenValidation;
 
-    public MitgliederViewModel(DBService dbService, MitgliedAnlegenValidation mitgliedAnlegenValidation, MitgliedAktualisierenValidation mitgliedAktualisierenValidation)
+    public MitgliederViewModel(IMapper mapper, DBService dbService, MitgliedAnlegenValidation mitgliedAnlegenValidation, MitgliedAktualisierenValidation mitgliedAktualisierenValidation)
     {
+        _mapper = mapper;
         _dbService = dbService;
         _mitgliedAnlegenValidation = mitgliedAnlegenValidation;
         _mitgliedAktualisierenValidation = mitgliedAktualisierenValidation;
@@ -187,8 +190,10 @@ public partial class MitgliederViewModel : BaseViewModel
     }
     
     [RelayCommand]
-    public async Task MitgliedSpeichern()
+    public async Task MitgliedSpeichernAsync()
     {
+        ValidationMessage = "";
+        
         if (ViewManager.ShowConfirmationWindow("Wollen Sie die geänderten Daten speichern?"))
         {
             if (CurrentMitglied.ID == -1)

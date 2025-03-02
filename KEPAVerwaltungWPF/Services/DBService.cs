@@ -7,6 +7,7 @@ using KEPAVerwaltungWPF.Models.Web;
 using KEPAVerwaltungWPF.Views;
 using Microsoft.EntityFrameworkCore;
 using TblDbchangeLog = KEPAVerwaltungWPF.Models.Web.TblDbchangeLog;
+using TblMeisterschaften = KEPAVerwaltungWPF.Models.Local.TblMeisterschaften;
 
 namespace KEPAVerwaltungWPF.Services;
 
@@ -450,24 +451,26 @@ public class DBService(LocalDbContext _localDbContext, WebDbContext _webDbContex
         return lstMitglieder;
     }
 
-    public async Task<List<Meisterschaftsliste>> GetMeisterschaftenAsync()
+    public async Task<List<Meisterschaftsdaten>> GetMeisterschaftenAsync()
     {
-        List<Meisterschaftsliste> lstMeisterschaft = new List<Meisterschaftsliste>();
+        List<Meisterschaftsdaten> lstMeisterschaft = new List<Meisterschaftsdaten>();
 
         try
         {
-            var mst = await (from mt in _localDbContext.TblMeisterschaftens
-                join t in _localDbContext.TblMeisterschaftstyps on mt.MeisterschaftstypId equals t.Id
-                orderby mt.Beginn
-                select new
-                {
-                    mt.Id, mt.Bezeichnung, mt.Beginn, mt.Ende, mt.MeisterschaftstypId, t.Meisterschaftstyp, mt.Aktiv,
-                    mt.Bemerkungen
-                }).ToListAsync();
+            var mst = await _localDbContext.TblMeisterschaftens
+                .Join(_localDbContext.TblMeisterschaftstyps, mt => mt.MeisterschaftstypId, t => t.Id,
+                    (mt, t) => new
+                    {
+                        mt.Id, mt.Bezeichnung, mt.Beginn, mt.Ende, mt.MeisterschaftstypId, t.Meisterschaftstyp,
+                        mt.Aktiv,
+                        mt.Bemerkungen
+                    })
+                .OrderBy(o => o.Beginn)
+                .ToListAsync();
 
             foreach (var item in mst)
             {
-                Meisterschaftsliste objMeister = new Meisterschaftsliste();
+                Meisterschaftsdaten objMeister = new Meisterschaftsdaten();
                 objMeister.ID = item.Id;
                 objMeister.Bezeichnung = item.Bezeichnung;
                 objMeister.Beginn = item.Beginn;
@@ -531,10 +534,10 @@ public class DBService(LocalDbContext _localDbContext, WebDbContext _webDbContex
 
         try
         {
-            var t = await _localDbContext.TblMeisterschaftstyps
+            var mt = await _localDbContext.TblMeisterschaftstyps
                 .Select(s => s).ToListAsync();
 
-            foreach (var item in t.ToList())
+            foreach (var item in mt)
             {
                 Meisterschaftstyp objTyp = new Meisterschaftstyp();
                 objTyp.ID = item.Id;
@@ -563,7 +566,7 @@ public class DBService(LocalDbContext _localDbContext, WebDbContext _webDbContex
         }
         catch (Exception ex)
         {
-            ViewManager.ShowErrorWindow("DBService", "GetMeisterschaftstypen", ex.ToString());
+            ViewManager.ShowErrorWindow("DBService", "GetMeisterschaftstypenAsync", ex.ToString());
         }
 
         return lstTypen;
@@ -746,7 +749,7 @@ public class DBService(LocalDbContext _localDbContext, WebDbContext _webDbContex
         }
         catch (Exception ex)
         {
-            ViewManager.ShowErrorWindow("DBService", "GetAktiveMitglieder", ex.ToString());
+            ViewManager.ShowErrorWindow("DBService", "GetAktiveMitgliederAsync", ex.ToString());
         }
 
         return lstAktiveMitglieder;
@@ -758,14 +761,16 @@ public class DBService(LocalDbContext _localDbContext, WebDbContext _webDbContex
 
         try
         {
-            var aktiveTeilnemer = await (_localDbContext.TblTeilnehmers
+            var aktiveTeilnemer = await _localDbContext.TblTeilnehmers
                 .Where(w => w.MeisterschaftsId == iMeisterschaftsID)
-                .Select(s => s)).ToListAsync();
+                .Select(s => s).ToListAsync();
 
-            var items = await (_localDbContext.TblMitglieders
+            var items = _localDbContext.TblMitglieders
+                .Where(w => w.PassivSeit == null) // Zuerst nur diesen Teil in SQL filtern
+                .AsEnumerable() // Danach wird die restliche Filterung in Speicher durchgeführt
+                .Where(w => aktiveTeilnemer.All(w2 => w2.SpielerId != w.Id))
                 .OrderBy(o => o.Nachname).ThenBy(t => t.Vorname)
-                .Where(w => w.PassivSeit == null && aktiveTeilnemer.All(w2 => w2.SpielerId != w.Id))
-                .Select(s => s)).ToListAsync();
+                .ToList();
 
             foreach (var objM in items)
             {
@@ -815,7 +820,7 @@ public class DBService(LocalDbContext _localDbContext, WebDbContext _webDbContex
         }
         catch (Exception ex)
         {
-            ViewManager.ShowErrorWindow("DBService", "GetAktiveMitglieder", ex.ToString());
+            ViewManager.ShowErrorWindow("DBService", "GetAktiveMitgliederAsync(MeisterschaftID)", ex.ToString());
         }
 
         return lstAktiveMitglieder;
@@ -881,7 +886,7 @@ public class DBService(LocalDbContext _localDbContext, WebDbContext _webDbContex
         }
         catch (Exception ex)
         {
-            ViewManager.ShowErrorWindow("DBService", "GetAktiveTeilnehmer", ex.ToString());
+            ViewManager.ShowErrorWindow("DBService", "GetAktiveTeilnehmerAsync", ex.ToString());
         }
 
         return lstAktiveMitglieder;
@@ -2949,7 +2954,7 @@ public class DBService(LocalDbContext _localDbContext, WebDbContext _webDbContex
 
         try
         {
-           var erg = await _localDbContext.TblMeisterschaftens
+            var erg = await _localDbContext.TblMeisterschaftens
                 .Join(_localDbContext.TblSpieltags,
                     m => m.Id,
                     st => st.MeisterschaftsId,
@@ -3039,7 +3044,7 @@ public class DBService(LocalDbContext _localDbContext, WebDbContext _webDbContex
                 }
 
                 //9er + Ratten
-               var nr = await _localDbContext.Vw9erRattens
+                var nr = await _localDbContext.Vw9erRattens
                     .Where(w => w.SpieltagId == item.SpieltagID && w.SpielerId == iSpielerID)
                     .FirstOrDefaultAsync();
 
@@ -3108,13 +3113,13 @@ public class DBService(LocalDbContext _localDbContext, WebDbContext _webDbContex
                 .Select(s => s.HolzSpieler1)
                 .DefaultIfEmpty()
                 .MaxAsync(m => m == null ? 0 : m);
-            
-           var sp2MeisterMax = await _localDbContext.VwSpielMeisterschafts
+
+            var sp2MeisterMax = await _localDbContext.VwSpielMeisterschafts
                 .Where(w => w.SpielerId2 == iSpielerID)
                 .Select(s => s.HolzSpieler2)
                 .DefaultIfEmpty()
                 .MaxAsync(m => m == null ? 0 : m);
-            
+
             objStat.HolzMeisterMax = sp1MeisterMax > sp2MeisterMax ? sp1MeisterMax : sp2MeisterMax;
 
             //Holz Min
@@ -3123,8 +3128,8 @@ public class DBService(LocalDbContext _localDbContext, WebDbContext _webDbContex
                 .Select(s => s.HolzSpieler1)
                 .DefaultIfEmpty()
                 .MinAsync(m => m == null ? 0 : m);
-            
-           var sp2MeisterMin = await _localDbContext.VwSpielMeisterschafts
+
+            var sp2MeisterMin = await _localDbContext.VwSpielMeisterschafts
                 .Where(w => w.SpielerId2 == iSpielerID)
                 .Select(s => s.HolzSpieler2)
                 .DefaultIfEmpty()
@@ -3136,23 +3141,23 @@ public class DBService(LocalDbContext _localDbContext, WebDbContext _webDbContex
                 .Select(s => s.HolzSpieler1)
                 .DefaultIfEmpty()
                 .SumAsync(m => m == null ? 0 : m);
-            
+
             var sp2MeisterSum = await _localDbContext.VwSpielMeisterschafts
                 .Where(w => w.SpielerId2 == iSpielerID)
                 .Select(s => s.HolzSpieler2)
                 .DefaultIfEmpty()
                 .SumAsync(m => m == null ? 0 : m);
-            
-           var spc1Meister = await _localDbContext.VwSpielMeisterschafts
+
+            var spc1Meister = await _localDbContext.VwSpielMeisterschafts
                 .Where(w => w.SpielerId1 == iSpielerID)
                 .Select(s => s.SpielMeisterschaftId)
                 .CountAsync();
-            
+
             var spc2Meister = await _localDbContext.VwSpielMeisterschafts
                 .Where(w => w.SpielerId2 == iSpielerID)
                 .Select(s => s.SpielMeisterschaftId)
                 .CountAsync();
-            
+
             if (spc1Meister == 0 || spc2Meister == 0)
                 objStat.HolzMeisterAVG = 0;
             else
@@ -3166,13 +3171,13 @@ public class DBService(LocalDbContext _localDbContext, WebDbContext _webDbContex
                 .Select(s => s.SpielerId1)
                 .DefaultIfEmpty()
                 .MaxAsync(m => m == null ? 0 : m);
-            
+
             var sp2BlitzMax = await _localDbContext.VwSpielBlitztuniers
                 .Where(w => w.SpielerId2 == iSpielerID)
                 .Select(s => s.SpielerId2)
                 .DefaultIfEmpty()
                 .MaxAsync(m => m == null ? 0 : m);
-            
+
             objStat.HolzBlitzMax = sp1BlitzMax > sp2BlitzMax ? sp1BlitzMax : sp2BlitzMax;
 
             var sp1BlitzMin = await _localDbContext.VwSpielBlitztuniers
@@ -3180,13 +3185,13 @@ public class DBService(LocalDbContext _localDbContext, WebDbContext _webDbContex
                 .Select(s => s.SpielerId1)
                 .DefaultIfEmpty()
                 .MinAsync(m => m == null ? 0 : m);
-            
+
             var sp2BlitzMin = await _localDbContext.VwSpielBlitztuniers
                 .Where(w => w.SpielerId2 == iSpielerID)
                 .Select(s => s.SpielerId2)
                 .DefaultIfEmpty()
                 .MinAsync(m => m == null ? 0 : m);
-            
+
             objStat.HolzBlitzMin = sp1BlitzMin < sp2BlitzMin ? sp1BlitzMin : sp2BlitzMin;
 
             var sp1BlitzSum = await _localDbContext.VwSpielBlitztuniers
@@ -3194,23 +3199,23 @@ public class DBService(LocalDbContext _localDbContext, WebDbContext _webDbContex
                 .Select(s => s.SpielerId1)
                 .DefaultIfEmpty()
                 .SumAsync(m => m == null ? 0 : m);
-            
+
             var sp2BlitzSum = await _localDbContext.VwSpielBlitztuniers
                 .Where(w => w.SpielerId2 == iSpielerID)
                 .Select(s => s.SpielerId2)
                 .DefaultIfEmpty()
                 .SumAsync(m => m == null ? 0 : m);
-            
-           var spc1Blitz = await _localDbContext.VwSpielBlitztuniers
+
+            var spc1Blitz = await _localDbContext.VwSpielBlitztuniers
                 .Where(w => w.SpielerId1 == iSpielerID)
                 .Select(s => s.SpieltagId)
                 .CountAsync();
-            
+
             var spc2Blitz = await _localDbContext.VwSpielBlitztuniers
                 .Where(w => w.SpielerId2 == iSpielerID)
                 .Select(s => s.SpieltagId)
                 .CountAsync();
-            
+
             if (spc1Blitz == 0 || spc2Blitz == 0)
                 objStat.HolzBlitzAVG = 0;
             else
@@ -3237,7 +3242,7 @@ public class DBService(LocalDbContext _localDbContext, WebDbContext _webDbContex
                 .Select(s => s.Ratten)
                 .DefaultIfEmpty()
                 .MaxAsync(m => m == null ? 0 : m);
-            
+
             objStat.RattenMax = ratten;
 
             var neuner = await _localDbContext.Vw9erRattens
@@ -3245,7 +3250,7 @@ public class DBService(LocalDbContext _localDbContext, WebDbContext _webDbContex
                 .Select(s => s.Neuner)
                 .DefaultIfEmpty()
                 .MaxAsync(m => m == null ? 0 : m);
-            
+
             objStat.NeunerMax = neuner;
 
             var rattenSum = await _localDbContext.Vw9erRattens
@@ -3253,7 +3258,7 @@ public class DBService(LocalDbContext _localDbContext, WebDbContext _webDbContex
                 .Select(s => s.Ratten)
                 .DefaultIfEmpty()
                 .SumAsync(m => m == null ? 0 : m);
-            
+
             objStat.RattenSumme = rattenSum;
 
             var neunerSum = await _localDbContext.Vw9erRattens
@@ -3261,7 +3266,7 @@ public class DBService(LocalDbContext _localDbContext, WebDbContext _webDbContex
                 .Select(s => s.Neuner)
                 .DefaultIfEmpty()
                 .SumAsync(m => m == null ? 0 : m);
-            
+
             objStat.NeunerSumme = neunerSum;
 
 
@@ -3303,7 +3308,7 @@ public class DBService(LocalDbContext _localDbContext, WebDbContext _webDbContex
     //     string sStrasse, string sPLZ, string sOrt, string sTelefonPrivat, string sTelefonMobil, DateTime dtGeburtsdatum,
     //     DateTime dtMitgliedSeit, object dtPassivSeit, object dtAusgeschiedenAm, string sEMail, bool bEhemaliger,
     //     string sNotizen, string sBemerkungen)
-    public async Task SaveMitgliedAsync(MitgliedDetails currentMietglied)
+    public async Task SaveMitgliedAsync(MitgliedDetails currentMitglied)
     {
         string strSQL = string.Empty;
         StringBuilder sb = new StringBuilder();
@@ -3313,43 +3318,44 @@ public class DBService(LocalDbContext _localDbContext, WebDbContext _webDbContex
             Models.Local.TblMitglieder objMitglied = new();
             Models.Local.TblDbchangeLog objLog = new();
             Models.Web.TblDbchangeLog objLogWeb = new();
+            DateTime dtLogTimestamp = DateTime.Now;
 
-            switch (currentMietglied.ID)
+            switch (currentMitglied.ID)
             {
                 case -1:
-                    objMitglied.Anrede = currentMietglied.Anrede;
-                    objMitglied.Vorname = currentMietglied.Vorname;
-                    objMitglied.Nachname = currentMietglied.Nachname;
-                    objMitglied.Spitzname = currentMietglied.Spitzname;
-                    objMitglied.Straße = currentMietglied.Straße;
-                    objMitglied.Plz = currentMietglied.PLZ;
-                    objMitglied.Ort = currentMietglied.Ort;
-                    objMitglied.TelefonPrivat = currentMietglied.TelefonPrivat;
-                    objMitglied.TelefonMobil = currentMietglied.TelefonMobil;
-                    objMitglied.Geburtsdatum = currentMietglied.Geburtsdatum;
-                    objMitglied.MitgliedSeit = currentMietglied.MitgliedSeit.Value;
-                    if (currentMietglied.PassivSeit.HasValue)
+                    objMitglied.Anrede = currentMitglied.Anrede;
+                    objMitglied.Vorname = currentMitglied.Vorname;
+                    objMitglied.Nachname = currentMitglied.Nachname;
+                    objMitglied.Spitzname = currentMitglied.Spitzname;
+                    objMitglied.Straße = currentMitglied.Straße;
+                    objMitglied.Plz = currentMitglied.PLZ;
+                    objMitglied.Ort = currentMitglied.Ort;
+                    objMitglied.TelefonPrivat = currentMitglied.TelefonPrivat;
+                    objMitglied.TelefonMobil = currentMitglied.TelefonMobil;
+                    objMitglied.Geburtsdatum = currentMitglied.Geburtsdatum;
+                    objMitglied.MitgliedSeit = currentMitglied.MitgliedSeit.Value;
+                    if (currentMitglied.PassivSeit.HasValue)
                     {
-                        objMitglied.PassivSeit = currentMietglied.PassivSeit;
+                        objMitglied.PassivSeit = currentMitglied.PassivSeit;
                     }
                     else
                     {
                         objMitglied.PassivSeit = null;
                     }
-                    
-                    if (currentMietglied.AusgeschiedenAm.HasValue)
+
+                    if (currentMitglied.AusgeschiedenAm.HasValue)
                     {
-                        objMitglied.AusgeschiedenAm = currentMietglied.AusgeschiedenAm;
+                        objMitglied.AusgeschiedenAm = currentMitglied.AusgeschiedenAm;
                     }
                     else
                     {
                         objMitglied.AusgeschiedenAm = null;
                     }
-                    
-                    objMitglied.Email = currentMietglied.EMail;
-                    objMitglied.Ehemaliger = currentMietglied.Ehemaliger;
-                    objMitglied.Notizen = currentMietglied.Notizen;
-                    objMitglied.Bemerkungen = currentMietglied.Bemerkungen;
+
+                    objMitglied.Email = currentMitglied.EMail;
+                    objMitglied.Ehemaliger = currentMitglied.Ehemaliger;
+                    objMitglied.Notizen = currentMitglied.Notizen;
+                    objMitglied.Bemerkungen = currentMitglied.Bemerkungen;
 
                     await _localDbContext.TblMitglieders.AddAsync(objMitglied);
                     await _localDbContext.SaveChangesAsync();
@@ -3357,20 +3363,20 @@ public class DBService(LocalDbContext _localDbContext, WebDbContext _webDbContex
                     sb.Append(
                         "insert into tblMitglieder(Anrede, Vorname, Nachname, Spitzname, Straße, PLZ, Ort, TelefonPrivat, TelefonMobil, Geburtsdatum, MitgliedSeit, AusgeschiedenAm, PassivSeit, EMail, Ehemaliger, Notizen, Bemerkungen) ");
                     sb.Append("values(");
-                    sb.Append("'").Append(currentMietglied.Anrede).Append("', ");
-                    sb.Append("'").Append(currentMietglied.Vorname).Append("', ");
-                    sb.Append("'").Append(currentMietglied.Nachname).Append("', ");
-                    sb.Append("'").Append(currentMietglied.Spitzname).Append("', ");
-                    sb.Append("'").Append(currentMietglied.Straße).Append("', ");
-                    sb.Append("'").Append(currentMietglied.PLZ).Append("', ");
-                    sb.Append("'").Append(currentMietglied.Ort).Append("', ");
-                    sb.Append("'").Append(currentMietglied.TelefonPrivat).Append("', ");
-                    sb.Append("'").Append(currentMietglied.TelefonMobil).Append("', ");
-                    sb.Append("'").Append(currentMietglied.Geburtsdatum.ToString("yyyyMMdd")).Append("', ");
-                    sb.Append("'").Append(currentMietglied.MitgliedSeit.Value.ToString("yyyyMMdd")).Append("', ");
-                    if (currentMietglied.PassivSeit.HasValue)
+                    sb.Append("'").Append(currentMitglied.Anrede).Append("', ");
+                    sb.Append("'").Append(currentMitglied.Vorname).Append("', ");
+                    sb.Append("'").Append(currentMitglied.Nachname).Append("', ");
+                    sb.Append("'").Append(currentMitglied.Spitzname).Append("', ");
+                    sb.Append("'").Append(currentMitglied.Straße).Append("', ");
+                    sb.Append("'").Append(currentMitglied.PLZ).Append("', ");
+                    sb.Append("'").Append(currentMitglied.Ort).Append("', ");
+                    sb.Append("'").Append(currentMitglied.TelefonPrivat).Append("', ");
+                    sb.Append("'").Append(currentMitglied.TelefonMobil).Append("', ");
+                    sb.Append("'").Append(currentMitglied.Geburtsdatum.ToString("yyyyMMdd")).Append("', ");
+                    sb.Append("'").Append(currentMitglied.MitgliedSeit.Value.ToString("yyyyMMdd")).Append("', ");
+                    if (currentMitglied.PassivSeit.HasValue)
                     {
-                        sb.Append("'").Append(((DateTime)currentMietglied.PassivSeit.Value).ToString("yyyyMMdd"))
+                        sb.Append("'").Append(((DateTime)currentMitglied.PassivSeit.Value).ToString("yyyyMMdd"))
                             .Append("', ");
                     }
                     else
@@ -3378,9 +3384,9 @@ public class DBService(LocalDbContext _localDbContext, WebDbContext _webDbContex
                         sb.Append("NULL, ");
                     }
 
-                    if (currentMietglied.AusgeschiedenAm.HasValue)
+                    if (currentMitglied.AusgeschiedenAm.HasValue)
                     {
-                        sb.Append("'").Append((currentMietglied.AusgeschiedenAm.Value).ToString("yyyyMMdd"))
+                        sb.Append("'").Append((currentMitglied.AusgeschiedenAm.Value).ToString("yyyyMMdd"))
                             .Append("', ");
                     }
                     else
@@ -3388,10 +3394,10 @@ public class DBService(LocalDbContext _localDbContext, WebDbContext _webDbContex
                         sb.Append("NULL, ");
                     }
 
-                    sb.Append("'").Append(currentMietglied.EMail).Append("', ");
-                    sb.Append(currentMietglied.Ehemaliger ? 1 : 0).Append(", ");
-                    sb.Append("'").Append(currentMietglied.Notizen).Append("', ");
-                    sb.Append("'").Append(currentMietglied.Bemerkungen).Append("' ");
+                    sb.Append("'").Append(currentMitglied.EMail).Append("', ");
+                    sb.Append(currentMitglied.Ehemaliger ? 1 : 0).Append(", ");
+                    sb.Append("'").Append(currentMitglied.Notizen).Append("', ");
+                    sb.Append("'").Append(currentMitglied.Bemerkungen).Append("' ");
                     sb.Append(")");
                     strSQL = sb.ToString();
 
@@ -3399,7 +3405,7 @@ public class DBService(LocalDbContext _localDbContext, WebDbContext _webDbContex
                     objLog.Command = strSQL;
                     objLog.Tablename = "tblMitglieder";
                     objLog.Computername = Environment.MachineName;
-                    objLog.Zeitstempel = DateTime.Now;
+                    objLog.Zeitstempel = dtLogTimestamp;
 
                     await _localDbContext.TblDbchangeLogs.AddAsync(objLog);
                     await _localDbContext.SaveChangesAsync();
@@ -3411,79 +3417,80 @@ public class DBService(LocalDbContext _localDbContext, WebDbContext _webDbContex
                     objLogWeb.Command = strSQL;
                     objLogWeb.Tablename = "tblMitglieder";
                     objLogWeb.Computername = Environment.MachineName;
-                    objLogWeb.Zeitstempel = DateTime.Now;
+                    objLogWeb.Zeitstempel = dtLogTimestamp;
 
                     await _webDbContext.TblDbchangeLogs.AddAsync(objLogWeb);
                     await _webDbContext.SaveChangesAsync();
+
                     break;
                 default:
                     var objMitgliedSearch = await (_localDbContext.TblMitglieders
-                        .Select(m => m)).SingleOrDefaultAsync(m => m.Id == currentMietglied.ID);
+                        .Select(m => m)).SingleOrDefaultAsync(m => m.Id == currentMitglied.ID);
 
                     if (objMitgliedSearch != null)
                     {
-                        objMitgliedSearch.Anrede = currentMietglied.Anrede;
-                        objMitgliedSearch.Vorname = currentMietglied.Vorname;
-                        objMitgliedSearch.Nachname = currentMietglied.Nachname;
-                        objMitgliedSearch.Spitzname = currentMietglied.Spitzname;
-                        objMitgliedSearch.Straße = currentMietglied.Straße;
-                        objMitgliedSearch.Plz = currentMietglied.PLZ;
-                        objMitgliedSearch.Ort = currentMietglied.Ort;
-                        objMitgliedSearch.TelefonPrivat = currentMietglied.TelefonPrivat;
-                        objMitgliedSearch.TelefonMobil = currentMietglied.TelefonMobil;
-                        objMitgliedSearch.Geburtsdatum = currentMietglied.Geburtsdatum;
-                        objMitgliedSearch.MitgliedSeit = currentMietglied.MitgliedSeit.Value;
-                        if (currentMietglied.PassivSeit.HasValue)
+                        objMitgliedSearch.Anrede = currentMitglied.Anrede;
+                        objMitgliedSearch.Vorname = currentMitglied.Vorname;
+                        objMitgliedSearch.Nachname = currentMitglied.Nachname;
+                        objMitgliedSearch.Spitzname = currentMitglied.Spitzname;
+                        objMitgliedSearch.Straße = currentMitglied.Straße;
+                        objMitgliedSearch.Plz = currentMitglied.PLZ;
+                        objMitgliedSearch.Ort = currentMitglied.Ort;
+                        objMitgliedSearch.TelefonPrivat = currentMitglied.TelefonPrivat;
+                        objMitgliedSearch.TelefonMobil = currentMitglied.TelefonMobil;
+                        objMitgliedSearch.Geburtsdatum = currentMitglied.Geburtsdatum;
+                        objMitgliedSearch.MitgliedSeit = currentMitglied.MitgliedSeit.Value;
+                        if (currentMitglied.PassivSeit.HasValue)
                         {
-                            objMitgliedSearch.PassivSeit = currentMietglied.PassivSeit;
+                            objMitgliedSearch.PassivSeit = currentMitglied.PassivSeit;
                         }
                         else
                         {
                             objMitgliedSearch.PassivSeit = null;
                         }
 
-                        if (currentMietglied.AusgeschiedenAm.HasValue)
+                        if (currentMitglied.AusgeschiedenAm.HasValue)
                         {
-                            objMitgliedSearch.AusgeschiedenAm = currentMietglied.AusgeschiedenAm;
+                            objMitgliedSearch.AusgeschiedenAm = currentMitglied.AusgeschiedenAm;
                         }
                         else
                         {
                             objMitgliedSearch.AusgeschiedenAm = null;
                         }
 
-                        objMitgliedSearch.Email = currentMietglied.EMail;
-                        objMitgliedSearch.Ehemaliger = currentMietglied.Ehemaliger;
-                        objMitgliedSearch.Notizen = currentMietglied.Notizen;
-                        objMitgliedSearch.Bemerkungen = currentMietglied.Bemerkungen;
+                        objMitgliedSearch.Email = currentMitglied.EMail;
+                        objMitgliedSearch.Ehemaliger = currentMitglied.Ehemaliger;
+                        objMitgliedSearch.Notizen = currentMitglied.Notizen;
+                        objMitgliedSearch.Bemerkungen = currentMitglied.Bemerkungen;
                         await _localDbContext.SaveChangesAsync();
 
                         sb.Append("update tblMitglieder ");
                         sb.Append(" set Anrede = ");
-                        sb.Append("'").Append(currentMietglied.Anrede).Append("', ");
+                        sb.Append("'").Append(currentMitglied.Anrede).Append("', ");
                         sb.Append("Vorname = ");
-                        sb.Append("'").Append(currentMietglied.Vorname).Append("', ");
+                        sb.Append("'").Append(currentMitglied.Vorname).Append("', ");
                         sb.Append("Nachname = ");
-                        sb.Append("'").Append(currentMietglied.Nachname).Append("', ");
+                        sb.Append("'").Append(currentMitglied.Nachname).Append("', ");
                         sb.Append("Spitzname = ");
-                        sb.Append("'").Append(currentMietglied.Spitzname).Append("', ");
+                        sb.Append("'").Append(currentMitglied.Spitzname).Append("', ");
                         sb.Append("Straße = ");
-                        sb.Append("'").Append(currentMietglied.Straße).Append("', ");
+                        sb.Append("'").Append(currentMitglied.Straße).Append("', ");
                         sb.Append("PLZ = ");
-                        sb.Append("'").Append(currentMietglied.PLZ).Append("', ");
+                        sb.Append("'").Append(currentMitglied.PLZ).Append("', ");
                         sb.Append("Ort = ");
-                        sb.Append("'").Append(currentMietglied.Ort).Append("', ");
+                        sb.Append("'").Append(currentMitglied.Ort).Append("', ");
                         sb.Append("TelefonPrivat = ");
-                        sb.Append("'").Append(currentMietglied.TelefonPrivat).Append("', ");
+                        sb.Append("'").Append(currentMitglied.TelefonPrivat).Append("', ");
                         sb.Append("TelefonMobil = ");
-                        sb.Append("'").Append(currentMietglied.TelefonMobil).Append("', ");
+                        sb.Append("'").Append(currentMitglied.TelefonMobil).Append("', ");
                         sb.Append("Geburtsdatum = ");
-                        sb.Append("'").Append(currentMietglied.Geburtsdatum.ToString("yyyyMMdd")).Append("', ");
+                        sb.Append("'").Append(currentMitglied.Geburtsdatum.ToString("yyyyMMdd")).Append("', ");
                         sb.Append("MitgliedSeit = ");
-                        sb.Append("'").Append(currentMietglied.MitgliedSeit.Value.ToString("yyyyMMdd")).Append("', ");
+                        sb.Append("'").Append(currentMitglied.MitgliedSeit.Value.ToString("yyyyMMdd")).Append("', ");
                         sb.Append("PassivSeit = ");
-                        if (currentMietglied.PassivSeit.HasValue)
+                        if (currentMitglied.PassivSeit.HasValue)
                         {
-                            sb.Append("'").Append((currentMietglied.PassivSeit.Value).ToString("yyyyMMdd"))
+                            sb.Append("'").Append((currentMitglied.PassivSeit.Value).ToString("yyyyMMdd"))
                                 .Append("', ");
                         }
                         else
@@ -3492,9 +3499,9 @@ public class DBService(LocalDbContext _localDbContext, WebDbContext _webDbContex
                         }
 
                         sb.Append("AusgeschiedenAm = ");
-                        if (currentMietglied.AusgeschiedenAm.HasValue)
+                        if (currentMitglied.AusgeschiedenAm.HasValue)
                         {
-                            sb.Append("'").Append((currentMietglied.AusgeschiedenAm.Value).ToString("yyyyMMdd"))
+                            sb.Append("'").Append((currentMitglied.AusgeschiedenAm.Value).ToString("yyyyMMdd"))
                                 .Append("', ");
                         }
                         else
@@ -3503,13 +3510,13 @@ public class DBService(LocalDbContext _localDbContext, WebDbContext _webDbContex
                         }
 
                         sb.Append("EMail = ");
-                        sb.Append("'").Append(currentMietglied.EMail).Append("', ");
+                        sb.Append("'").Append(currentMitglied.EMail).Append("', ");
                         sb.Append("Ehemaliger = ");
-                        sb.Append(currentMietglied.Ehemaliger ? 1 : 0).Append(", ");
+                        sb.Append(currentMitglied.Ehemaliger ? 1 : 0).Append(", ");
                         sb.Append("Notizen = ");
-                        sb.Append("'").Append(currentMietglied.Notizen).Append("', ");
+                        sb.Append("'").Append(currentMitglied.Notizen).Append("', ");
                         sb.Append("Bemerkungen = ");
-                        sb.Append("'").Append(currentMietglied.Bemerkungen).Append("' ");
+                        sb.Append("'").Append(currentMitglied.Bemerkungen).Append("' ");
                         sb.Append("where ID = ").Append(objMitgliedSearch.Id.ToString());
                         strSQL = sb.ToString();
 
@@ -3518,7 +3525,7 @@ public class DBService(LocalDbContext _localDbContext, WebDbContext _webDbContex
                         objLog.Command = strSQL;
                         objLog.Tablename = "tblMitglieder";
                         objLog.Computername = Environment.MachineName;
-                        objLog.Zeitstempel = DateTime.Now;
+                        objLog.Zeitstempel = dtLogTimestamp;
 
                         await _localDbContext.TblDbchangeLogs.AddAsync(objLog);
                         await _localDbContext.SaveChangesAsync();
@@ -3531,7 +3538,7 @@ public class DBService(LocalDbContext _localDbContext, WebDbContext _webDbContex
                         objLogWeb.Command = strSQL;
                         objLogWeb.Tablename = "tblMitglieder";
                         objLogWeb.Computername = Environment.MachineName;
-                        objLogWeb.Zeitstempel = DateTime.Now;
+                        objLogWeb.Zeitstempel = dtLogTimestamp;
 
                         await _webDbContext.TblDbchangeLogs.AddAsync(objLogWeb);
                         await _webDbContext.SaveChangesAsync();
@@ -3548,156 +3555,180 @@ public class DBService(LocalDbContext _localDbContext, WebDbContext _webDbContex
         }
     }
 
-    public Int32 SaveMeisterschaftsdaten(Int32 iID, string sBezeichnung, DateTime dtBeginn, object dtEnde, Int32 iTypID,
-        Int32 iAktiv)
+    // public Int32 SaveMeisterschaftsdaten(Int32 iID, string sBezeichnung, DateTime dtBeginn, object dtEnde, Int32 iTypID,
+    //     Int32 iAktiv)
+    public async Task<Int32> SaveMeisterschaftsdatenAsync(Meisterschaftsdaten currentMeisterschaft)
     {
         Int32 intID = -1;
-        // string strSQL = string.Empty;
-        // StringBuilder sb = new StringBuilder();
-        //
-        // try
-        // {
-        //     switch (iID)
-        //     {
-        //         case -1:
-        //             using (KEPAVerwaltungEntities DBContext = new KEPAVerwaltungEntities())
-        //             {
-        //                 var a = (from mt in DBContext.tblMeisterschaften
-        //                          where mt.Aktiv == 1
-        //                          select mt).ToList();
-        //
-        //                 foreach (var item in a)
-        //                 {
-        //                     item.Aktiv = 0;
-        //                 }
-        //
-        //                 tblMeisterschaften objMeister = new tblMeisterschaften();
-        //                 objMeister.Bezeichnung = sBezeichnung;
-        //                 objMeister.Beginn = dtBeginn;
-        //                 if (Convert.IsDBNull(dtEnde))
-        //                 {
-        //                     objMeister.Ende = null;
-        //                 }
-        //                 else
-        //                 {
-        //                     objMeister.Ende = (DateTime?)dtEnde;
-        //                 }
-        //                 objMeister.MeisterschaftstypID = iTypID;
-        //                 objMeister.Aktiv = 1;
-        //
-        //                 DBContext.tblMeisterschaften.Add(objMeister);
-        //                 DBContext.SaveChanges();
-        //                 intID = objMeister.ID;
-        //
-        //                 sb.Append("insert into tblMeisterschaften(ID, Bezeichnung, Beginn, Ende, MeisterschaftstypID, Aktiv) ");
-        //                 sb.Append("values(");
-        //                 sb.Append(intID).Append(", ");
-        //                 sb.Append("'").Append(sBezeichnung).Append("', ");
-        //                 sb.Append("'").Append(dtBeginn.ToString("yyyyMMdd")).Append("', ");
-        //                 if (Convert.IsDBNull(dtEnde))
-        //                 {
-        //                     sb.Append("null").Append(", ");
-        //                 }
-        //                 else
-        //                 {
-        //                     sb.Append("'").Append(((DateTime)dtEnde).ToString("yyyyMMdd")).Append("', ");
-        //                 }
-        //                 sb.Append(iTypID.ToString()).Append("', ");
-        //                 sb.Append("1)");
-        //                 strSQL = sb.ToString();
-        //
-        //                 tblDBChangeLog objLog = new tblDBChangeLog();
-        //                 objLog.Changetype = "insert";
-        //                 objLog.Command = strSQL;
-        //                 objLog.Tablename = "tblMeisterschaften";
-        //                 objLog.Computername = Environment.MachineName;
-        //                 objLog.Zeitstempel = DateTime.Now;
-        //
-        //                 DBContext.tblDBChangeLog.Add(objLog);
-        //                 DBContext.SaveChanges();
-        //
-        //                 m_objDBWeb.SaveMeisterschaft(iID, intID, sBezeichnung, dtBeginn, dtEnde, iTypID, iAktiv);
-        //                 m_objDBWeb.SaveDBLog(objLog.Changetype, objLog.Computername, objLog.Tablename, objLog.Command, objLog.Zeitstempel.Value);
-        //             }
-        //
-        //             break;
-        //         default:
-        //             using (KEPAVerwaltungEntities DBContext = new KEPAVerwaltungEntities())
-        //             {
-        //                 intID = iID;
-        //
-        //                 if(iAktiv == 1)
-        //                 {
-        //                     var a = (from mt in DBContext.tblMeisterschaften
-        //                              where mt.Aktiv == 1
-        //                              select mt).ToList();
-        //
-        //                     foreach (var item in a)
-        //                     {
-        //                         item.Aktiv = 0;
-        //                     }
-        //                 }
-        //
-        //                 var objMeister = (DBContext.tblMeisterschaften
-        //                         .Select(m => m)).SingleOrDefault(m => m.ID == iID);
-        //
-        //                 objMeister.Bezeichnung = sBezeichnung;
-        //                 objMeister.Beginn = dtBeginn;
-        //                 if (Convert.IsDBNull(dtEnde))
-        //                 {
-        //                     objMeister.Ende = null;
-        //                 }
-        //                 else
-        //                 {
-        //                     objMeister.Ende = (DateTime?)dtEnde;
-        //                 }
-        //                 objMeister.MeisterschaftstypID = iTypID;
-        //                 objMeister.Aktiv = iAktiv;
-        //
-        //                 DBContext.SaveChanges();
-        //
-        //                 sb.Append("update tblMeisterschaften ");
-        //                 sb.Append("set Bezeichnung = ");
-        //                 sb.Append("'").Append(sBezeichnung).Append("', ");
-        //                 sb.Append("Beginn = ");
-        //                 sb.Append("'").Append(dtBeginn.ToString("yyyyMMdd")).Append("', ");
-        //                 sb.Append("Ende = ");
-        //                 if (Convert.IsDBNull(dtEnde))
-        //                 {
-        //                     sb.Append("null").Append(", ");
-        //                 }
-        //                 else
-        //                 {
-        //                     sb.Append("'").Append(((DateTime)dtEnde).ToString("yyyyMMdd")).Append("', ");
-        //                 }
-        //                 sb.Append("MeisterschaftstypID = ");
-        //                 sb.Append(iTypID.ToString()).Append(", ");
-        //                 sb.Append("Aktiv = " + iAktiv.ToString()).Append(" ");
-        //                 sb.Append("where ID = ").Append(iID.ToString());
-        //                 strSQL = sb.ToString();
-        //
-        //                 tblDBChangeLog objLog = new tblDBChangeLog();
-        //                 objLog.Changetype = "update";
-        //                 objLog.Command = strSQL;
-        //                 objLog.Tablename = "tblMeisterschaften";
-        //                 objLog.Computername = Environment.MachineName;
-        //                 objLog.Zeitstempel = DateTime.Now;
-        //
-        //                 DBContext.tblDBChangeLog.Add(objLog);
-        //                 DBContext.SaveChanges();
-        //
-        //                 m_objDBWeb.SaveMeisterschaft(iID, intID, sBezeichnung, dtBeginn, dtEnde, iTypID, iAktiv);
-        //                 m_objDBWeb.SaveDBLog(objLog.Changetype, objLog.Computername, objLog.Tablename, objLog.Command, objLog.Zeitstempel.Value);
-        //             }
-        //
-        //             break;
-        //     }
-        // }
-        // catch(Exception ex)
-        // {
-        //     FrmError objForm = new FrmError("ClsDB", "SaveMeisterschaftsdaten", ex.ToString());
-        //     objForm.ShowDialog();
-        // }
+        string strSQL = string.Empty;
+        StringBuilder sb = new StringBuilder();
+
+        try
+        {
+            Models.Local.TblDbchangeLog objLog = new();
+            Models.Web.TblDbchangeLog objLogWeb = new();
+            DateTime dtLogTimestamp = DateTime.Now;
+
+            switch (currentMeisterschaft.ID)
+            {
+                case -1:
+                    // var a = (from mt in _localDbContext.TblMeisterschaftens
+                    //          where mt.Aktiv == 1
+                    //          select mt).ToList();
+                    var meisterschaftNeu = await _localDbContext.TblMeisterschaftens
+                        .Where(w => w.Aktiv == 1)
+                        .ToListAsync();
+
+                    foreach (var item in meisterschaftNeu)
+                    {
+                        item.Aktiv = 0;
+                    }
+
+                    TblMeisterschaften objMeisterNeu = new();
+                    objMeisterNeu.Bezeichnung = currentMeisterschaft.Bezeichnung;
+                    objMeisterNeu.Beginn = currentMeisterschaft.Beginn;
+                    if (currentMeisterschaft.Ende.HasValue)
+                    {
+                        objMeisterNeu.Ende = currentMeisterschaft.Ende.Value;
+                    }
+                    else
+                    {
+                        objMeisterNeu.Ende = null;
+                    }
+
+                    objMeisterNeu.MeisterschaftstypId = currentMeisterschaft.MeisterschaftstypID;
+                    objMeisterNeu.Aktiv = 1;
+
+                    await _localDbContext.TblMeisterschaftens.AddAsync(objMeisterNeu);
+                    await _localDbContext.SaveChangesAsync();
+                    intID = objMeisterNeu.Id;
+
+                    sb.Append(
+                        "insert into tblMeisterschaften(ID, Bezeichnung, Beginn, Ende, MeisterschaftstypID, Aktiv) ");
+                    sb.Append("values(");
+                    sb.Append(intID).Append(", ");
+                    sb.Append("'").Append(currentMeisterschaft.Bezeichnung).Append("', ");
+                    sb.Append("'").Append(currentMeisterschaft.Beginn.ToString("yyyyMMdd")).Append("', ");
+                    if (currentMeisterschaft.Ende.HasValue)
+                    {
+                        sb.Append("'").Append(currentMeisterschaft.Ende.Value.ToString("yyyyMMdd")).Append("', ");
+                    }
+                    else
+                    {
+                        sb.Append("null").Append(", ");
+                    }
+
+                    sb.Append(currentMeisterschaft.MeisterschaftstypID.ToString()).Append(", ");
+                    sb.Append("1)");
+                    strSQL = sb.ToString();
+
+                    objLog = new();
+                    objLog.Changetype = "insert";
+                    objLog.Command = strSQL;
+                    objLog.Tablename = "tblMeisterschaften";
+                    objLog.Computername = Environment.MachineName;
+                    objLog.Zeitstempel = dtLogTimestamp;
+
+                    await _localDbContext.TblDbchangeLogs.AddAsync(objLog);
+                    await _localDbContext.SaveChangesAsync();
+
+                    objLogWeb.Changetype = "insert";
+                    objLogWeb.Command = strSQL;
+                    objLogWeb.Tablename = "tblMeisterschaften";
+                    objLogWeb.Computername = Environment.MachineName;
+                    objLogWeb.Zeitstempel = dtLogTimestamp;
+
+                    await _webDbContext.TblDbchangeLogs.AddAsync(objLogWeb);
+                    await _webDbContext.SaveChangesAsync();
+
+                    break;
+                default:
+                    intID = currentMeisterschaft.ID;
+
+                    if (currentMeisterschaft.Aktiv == 1)
+                    {
+                        // var a = (from mt in DBContext.tblMeisterschaften
+                        //     where mt.Aktiv == 1
+                        //     select mt).ToList();
+                        var meisterschaftAktiv = await _localDbContext.TblMeisterschaftens
+                            .Where(w => w.Aktiv == 1)
+                            .ToListAsync();
+
+                        foreach (var item in meisterschaftAktiv)
+                        {
+                            item.Aktiv = 0;
+                        }
+                    }
+
+                    var objMeisterSearch = await _localDbContext.TblMeisterschaftens
+                        .Select(m => m).SingleOrDefaultAsync((m => m.Id == currentMeisterschaft.ID));
+
+                    objMeisterSearch.Bezeichnung = currentMeisterschaft.Bezeichnung;
+                    objMeisterSearch.Beginn = currentMeisterschaft.Beginn;
+                    if (currentMeisterschaft.Ende.HasValue)
+                    {
+                        objMeisterSearch.Ende = currentMeisterschaft.Ende.Value;
+                    }
+                    else
+                    {
+                        objMeisterSearch.Ende = null;
+                    }
+
+                    objMeisterSearch.MeisterschaftstypId = currentMeisterschaft.MeisterschaftstypID;
+                    objMeisterSearch.Aktiv = currentMeisterschaft.Aktiv;
+
+                    await _localDbContext.SaveChangesAsync();
+
+                    sb.Append("update tblMeisterschaften ");
+                    sb.Append("set Bezeichnung = ");
+                    sb.Append("'").Append(currentMeisterschaft.Bezeichnung.Trim()).Append("', ");
+                    sb.Append("Beginn = ");
+                    sb.Append("'").Append(currentMeisterschaft.Beginn.ToString("yyyyMMdd")).Append("', ");
+                    sb.Append("Ende = ");
+                    if (currentMeisterschaft.Ende.HasValue)
+                    {
+                        sb.Append("'").Append(currentMeisterschaft.Ende.Value.ToString("yyyyMMdd")).Append("', ");
+                    }
+                    else
+                    {
+                        sb.Append("null").Append(", ");
+                    }
+
+                    sb.Append("MeisterschaftstypID = ");
+                    sb.Append(currentMeisterschaft.MeisterschaftstypID.ToString()).Append(", ");
+                    sb.Append("Aktiv = " + currentMeisterschaft.Aktiv.ToString()).Append(" ");
+                    sb.Append("where ID = ").Append(intID.ToString());
+                    strSQL = sb.ToString();
+
+                    objLog = new();
+                    objLog.Changetype = "update";
+                    objLog.Command = strSQL;
+                    objLog.Tablename = "tblMeisterschaften";
+                    objLog.Computername = Environment.MachineName;
+                    objLog.Zeitstempel = dtLogTimestamp;
+
+                    await _localDbContext.TblDbchangeLogs.AddAsync(objLog);
+                    await _localDbContext.SaveChangesAsync();
+
+                    objLogWeb.Changetype = "update";
+                    objLogWeb.Command = strSQL;
+                    objLogWeb.Tablename = "tblMeisterschaften";
+                    objLogWeb.Computername = Environment.MachineName;
+                    objLogWeb.Zeitstempel = dtLogTimestamp;
+
+                    await _webDbContext.TblDbchangeLogs.AddAsync(objLogWeb);
+                    await _webDbContext.SaveChangesAsync();
+
+                    break;
+            }
+        }
+        catch (Exception ex)
+        {
+            //FrmError objForm = new FrmError("ClsDB", "SaveMeisterschaftsdaten", ex.ToString());
+            //objForm.ShowDialog();
+            ViewManager.ShowErrorWindow("DBService", "SaveMeisterschaftsdatenAsync", ex.ToString());
+        }
+
         return intID;
     }
 
@@ -3758,6 +3789,51 @@ public class DBService(LocalDbContext _localDbContext, WebDbContext _webDbContex
             .ToList();
 
         return differences;
+    }
+
+    public async Task<bool> ExistsSettingsWebAsync()
+    {
+        bool bolExists = false;
+
+        var settings = await _webDbContext.TblSettings
+            .Select(s => s)
+            .ToListAsync();
+
+        if (settings.Count > 0)
+            bolExists = true;
+
+        return bolExists;
+    }
+
+    public async Task LoadSettingsWebAsync()
+    {
+        var settings = await _webDbContext.TblSettings
+            .Select(s => s)
+            .ToListAsync();
+
+        foreach (var item in settings)
+        {
+            switch (item.Parametername)
+            {
+                case "AktiveMeisterschaft":
+                    var meisterschaftAktiv = await _localDbContext.TblMeisterschaftens
+                        .Where(w => w.Aktiv == 1)
+                        .ToListAsync();
+
+                    foreach (var ma in meisterschaftAktiv)
+                    {
+                        ma.Aktiv = 0;
+                    }
+
+                    int intID = Convert.ToInt32(item.Parameterwert);
+                    var objMeisterSearch = await _localDbContext.TblMeisterschaftens
+                        .Select(m => m).SingleOrDefaultAsync(m => m.Id == intID);
+                    objMeisterSearch!.Aktiv = 1;
+                    await _localDbContext.SaveChangesAsync();
+
+                    break;
+            }
+        }
     }
 
     public async Task UpdateLocalDBAsync()
@@ -3848,74 +3924,90 @@ public class DBService(LocalDbContext _localDbContext, WebDbContext _webDbContex
         }
     }
 
-    public void SaveTeilnehmer(Int32 iMeisterschaftsID, Int32 iTeilnehmerID)
+    public async Task SaveTeilnehmerAsync(Int32 iMeisterschaftsID, Int32 iTeilnehmerID)
     {
-        // StringBuilder sb = new StringBuilder();
-        // string strSQL = string.Empty;
-        //
-        // using (KEPAVerwaltungEntities DBContext = new KEPAVerwaltungEntities())
-        // {
-        //     tblTeilnehmer objTeilnehmer = new tblTeilnehmer();
-        //     objTeilnehmer.MeisterschaftsID = iMeisterschaftsID;
-        //     objTeilnehmer.SpielerID = iTeilnehmerID;
-        //
-        //     DBContext.tblTeilnehmer.Add(objTeilnehmer);
-        //     DBContext.SaveChanges();
-        //
-        //     sb.Append("insert into tblTeilnehmer(MeisterschaftsID, SpielerID) ");
-        //     sb.Append("values(");
-        //     sb.Append(iMeisterschaftsID.ToString()).Append(", ");
-        //     sb.Append(iTeilnehmerID.ToString());
-        //     sb.Append(")");
-        //     strSQL = sb.ToString();
-        //
-        //     tblDBChangeLog objLog = new tblDBChangeLog();
-        //     objLog.Changetype = "insert";
-        //     objLog.Command = strSQL;
-        //     objLog.Tablename = "tblTeilnehmer";
-        //     objLog.Computername = Environment.MachineName;
-        //     objLog.Zeitstempel = DateTime.Now;
-        //     DBContext.tblDBChangeLog.Add(objLog);
-        //
-        //     m_objDBWeb.SaveTeilnehmer(iMeisterschaftsID, iTeilnehmerID);
-        //     m_objDBWeb.SaveDBLog(objLog.Changetype, objLog.Computername, objLog.Tablename, objLog.Command, objLog.Zeitstempel.Value);
-        // }
+        StringBuilder sb = new StringBuilder();
+        string strSQL = string.Empty;
+
+        Models.Local.TblTeilnehmer objTeilnehmer = new ();
+        objTeilnehmer.MeisterschaftsId = iMeisterschaftsID;
+        objTeilnehmer.SpielerId = iTeilnehmerID;
+
+        await _localDbContext.TblTeilnehmers.AddAsync(objTeilnehmer);
+        await _localDbContext.SaveChangesAsync();
+
+        sb.Append("insert into tblTeilnehmer(MeisterschaftsID, SpielerID) ");
+        sb.Append("values(");
+        sb.Append(iMeisterschaftsID.ToString()).Append(", ");
+        sb.Append(iTeilnehmerID.ToString());
+        sb.Append(")");
+        strSQL = sb.ToString();
+
+        Models.Local.TblDbchangeLog objLog = new ();
+        objLog.Changetype = "insert";
+        objLog.Command = strSQL;
+        objLog.Tablename = "tblTeilnehmer";
+        objLog.Computername = Environment.MachineName;
+        objLog.Zeitstempel = DateTime.Now;
+        await _localDbContext.TblDbchangeLogs.AddAsync(objLog);
+        await _localDbContext.SaveChangesAsync();
+        
+        // m_objDBWeb.SaveTeilnehmer(iMeisterschaftsID, iTeilnehmerID);
+        // m_objDBWeb.SaveDBLog(objLog.Changetype, objLog.Computername, objLog.Tablename, objLog.Command,
+        //     objLog.Zeitstempel.Value);
+        
+        Models.Web.TblDbchangeLog objLogWeb = new ();
+        objLogWeb.Changetype = "insert";
+        objLogWeb.Command = strSQL;
+        objLogWeb.Tablename = "tblTeilnehmer";
+        objLogWeb.Computername = Environment.MachineName;
+        objLogWeb.Zeitstempel = DateTime.Now;
+        await _webDbContext.TblDbchangeLogs.AddAsync(objLogWeb);
+        await _webDbContext.SaveChangesAsync();
     }
 
-    public void DeleteTeilnehmer(Int32 iMeisterschaftsID, Int32 iTeilnehmerID)
+    public async Task DeleteTeilnehmerAsync(Int32 iMeisterschaftsID, Int32 iTeilnehmerID)
     {
-        // StringBuilder sb = new StringBuilder();
-        // string strSQL = string.Empty;
-        //
-        // using (KEPAVerwaltungEntities DBContext = new KEPAVerwaltungEntities())
-        // {
-        //     var t = (DBContext.tblTeilnehmer
-        //         .Where(w => w.MeisterschaftsID == iMeisterschaftsID && w.SpielerID == iTeilnehmerID)
-        //         .Select(s => s)).FirstOrDefault();
-        //
-        //     if (t != null)
-        //     {
-        //         DBContext.tblTeilnehmer.Remove(t);
-        //         DBContext.SaveChanges();
-        //
-        //         sb.Append("delete from tblTeilnehmer ");
-        //         sb.Append("where ");
-        //         sb.Append("MeisterschaftsID = ").Append(iMeisterschaftsID.ToString()).Append(" and ");
-        //         sb.Append("SpielerID = ").Append(iTeilnehmerID.ToString());
-        //         strSQL = sb.ToString();
-        //
-        //         tblDBChangeLog objLog = new tblDBChangeLog();
-        //         objLog.Changetype = "delete";
-        //         objLog.Command = strSQL;
-        //         objLog.Tablename = "tblTeilnehmer";
-        //         objLog.Computername = Environment.MachineName;
-        //         objLog.Zeitstempel = DateTime.Now;
-        //         DBContext.tblDBChangeLog.Add(objLog);
-        //
-        //         m_objDBWeb.DeleteTeilnehmer(iMeisterschaftsID, iTeilnehmerID);
-        //         m_objDBWeb.SaveDBLog(objLog.Changetype, objLog.Computername, objLog.Tablename, objLog.Command, objLog.Zeitstempel.Value);
-        //     }
-        // }
+        StringBuilder sb = new StringBuilder();
+        string strSQL = string.Empty;
+
+        var t = await _localDbContext.TblTeilnehmers
+            .Where(w => w.MeisterschaftsId == iMeisterschaftsID && w.SpielerId == iTeilnehmerID)
+            .Select(s => s).FirstOrDefaultAsync();
+
+        if (t != null)
+        {
+            _localDbContext.TblTeilnehmers.Remove(t);
+            await _localDbContext.SaveChangesAsync();
+
+            sb.Append("delete from tblTeilnehmer ");
+            sb.Append("where ");
+            sb.Append("MeisterschaftsID = ").Append(iMeisterschaftsID.ToString()).Append(" and ");
+            sb.Append("SpielerID = ").Append(iTeilnehmerID.ToString());
+            strSQL = sb.ToString();
+
+            Models.Local.TblDbchangeLog objLog = new();
+            objLog.Changetype = "delete";
+            objLog.Command = strSQL;
+            objLog.Tablename = "tblTeilnehmer";
+            objLog.Computername = Environment.MachineName;
+            objLog.Zeitstempel = DateTime.Now;
+            await _localDbContext.TblDbchangeLogs.AddAsync(objLog);
+            await _localDbContext.SaveChangesAsync();
+
+            // m_objDBWeb.DeleteTeilnehmer(iMeisterschaftsID, iTeilnehmerID);
+            // m_objDBWeb.SaveDBLog(objLog.Changetype, objLog.Computername, objLog.Tablename, objLog.Command,
+            //     objLog.Zeitstempel.Value);
+
+            Models.Web.TblDbchangeLog objLogWeb = new();
+            objLogWeb.Changetype = "delete";
+            objLogWeb.Command = strSQL;
+            objLogWeb.Tablename = "tblTeilnehmer";
+            objLogWeb.Computername = Environment.MachineName;
+            objLogWeb.Zeitstempel = DateTime.Now;
+            await _webDbContext.TblDbchangeLogs.AddAsync(objLogWeb);
+            await _webDbContext.SaveChangesAsync();
+        }
     }
 
     public void SpieltagBeenden(Int32 iSpieltagID)

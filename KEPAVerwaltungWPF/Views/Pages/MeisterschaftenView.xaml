@@ -9,7 +9,7 @@
              xmlns:vm="clr-namespace:KEPAVerwaltungWPF.ViewModels"
              xmlns:i="http://schemas.microsoft.com/xaml/behaviors" 
              mc:Ignorable="d"
-             d:DesignHeight="800" d:DesignWidth="900" 
+             d:DesignHeight="800" d:DesignWidth="1000" 
              d:DataContext="{d:DesignInstance Type=vm:MeisterschaftenViewModel}">
         
     <UserControl.Resources>
@@ -68,7 +68,7 @@
                                     <DataGridTextColumn Header="Beginn" Binding="{Binding Beginn, StringFormat=\{0:dd.MM.yyyy\}}" MinWidth="130" Width="*"/>
                                     <DataGridTextColumn Header="Ende" Binding="{Binding Ende, StringFormat=\{0:dd.MM.yyyy\}}" MinWidth="130" Width="*"/>
                                     <DataGridTextColumn Header="Meisterschaftstyp" Binding="{Binding Meisterschaftstyp}" MinWidth="260" Width="*"/>
-                                    <DataGridCheckBoxColumn Header="Aktiv" MinWidth="60" Width="*"/>
+                                    <DataGridCheckBoxColumn Header="Aktiv" Binding="{Binding Aktiv}" MinWidth="60" Width="*"/>
                                 </DataGrid.Columns>
                                 
                                 <i:Interaction.Triggers>
@@ -104,48 +104,64 @@
                                                         MinHeight="500">
                                 <mw:MetroTabItem Header="Meisterschaftsdaten"  HeaderTemplate="{StaticResource TabButtonTemplate}"
                                                  VerticalContentAlignment="Top">
-                                    <WrapPanel>
-                                        <TextBox md:HintAssist.Hint="Bezeichnung" 
-                                                 Margin="10 10"
-                                                 MinWidth="150"
-                                                 IsReadOnly="{Binding IsFieldReadonly, UpdateSourceTrigger=PropertyChanged}"
-                                                 Text="{Binding CurrentMeisterschaft.Bezeichnung, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                                 Style="{StaticResource TextBxAngabenStyle}">
-                                        </TextBox>
-                                        <DatePicker md:HintAssist.Hint="Beginn"
-                                                    Margin="10 10"
-                                                    IsEnabled="{Binding AreFieldsEditable, UpdateSourceTrigger=PropertyChanged}"
-                                                    SelectedDate="{Binding CurrentMeisterschaft.Beginn, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource DateYearOneToEmptyDateConverter}}"
-                                                    MinWidth="120">
-                                        </DatePicker>
-                                        <DatePicker md:HintAssist.Hint="Ende"
-                                                    Margin="10 10"
-                                                    IsEnabled="{Binding AreFieldsEditable, UpdateSourceTrigger=PropertyChanged}"
-                                                    SelectedDate="{Binding CurrentMeisterschaft.Ende, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource DateYearOneToEmptyDateConverter}}"
-                                                    MinWidth="120">
-                                        </DatePicker>
-                                        <ComboBox md:HintAssist.Hint="Meisterschaftstyp"
-                                                  MinWidth="150"
-                                                  IsReadOnly="{Binding IsFieldReadonly, UpdateSourceTrigger=PropertyChanged}"
-                                                  ItemsSource="{Binding Meisterschaftstypen}"
-                                                  ItemContainerStyle="{StaticResource ComboBoxItemIDValueStyle}"
-                                                  SelectedItem="{Binding CurrentMeisterschaftstyp}">
-                                            <ComboBox.ItemTemplate>
-                                                <DataTemplate>
-                                                    <StackPanel Orientation="Horizontal">
-                                                        <Label Content="{Binding ID}" Visibility="Collapsed"/>
-                                                        <Label Content="{Binding Value}"/>
-                                                    </StackPanel>
-                                                </DataTemplate>
-                                            </ComboBox.ItemTemplate>
-                                        </ComboBox>
-                                        <CheckBox Content="Aktiv"
-                                                  Margin="10 10"
-                                                  IsEnabled="{Binding AreFieldsEditable, UpdateSourceTrigger=PropertyChanged}"
-                                                  IsChecked="{Binding CurrentMeisterschaft.Aktiv, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                                  Style="{StaticResource MaterialDesignCheckBox}">
-                                        </CheckBox>
-                                    </WrapPanel>
+                                    <StackPanel Orientation="Vertical">
+                                        <WrapPanel>
+                                            <TextBox md:HintAssist.Hint="Bezeichnung" 
+                                                     Margin="10 10"
+                                                     MinWidth="150"
+                                                     IsReadOnly="{Binding IsFieldReadonly, UpdateSourceTrigger=PropertyChanged}"
+                                                     Text="{Binding CurrentMeisterschaft.Bezeichnung, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                     Style="{StaticResource TextBxAngabenStyle}">
+                                            </TextBox>
+                                            <DatePicker md:HintAssist.Hint="Beginn"
+                                                        Margin="10 10"
+                                                        IsEnabled="{Binding AreFieldsEditable, UpdateSourceTrigger=PropertyChanged}"
+                                                        SelectedDate="{Binding CurrentMeisterschaft.Beginn, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource DateYearOneToEmptyDateConverter}}"
+                                                        MinWidth="120">
+                                            </DatePicker>
+                                            <DatePicker md:HintAssist.Hint="Ende"
+                                                        Margin="10 10"
+                                                        IsEnabled="{Binding AreFieldsEditable, UpdateSourceTrigger=PropertyChanged}"
+                                                        SelectedDate="{Binding CurrentMeisterschaft.Ende, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource DateYearOneToEmptyDateConverter}}"
+                                                        MinWidth="120">
+                                            </DatePicker>
+                                            <ComboBox x:Name="CboMeisterschaftstyp"
+                                                      md:HintAssist.Hint="Meisterschaftstyp"
+                                                      MinWidth="150"
+                                                      IsReadOnly="{Binding IsFieldReadonly, UpdateSourceTrigger=PropertyChanged}"
+                                                      ItemsSource="{Binding Meisterschaftstypen}"
+                                                      ItemContainerStyle="{StaticResource ComboBoxItemIDValueStyle}"
+                                                      SelectedItem="{Binding CurrentMeisterschaftstyp, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+                                                <ComboBox.ItemTemplate>
+                                                    <DataTemplate>
+                                                        <StackPanel Orientation="Horizontal">
+                                                            <Label Content="{Binding ID}" Visibility="Collapsed"/>
+                                                            <Label Content="{Binding Value}"/>
+                                                        </StackPanel>
+                                                    </DataTemplate>
+                                                </ComboBox.ItemTemplate>
+                                                <i:Interaction.Triggers>
+                                                    <i:EventTrigger EventName="SelectionChanged">
+                                                        <i:InvokeCommandAction Command="{Binding MeisterschaftstypChangedCommand}" 
+                                                                               CommandParameter="{Binding ElementName=CboMeisterschaftstyp, Path=SelectedItem}"/>
+                                                    </i:EventTrigger>
+                                                </i:Interaction.Triggers>
+                                            </ComboBox>
+                                            <CheckBox Content="Aktiv"
+                                                      Margin="10 10"
+                                                      IsEnabled="{Binding AreFieldsEditable, UpdateSourceTrigger=PropertyChanged}"
+                                                      IsChecked="{Binding CurrentMeisterschaft.Aktiv, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                      Style="{StaticResource MaterialDesignCheckBox}">
+                                            </CheckBox>
+                                        </WrapPanel>
+                                        <Label Margin="0 20"
+                                               Content="{Binding ValidationMessage}"
+                                               Foreground="{DynamicResource ValidationErrorBrush}"
+                                               FontWeight="Bold"
+                                               FontSize="20"
+                                               MinWidth="200">
+                                        </Label>
+                                    </StackPanel>
                                 </mw:MetroTabItem>
                                 
                                 <mw:MetroTabItem Header="Mitspieler"  HeaderTemplate="{StaticResource TabButtonTemplate}"
@@ -189,13 +205,27 @@
                             </mw:MetroAnimatedTabControl>
                             
                             <StackPanel Orientation="Horizontal">
-                                <Button Margin="8,4,8,8"
+                                <Button x:Name="BtnNeueMeisterschaft"
+                                        Margin="8,4,8,8"
                                         HorizontalAlignment="Left"
                                         Content="Neue Meisterschaft"
+                                        Visibility="{Binding BtnNeuVisibility, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource BoolToVisConverter}}"
                                         IsEnabled="{Binding BtnNeuEnabled, UpdateSourceTrigger=PropertyChanged}">
                                     <i:Interaction.Triggers>
                                         <i:EventTrigger EventName="Click">
                                             <i:InvokeCommandAction Command="{Binding NeueMeisterschaftCommand}"/>
+                                        </i:EventTrigger>
+                                    </i:Interaction.Triggers>
+                                </Button>
+                                <Button x:Name="BtnAbbrechen"
+                                        Margin="8,4,8,8"
+                                        HorizontalAlignment="Left"
+                                        Content="Abbrechen"
+                                        Visibility="{Binding BtnAbbrechenVisibility, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource BoolToVisConverter}}"
+                                        IsEnabled="{Binding BtnAbbrechenEnabled, UpdateSourceTrigger=PropertyChanged}">
+                                    <i:Interaction.Triggers>
+                                        <i:EventTrigger EventName="Click">
+                                            <i:InvokeCommandAction Command="{Binding AbbrechenCommand}"/>
                                         </i:EventTrigger>
                                     </i:Interaction.Triggers>
                                 </Button>

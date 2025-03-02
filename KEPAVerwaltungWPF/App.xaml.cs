@@ -60,10 +60,16 @@ public partial class App : Application
     
     private void ConfigureServices(ServiceCollection services)
     {
-        //AutoMapper && Validator  
-        //Type VMAssembyRefTyp = typeof(MappingConfig);
-        //services.AddAutoMapper(VMAssembyRefTyp);
+        //AutoMapper  
+        Type VMAssembyRefTyp = typeof(AutoMapperConfig);
+        services.AddAutoMapper(VMAssembyRefTyp);
 
+        //Validations
+        services.AddSingleton<MitgliedAnlegenValidation>();
+        services.AddSingleton<MitgliedAktualisierenValidation>();
+        services.AddSingleton<MeisterschaftValidation>();
+        services.AddSingleton<MeisterschaftAktualisierenValidation>();
+        
         //--------------------
 
         //Views und ViewModels
@@ -115,16 +121,11 @@ public partial class App : Application
         //Services
         services.AddSingleton<DBService>();
         
-        //Validations
-        services.AddSingleton<MitgliedAnlegenValidation>();
-        services.AddSingleton<MitgliedAktualisierenValidation>();
-        
         // DbContexts
         var localDbConnectionString = ConfigurationManager.ConnectionStrings["LocalDB"].ConnectionString;
-        var webDbConnectionString = ConfigurationManager.ConnectionStrings["WebDB"].ConnectionString;
-
-        
         services.AddDbContext<LocalDbContext>(options => options.UseSqlServer(localDbConnectionString));
+
+        var webDbConnectionString = ConfigurationManager.ConnectionStrings["WebDB"].ConnectionString;
         services.AddDbContext<WebDbContext>(options => options.UseMySql(webDbConnectionString, new MySqlServerVersion(new Version(8, 0, 21))));
     }
 }

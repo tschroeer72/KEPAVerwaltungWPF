@@ -26,32 +26,28 @@ public partial class SplashScreenViewModel : BaseViewModel
         {
             switch (i)
             {
-                case 1:
+                case 1: //Baue verbindung zur Datenbank auf ...
                     InitSteps = i + 1;
                     List<Mitgliederliste> lstListe = await _dbService.GetMitgliederlisteAsync();
                     
                     await Task.Delay(3000);
-                    //((PictureBox)this.Controls.Find("picStep1", false)[0]).Image = Properties.Resources.checkbox_24;
                     Step1OK = true;
                     break;
-                case 2:
+                case 2: //Datenbankversion Lokal:
                     InitSteps = i + 1;
                     dtDBLocal = await _dbService.GetDBVersionLocalAsync();
                     DBVersionLocal = dtDBLocal.ToString("yyyyMMddHHmm");
                     
                     await Task.Delay(3000);
-                    //((PictureBox)this.Controls.Find("picStep2", false)[0]).Image = Properties.Resources.checkbox_24;
                     Step2OK = true;
                     break;
-                case 3:
+                case 3://Datenbankversion Sicherung:
                     InitSteps = i + 1;
                     dtDBBackup = await _dbService.GetDBVersionWebAsync();
                     DBVersionWeb = dtDBBackup.ToString("yyyyMMddHHmm");
 
                     if (dtDBBackup > dtDBLocal)
                     {
-                        //((PictureBox)this.Controls.Find("picStep4", false)[0]).Visible = true;
-                        //((System.Windows.Forms.Label)this.Controls.Find("lblStep4", false)[0]).Visible = true;
                         Step4 = "Hole die aktuellen Daten ...";
                     }
                     else
@@ -60,10 +56,9 @@ public partial class SplashScreenViewModel : BaseViewModel
                     }
 
                     await Task.Delay(3000);
-                    //((PictureBox)this.Controls.Find("picStep3", false)[0]).Image = Properties.Resources.checkbox_24;
                     Step3OK = true;
                     break;
-                case 4:
+                case 4://Hole die aktuellen Daten ... <=> Daten sind aktuell
                     InitSteps = i + 1;
                     if (Step4 != "Daten sind aktuell")
                     {
@@ -71,30 +66,16 @@ public partial class SplashScreenViewModel : BaseViewModel
                     }
 
                     await Task.Delay(3000);
-                    //((PictureBox)this.Controls.Find("picStep4", false)[0]).Image = Properties.Resources.checkbox_24;
                     Step4OK = true;
                     break;
-                case 5:
+                case 5: //Lade Einstellungen ...
                     InitSteps = i + 1;
                     //WENN Settings in der DB exitieren DANN laden SONST die Standardwerte speichern
-                    // if (objDBStep5.ExistsSettings())
-                    // {
-                    //     objDBStep5.LoadSettings();
-                    //
-                    //     ClsDB objDB = new ClsDB();
-                    //     Properties.Settings.Default.AktiveMeisterschaft = objDB.GetAktiveMeisterschaftsID();
-                    //     objDB = null;
-                    //     objDBStep5.SaveSettings();
-                    // }
-                    // else
-                    // {
-                    //     ClsDB objDB = new ClsDB();
-                    //     Properties.Settings.Default.AktiveMeisterschaft = objDB.GetAktiveMeisterschaftsID();
-                    //     objDB = null;
-                    //     objDBStep5.SaveSettings();
-                    // }
-
-                    //((PictureBox)this.Controls.Find("picStep4", false)[0]).Image = Properties.Resources.checkbox_24;
+                    if(await _dbService.ExistsSettingsWebAsync())
+                    {
+                        await _dbService.LoadSettingsWebAsync();
+                    }
+                    
                     await Task.Delay(3000);
                     Step5OK = true;
                     break;
