@@ -11,7 +11,7 @@ using TblMeisterschaften = KEPAVerwaltungWPF.Models.Local.TblMeisterschaften;
 
 namespace KEPAVerwaltungWPF.Services;
 
-public class DBService(LocalDbContext _localDbContext, WebDbContext _webDbContext)
+public class DBService(LocalDbContext _localDbContext, WebDbContext _webDbContext, CommonService _commonService)
 {
     //private ClsDBWeb m_objDBWeb = new ClsDBWeb();
 
@@ -583,6 +583,8 @@ public class DBService(LocalDbContext _localDbContext, WebDbContext _webDbContex
             //     where m.Aktiv == 1
             //     select m).FirstOrDefault();
 
+            AktiveMeisterschaft aktiveMeisterschaft = new();
+            
             var item = await _localDbContext.TblMeisterschaftens
                 .OrderByDescending(o => o.Id)
                 .FirstOrDefaultAsync(f => f.Aktiv == 1);
@@ -590,6 +592,9 @@ public class DBService(LocalDbContext _localDbContext, WebDbContext _webDbContex
             if (item != null)
             {
                 intID = item.Id;
+                
+                aktiveMeisterschaft.ID = intID;
+                aktiveMeisterschaft.Bezeichnung = item.Bezeichnung;
             }
             else
             {
@@ -603,8 +608,13 @@ public class DBService(LocalDbContext _localDbContext, WebDbContext _webDbContex
 
                 intID = itm.Id;
                 itm.Aktiv = 1;
+                
+                aktiveMeisterschaft.ID = intID;
+                aktiveMeisterschaft.Bezeichnung = itm.Bezeichnung;
                 await _localDbContext.SaveChangesAsync();
             }
+
+            _commonService.AktiveMeisterschaft = aktiveMeisterschaft;
         }
         catch (Exception ex)
         {
@@ -3562,7 +3572,8 @@ public class DBService(LocalDbContext _localDbContext, WebDbContext _webDbContex
         Int32 intID = -1;
         string strSQL = string.Empty;
         StringBuilder sb = new StringBuilder();
-
+        AktiveMeisterschaft aktiveMeisterschaft = new();
+        
         try
         {
             Models.Local.TblDbchangeLog objLog = new();
@@ -3603,6 +3614,11 @@ public class DBService(LocalDbContext _localDbContext, WebDbContext _webDbContex
                     await _localDbContext.SaveChangesAsync();
                     intID = objMeisterNeu.Id;
 
+                    aktiveMeisterschaft.ID = intID;
+                    aktiveMeisterschaft.Bezeichnung = currentMeisterschaft.Bezeichnung;
+                    _commonService.AktiveMeisterschaft = aktiveMeisterschaft;
+                    await SaveSettingsLocal("AktiveMeisterschaft", intID.ToString());
+                    
                     sb.Append(
                         "insert into tblMeisterschaften(ID, Bezeichnung, Beginn, Ende, MeisterschaftstypID, Aktiv) ");
                     sb.Append("values(");
@@ -3719,6 +3735,16 @@ public class DBService(LocalDbContext _localDbContext, WebDbContext _webDbContex
                     await _webDbContext.TblDbchangeLogs.AddAsync(objLogWeb);
                     await _webDbContext.SaveChangesAsync();
 
+                    if (currentMeisterschaft.Aktiv == 1)
+                    {
+                        aktiveMeisterschaft.ID = intID;
+                        aktiveMeisterschaft.Bezeichnung = currentMeisterschaft.Bezeichnung;
+                        _commonService.AktiveMeisterschaft = aktiveMeisterschaft;
+
+                        await SaveSettingsLocal("AktiveMeisterschaft", intID.ToString());
+                    }
+                    
+
                     break;
             }
         }
@@ -3805,6 +3831,123 @@ public class DBService(LocalDbContext _localDbContext, WebDbContext _webDbContex
         return bolExists;
     }
 
+    public async Task SaveSettingsLocal(string sParametername, string sParametervalue)
+    {
+        StringBuilder sb = new StringBuilder();
+        Models.Local.TblDbchangeLog objLog = new();
+        Models.Web.TblDbchangeLog objLogWeb = new();
+        DateTime dtLogTimestamp = DateTime.Now;
+        
+        var settings = await _localDbContext.TblSettings
+            .Where(w => w.Parametername == sParametername)
+            .Select(s => s)
+            .FirstOrDefaultAsync();
+
+        if (settings == null)
+        {
+            Models.Local.TblSetting objSetting = new();
+            objSetting.Parametername = sParametername;
+            objSetting.Parameterwert = sParametervalue;
+            objSetting.Computername = Environment.MachineName;
+            await _localDbContext.TblSettings.AddAsync(objSetting);
+            await _localDbContext.SaveChangesAsync();
+            
+            sb.Append("insert into tblSettings(Parametername, Parameterwert, Computername) ");
+            sb.Append("values(");
+            sb.Append("'").Append(sParametername).Append("', ");
+            sb.Append("'").Append(sParametervalue).Append("', ");
+            sb.Append("'").Append(Environment.MachineName).Append("')");
+            
+            objLog.Changetype = "insert";
+            objLog.Command = sb.ToString();
+            objLog.Tablename = "tblSettings";
+            objLog.Computername = Environment.MachineName;
+            objLog.Zeitstempel = dtLogTimestamp;
+
+            await _localDbContext.TblDbchangeLogs.AddAsync(objLog);
+            await _localDbContext.SaveChangesAsync();
+
+            objLogWeb.Changetype = "insert";
+            objLogWeb.Command = sb.ToString();;
+            objLogWeb.Tablename = "tblSettings";
+            objLogWeb.Computername = Environment.MachineName;
+            objLogWeb.Zeitstempel = dtLogTimestamp;
+
+            await _webDbContext.TblDbchangeLogs.AddAsync(objLogWeb);
+            await _webDbContext.SaveChangesAsync();
+        }
+        else
+        {
+            settings.Parametername = sParametername;
+            await _localDbContext.SaveChangesAsync();
+            
+            sb.Append("update tblSettings set Parametername = ");
+            sb.Append("'").Append(sParametername).Append("', ");
+            sb.Append("Parameterwert = ");
+            sb.Append("'").Append(sParametervalue).Append("', ");
+            sb.Append("Computername = ");
+            sb.Append("'").Append(Environment.MachineName).Append("' ");
+            sb.Append("where Parametername = '").Append(sParametername). Append("'");
+            
+            objLog.Changetype = "update";
+            objLog.Command = sb.ToString();
+            objLog.Tablename = "tblSettings";
+            objLog.Computername = Environment.MachineName;
+            objLog.Zeitstempel = dtLogTimestamp;
+
+            await _localDbContext.TblDbchangeLogs.AddAsync(objLog);
+            await _localDbContext.SaveChangesAsync();
+
+            objLogWeb.Changetype = "update";
+            objLogWeb.Command = sb.ToString();;
+            objLogWeb.Tablename = "tblSettings";
+            objLogWeb.Computername = Environment.MachineName;
+            objLogWeb.Zeitstempel = dtLogTimestamp;
+
+            await _webDbContext.TblDbchangeLogs.AddAsync(objLogWeb);
+            await _webDbContext.SaveChangesAsync();
+        }
+
+        await SaveSettingsWebAsync();
+    }
+    
+    public async Task SaveSettingsWebAsync()
+    {
+        var settings = await _localDbContext.TblSettings
+            .Select(s => s)
+            .ToListAsync();
+
+        foreach (var item in settings)
+        {
+            switch (item.Parametername)
+            {
+                case "AktiveMeisterschaft":
+                    var meisterschaftAktiv = await _webDbContext.TblMeisterschaftens
+                        .Where(w => w.Aktiv == 1)
+                        .ToListAsync();
+
+                    foreach (var ma in meisterschaftAktiv)
+                    {
+                        ma.Aktiv = 0;
+                    }
+                    
+                    int intID = Convert.ToInt32(item.Parameterwert);
+                    var objMeisterSearch = await _webDbContext.TblMeisterschaftens
+                        .Select(m => m).SingleOrDefaultAsync(m => m.Id == intID);
+                    objMeisterSearch!.Aktiv = 1;
+                    
+                    var setting = await _webDbContext.TblSettings
+                        .Select(s => s)
+                        .SingleOrDefaultAsync(s => s.Parametername == "AktiveMeisterschaft");
+                    setting!.Parameterwert = intID.ToString();
+                    
+                    await _webDbContext.SaveChangesAsync();
+                    
+                    break;
+            }
+        }
+    }
+    
     public async Task LoadSettingsWebAsync()
     {
         var settings = await _webDbContext.TblSettings
@@ -3831,6 +3974,11 @@ public class DBService(LocalDbContext _localDbContext, WebDbContext _webDbContex
                     objMeisterSearch!.Aktiv = 1;
                     await _localDbContext.SaveChangesAsync();
 
+                    AktiveMeisterschaft aktiveMeisterschaft = new();
+                    aktiveMeisterschaft.ID = intID;
+                    aktiveMeisterschaft.Bezeichnung = objMeisterSearch.Bezeichnung;
+                    _commonService.AktiveMeisterschaft = aktiveMeisterschaft;
+                    
                     break;
             }
         }

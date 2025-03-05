@@ -2,12 +2,11 @@
 
 namespace KEPAVerwaltungWPF.DTOs;
 
-public partial class NeunerRatten : ObservableObject
+public partial class SpielPokal : ObservableObject
 {
     [ObservableProperty] private int iD;
     [ObservableProperty] private int spieltagID;
     [ObservableProperty] private int spielerID;
     [ObservableProperty] private string spielername;
-    [ObservableProperty] private int neuner;
-    [ObservableProperty] private int ratten;
+    [ObservableProperty] private int platzierung;
 }

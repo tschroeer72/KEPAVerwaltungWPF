@@ -2,7 +2,9 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes" 
                     xmlns:mw="http://metro.mahapps.com/winfx/xaml/controls"
-                    xmlns:Conv="clr-namespace:KEPAVerwaltungWPF.Converters" >
+                    xmlns:Conv="clr-namespace:KEPAVerwaltungWPF.Converters">
+    
+    
     
     <!--Converters-->
     <Conv:BoolToVisibilityConverter x:Key="BoolToVisConverter"/>

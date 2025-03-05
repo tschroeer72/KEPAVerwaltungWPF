@@ -72,6 +72,17 @@ public partial class App : Application
         
         //--------------------
 
+        //Services
+        services.AddSingleton<DBService>();
+        services.AddSingleton<CommonService>();
+        
+        // DbContexts
+        var localDbConnectionString = ConfigurationManager.ConnectionStrings["LocalDB"].ConnectionString;
+        services.AddDbContext<LocalDbContext>(options => options.UseSqlServer(localDbConnectionString));
+
+        var webDbConnectionString = ConfigurationManager.ConnectionStrings["WebDB"].ConnectionString;
+        services.AddDbContext<WebDbContext>(options => options.UseMySql(webDbConnectionString, new MySqlServerVersion(new Version(8, 0, 21))));
+        
         //Views und ViewModels
         services.AddSingleton<SplashScreen>();
         services.AddSingleton<SplashScreenViewModel>();
@@ -117,16 +128,6 @@ public partial class App : Application
         
         services.AddSingleton<EinstellungenView>();
         services.AddSingleton<EinstellungenViewModel>();
-
-        //Services
-        services.AddSingleton<DBService>();
-        
-        // DbContexts
-        var localDbConnectionString = ConfigurationManager.ConnectionStrings["LocalDB"].ConnectionString;
-        services.AddDbContext<LocalDbContext>(options => options.UseSqlServer(localDbConnectionString));
-
-        var webDbConnectionString = ConfigurationManager.ConnectionStrings["WebDB"].ConnectionString;
-        services.AddDbContext<WebDbContext>(options => options.UseMySql(webDbConnectionString, new MySqlServerVersion(new Version(8, 0, 21))));
     }
 }
 

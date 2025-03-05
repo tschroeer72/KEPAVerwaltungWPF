@@ -60,27 +60,49 @@ public partial class MeisterschaftenViewModel : BaseViewModel
             switch (targetGridName)
             {
                 case "dgAktiveMitglieder":
-                    if (AktiveTeilnehmer.Contains(data))
-                        AktiveTeilnehmer.Remove(data);
-                    AktiveMitglieder.Add(data);
-                    await _dbService.DeleteTeilnehmerAsync(CurrentMeisterschaft.ID, data.ID);
-                    
+                    if (IsPageNotBusy)
+                    {
+                        IsPageBusy = true;
+                        
+                        if (AktiveTeilnehmer.Contains(data))
+                            AktiveTeilnehmer.Remove(data);
+                        AktiveMitglieder.Add(data);
+                        await _dbService.DeleteTeilnehmerAsync(CurrentMeisterschaft.ID, data.ID);
+                        
+                        
+                        AktiveTeilnehmer =
+                            new ObservableCollection<AktiveSpieler>(
+                                await _dbService.GetAktiveTeilnehmerAsync(CurrentMeisterschaft.ID));
+                        AktiveMitglieder =
+                            new ObservableCollection<AktiveSpieler>(
+                                await _dbService.GetAktiveMitgliederAsync(CurrentMeisterschaft.ID));
+                        
+                        IsPageBusy = false;
+                    }
+
                     break;
                 case "dgAktiveSpieler":
-                    if (AktiveMitglieder.Contains(data))
-                        AktiveMitglieder.Remove(data);
-                    AktiveTeilnehmer.Add(data);
-                    await _dbService.SaveTeilnehmerAsync(CurrentMeisterschaft.ID, data.ID);
-                    
+                    if (IsPageNotBusy)
+                    {
+                        IsPageBusy = true;
+                        
+                        if (AktiveMitglieder.Contains(data))
+                            AktiveMitglieder.Remove(data);
+                        AktiveTeilnehmer.Add(data);
+                        await _dbService.SaveTeilnehmerAsync(CurrentMeisterschaft.ID, data.ID);
+                        
+                        AktiveTeilnehmer =
+                            new ObservableCollection<AktiveSpieler>(
+                                await _dbService.GetAktiveTeilnehmerAsync(CurrentMeisterschaft.ID));
+                        AktiveMitglieder =
+                            new ObservableCollection<AktiveSpieler>(
+                                await _dbService.GetAktiveMitgliederAsync(CurrentMeisterschaft.ID));
+                        
+                        IsPageBusy = false;
+                    }
+
                     break;
             }
-            
-            AktiveTeilnehmer =
-                new ObservableCollection<AktiveSpieler>(
-                    await _dbService.GetAktiveTeilnehmerAsync(CurrentMeisterschaft.ID));
-            AktiveMitglieder =
-                new ObservableCollection<AktiveSpieler>(
-                    await _dbService.GetAktiveMitgliederAsync(CurrentMeisterschaft.ID));
         }
     }
 
@@ -127,13 +149,21 @@ public partial class MeisterschaftenViewModel : BaseViewModel
             CurrentMeisterschaftstyp.ID = CurrentMeisterschaft.MeisterschaftstypID;
             CurrentMeisterschaftstyp.Value = CurrentMeisterschaft.Meisterschaftstyp;
 
-            AktiveTeilnehmer =
-                new ObservableCollection<AktiveSpieler>(
-                    await _dbService.GetAktiveTeilnehmerAsync(CurrentMeisterschaft.ID));
-            AktiveMitglieder =
-                new ObservableCollection<AktiveSpieler>(
-                    await _dbService.GetAktiveMitgliederAsync(CurrentMeisterschaft.ID));
+            if (IsPageNotBusy)
+            {
+                IsPageBusy = true;
+                
+                AktiveTeilnehmer =
+                    new ObservableCollection<AktiveSpieler>(
+                        await _dbService.GetAktiveTeilnehmerAsync(CurrentMeisterschaft.ID));
+                AktiveMitglieder =
+                    new ObservableCollection<AktiveSpieler>(
+                        await _dbService.GetAktiveMitgliederAsync(CurrentMeisterschaft.ID));
+                
+                IsPageBusy = false;
+            }
             
+
             BtnNeuVisibility = true;
             AreFieldsEditable = false;
             BtnNeuEnabled = true;
@@ -221,8 +251,15 @@ public partial class MeisterschaftenViewModel : BaseViewModel
                 return;
             }
 
-            await _dbService.SaveMeisterschaftsdatenAsync(CurrentMeisterschaft);
-            await LoadAndSetDataAsync();
+            if (IsPageNotBusy)
+            {
+                IsPageBusy = true;
+                await _dbService.SaveMeisterschaftsdatenAsync(CurrentMeisterschaft);
+                //int intID = await _dbService.GetAktiveMeisterschaftsIDAsync();
+                
+                IsPageBusy = false;
+                await LoadAndSetDataAsync();
+            }
 
             CurrentMeisterschaft = new();
             AreFieldsEditable = false;

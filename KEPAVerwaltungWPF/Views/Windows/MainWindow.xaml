@@ -10,7 +10,9 @@
         xmlns:toolkit="http://schemas.xceed.com/wpf/xaml/toolkit"
         xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
         xmlns:vm="clr-namespace:KEPAVerwaltungWPF.ViewModels"
+        xmlns:vw="clr-namespace:KEPAVerwaltungWPF.Views"
         xmlns:uc="clr-namespace:KEPAVerwaltungWPF.UserControls"
+        xmlns:windows="clr-namespace:KEPAVerwaltungWPF.Views.Windows"
         d:DataContext="{d:DesignInstance Type=vm:MainWindowModel}"
         mc:Ignorable="d"
         Title="Kegelgruppe KEPA 1958 Verwaltung" 
@@ -54,7 +56,16 @@
             <StackPanel x:Name="RightMenu"
                         Orientation="Horizontal"
                         VerticalAlignment="Center">
-                <Label Name="LblAktiveMeisterschaft" Content="{Binding AktiveMeisterschaft}"
+                <!-- <Label Name="LblAktiveMeisterschaft"  -->
+                <!--        Content="{Binding Source={x:Static vw:ViewManager.MeisterschaftAktiv}, Path=Bezeichnung}" -->
+                <!--        FontSize="18" -->
+                <!--        FontWeight="Bold"                        -->
+                <!--        FontFamily="Roboto" -->
+                <!--        Foreground="{DynamicResource WindowTitledBrush}" -->
+                <!--        VerticalAlignment="Bottom"> -->
+                <!-- </Label> -->
+                <Label Name="LblAktiveMeisterschaft" 
+                       Content="{Binding MeisterschaftAktiv.Bezeichnung}"
                        FontSize="18"
                        FontWeight="Bold"                       
                        FontFamily="Roboto"

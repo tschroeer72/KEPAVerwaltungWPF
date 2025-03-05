@@ -1,6 +1,7 @@
 ﻿using CommunityToolkit.Mvvm.Input;
 using KEPAVerwaltungWPF.Models.Local;
 using KEPAVerwaltungWPF.Services;
+using KEPAVerwaltungWPF.Views;
 
 namespace KEPAVerwaltungWPF.ViewModels;
 
@@ -22,8 +23,7 @@ public partial class HomeViewModel : BaseViewModel
             //Datenbankabfrage
             //await _dbService.UpdateLocalDBAsync();
         }
-
-        IsViewModelLoaded = true;
         
+        IsViewModelLoaded = true;
     }
 }

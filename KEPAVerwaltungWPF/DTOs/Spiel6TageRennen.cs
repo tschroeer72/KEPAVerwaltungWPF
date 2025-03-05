@@ -12,6 +12,6 @@ public partial class Spiel6TageRennen : ObservableObject
      [ObservableProperty] private string spieler2Name;
      [ObservableProperty] private int runden;
      [ObservableProperty] private int punkte;
-     [ObservableProperty] private int spielnummer;
+     [ObservableProperty] private int spielnr;
      [ObservableProperty] private Int64 platz;
 }

@@ -1,5 +1,6 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
 using KEPAVerwaltungWPF.DTOs;
@@ -105,22 +106,88 @@ public partial class ErgebniseingabeView : UserControl
             }
         }
     }
+    // private void ChangeColumntypeOfColumnHinRueckrunde(int iColIndex)
+    // {
+    //     // Create a new DataGridTemplateColumn
+    //     DataGridTemplateColumn comboBoxColumn = new DataGridTemplateColumn();
+    //     comboBoxColumn.Header = "HinRueckrunde";
+    //
+    //     // Define the CellTemplate
+    //     DataTemplate cellTemplate = new DataTemplate();
+    //     FrameworkElementFactory textBlockFactory = new FrameworkElementFactory(typeof(TextBlock));
+    //     textBlockFactory.SetBinding(TextBlock.TextProperty, new Binding("HinRueckrunde"));
+    //     cellTemplate.VisualTree = textBlockFactory;
+    //     comboBoxColumn.CellTemplate = cellTemplate;
+    //
+    //     // Define the CellEditingTemplate
+    //     DataTemplate cellEditingTemplate = new DataTemplate();
+    //     FrameworkElementFactory comboBoxFactory = new FrameworkElementFactory(typeof(ComboBox));
+    //     
+    //     //comboBoxFactory.SetBinding(ComboBox.ItemsSourceProperty, new Binding("CboHinRueckrundeItems"));
+    //     Binding itemsSourceBinding = new Binding("CboHinRueckrundeItems")
+    //     {
+    //         RelativeSource = new RelativeSource(RelativeSourceMode.FindAncestor, typeof(UserControl), 1)
+    //     };
+    //     comboBoxFactory.SetBinding(ComboBox.ItemsSourceProperty, itemsSourceBinding);
+    //     
+    //     comboBoxFactory.SetBinding(ComboBox.SelectedValueProperty, new Binding("HinRueckrunde"));
+    //     comboBoxFactory.SetValue(ComboBox.DisplayMemberPathProperty, "Value");
+    //     comboBoxFactory.SetValue(ComboBox.SelectedValuePathProperty, "Key");
+    //     cellEditingTemplate.VisualTree = comboBoxFactory;
+    //     comboBoxColumn.CellEditingTemplate = cellEditingTemplate;
+    //
+    //     // Replace the existing column with the new ComboBox column
+    //     DataGridColumn existingColumn = dgEingabe.Columns[iColIndex];
+    //     dgEingabe.Columns.Remove(existingColumn);
+    //     dgEingabe.Columns.Insert(iColIndex, comboBoxColumn);
+    // }
     
     private void CboSpielauswahl_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
     {
+        dgEingabe.HorizontalScrollBarVisibility = ScrollBarVisibility.Auto;
+        dgEingabe.VerticalScrollBarVisibility = ScrollBarVisibility.Auto;
+        
+        //Setzen der Datenquelle für das Eingabegrid
         switch (ErgebniseingabeViewModel.SelectedSpiel)
         {
             case "9er/Ratten":
                 dgEingabe.ItemsSource = ErgebniseingabeViewModel.NeunerRatten;
+                CboSpielnummer.Visibility = Visibility.Collapsed;
+                CboHinRueckrunde.Visibility = Visibility.Collapsed;
                 break;
             case "6-Tage-Rennen":
                 dgEingabe.ItemsSource = ErgebniseingabeViewModel.Spiel6TageRennen;
+                CboSpielnummer.Visibility = Visibility.Visible;
+                CboHinRueckrunde.Visibility = Visibility.Collapsed;
                 break;
-            default:
-                dgEingabe.ItemsSource = ErgebniseingabeViewModel.AktiveMitglieder;
+            case "Pokal":
+                dgEingabe.ItemsSource = ErgebniseingabeViewModel.SpielPokal;
+                CboSpielnummer.Visibility = Visibility.Collapsed;
+                CboHinRueckrunde.Visibility = Visibility.Collapsed;
+                break;
+            case "Sargkegeln":
+                dgEingabe.ItemsSource = ErgebniseingabeViewModel.SpielSargkegeln;
+                CboSpielnummer.Visibility = Visibility.Collapsed;
+                CboHinRueckrunde.Visibility = Visibility.Collapsed;
+                break;
+            case "Meisterschaft":
+                dgEingabe.ItemsSource = ErgebniseingabeViewModel.SpielMeisterschaft;
+                CboSpielnummer.Visibility = Visibility.Collapsed;
+                CboHinRueckrunde.Visibility = Visibility.Visible;
+                break;
+            case "Blitztunier":
+                dgEingabe.ItemsSource = ErgebniseingabeViewModel.SpielBlitzrunier;
+                CboSpielnummer.Visibility = Visibility.Collapsed;
+                CboHinRueckrunde.Visibility = Visibility.Visible;
+                break;
+            case "Kombimeisterschaft":
+                dgEingabe.ItemsSource = ErgebniseingabeViewModel.SpielKombimeisterschaft;
+                CboSpielnummer.Visibility = Visibility.Collapsed;
+                CboHinRueckrunde.Visibility = Visibility.Visible;
                 break;
         }
 
+        //Formatieren des Datagrids
         for (int i = 0; i < dgEingabe.Columns.Count; i++)
         {
             switch (dgEingabe.Columns[i].Header)
@@ -142,18 +209,64 @@ public partial class ErgebniseingabeView : UserControl
                     break;
                 case "Spielername":
                     dgEingabe.Columns[i].IsReadOnly = true;
+                    dgEingabe.Columns[i].MinWidth = 200;
                     break;
                 case "Spieler1Name":
                     dgEingabe.Columns[i].IsReadOnly = true;
+                    dgEingabe.Columns[i].MinWidth = 200;
                     break;
                 case "Spieler2Name":
                     dgEingabe.Columns[i].IsReadOnly = true;
+                    dgEingabe.Columns[i].MinWidth = 200;
                     break;
-                case "Spielnummer":
+                case "Spielnr":
                     dgEingabe.Columns[i].IsReadOnly = true;
+                    dgEingabe.Columns[i].MinWidth = 80;
                     break;
                 case "Platz":
                     dgEingabe.Columns[i].IsReadOnly = true;
+                    dgEingabe.Columns[i].MinWidth = 80;
+                    break;
+                case "Neuner":
+                    dgEingabe.Columns[i].MinWidth = 90;
+                    break;
+                case "Ratten":
+                    dgEingabe.Columns[i].MinWidth = 90;
+                    break;
+                case "Runden":
+                    dgEingabe.Columns[i].MinWidth = 80;
+                    break;
+                case "Punkte":
+                    dgEingabe.Columns[i].MinWidth = 80;
+                    break;
+                case "HolzSpieler1":
+                    dgEingabe.Columns[i].MinWidth = 120;
+                    break;
+                case "HolzSpieler2":
+                    dgEingabe.Columns[i].MinWidth = 120;
+                    break;
+                case "HinRueckrunde":
+                    //ChangeColumntypeOfColumnHinRueckrunde(i);
+                    dgEingabe.Columns[i].IsReadOnly = true;
+                    dgEingabe.Columns[i].MinWidth = 120;
+                    break;
+                case "PunkteSpieler1":
+                    dgEingabe.Columns[i].MinWidth = 150;
+                    break;
+                case "PunkteSpieler2":
+                    dgEingabe.Columns[i].MinWidth = 150;
+                    break;
+                case "Spieler1Punkte3bis8":
+                    dgEingabe.Columns[i].MinWidth = 200;
+                    break;
+                case "Spieler2Punkte3bis8":
+                    dgEingabe.Columns[i].MinWidth = 200;
+                    break;
+                case "Spieler1Punkte5Kugeln":
+                    dgEingabe.Columns[i].MinWidth = 220;
+                    break;
+                case "Spieler2Punkte5Kugeln":
+                    dgEingabe.Columns[i].MinWidth = 220;
                     break;
             }
         }

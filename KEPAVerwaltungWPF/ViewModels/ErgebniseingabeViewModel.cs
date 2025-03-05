@@ -4,6 +4,7 @@ using CommunityToolkit.Mvvm.Input;
 using KEPAVerwaltungWPF.DTOs;
 using KEPAVerwaltungWPF.Services;
 using KEPAVerwaltungWPF.Views;
+using Microsoft.EntityFrameworkCore;
 
 namespace KEPAVerwaltungWPF.ViewModels;
 
@@ -62,7 +63,7 @@ public partial class ErgebniseingabeViewModel : BaseViewModel
             Spiel6TageRennen obj6TageRennen = new();
             obj6TageRennen.Spieler1ID = oSpieler.ID;
             obj6TageRennen.Spieler1Name = oSpieler.Anzeigename;
-            obj6TageRennen.Spielnummer = Convert.ToInt32(SelectedSpielNummer);
+            obj6TageRennen.Spielnr = Convert.ToInt32(SelectedSpielNummer);
             Spiel6TageRennen.Add(obj6TageRennen);
         }
         else
@@ -72,6 +73,28 @@ public partial class ErgebniseingabeViewModel : BaseViewModel
             {
                 Spiel6TageRennen[intIndex].Spieler2ID = oSpieler.ID;
                 Spiel6TageRennen[intIndex].Spieler2Name = oSpieler.Anzeigename;
+            }
+        }
+    }
+    
+    private void AddSpielerMeisterschaft(AktiveSpieler oSpieler)
+    {
+        if (SpielMeisterschaft.Count == 0)
+        {
+            SpielMeisterschaft objMeister = new();
+            objMeister.Spieler1ID = oSpieler.ID;
+            objMeister.Spieler1Name = oSpieler.Anzeigename;
+            objMeister.Spieler2ID = -1;
+            objMeister.Spieler2Name = "";
+            SpielMeisterschaft.Add(objMeister);
+        }
+        else
+        {
+            int intIndex = SpielMeisterschaft.Count - 1;
+            if (SpielMeisterschaft[intIndex].Spieler2ID <= 0)
+            {
+                SpielMeisterschaft[intIndex].Spieler2ID = oSpieler.ID;
+                SpielMeisterschaft[intIndex].Spieler2Name = oSpieler.Anzeigename;
             }
         }
     }
@@ -94,6 +117,20 @@ public partial class ErgebniseingabeViewModel : BaseViewModel
                             if (Spiel6TageRennen.Contains(data6TR))
                                 Spiel6TageRennen.Remove(data6TR);
 
+                        break;
+                    case "Pokal":
+                        break;
+                    case "Sargkegeln":
+                        break;
+                    case "Meisterschaft":
+                        if (droppedData is SpielMeisterschaft dataM)
+                            if (SpielMeisterschaft.Contains(dataM))
+                                SpielMeisterschaft.Remove(dataM);
+                        
+                        break;
+                    case "Blitztunier":
+                        break;
+                    case "Kombimeisterschaft":
                         break;
                 }
                 break;
@@ -120,16 +157,28 @@ public partial class ErgebniseingabeViewModel : BaseViewModel
                             if (AktiveMitglieder.Contains(data6TR))
                             {
                                 //AktiveMitglieder.Remove(data);
-                                
-                                // Spiel6TageRennen obj6TageRennen = new();
-                                // obj6TageRennen.Spieler1ID = data6TR.ID;
-                                // obj6TageRennen.Spieler1Name = data6TR.Anzeigename;
-                                // Spiel6TageRennen.Add(obj6TageRennen);
-                                
                                 AddSpieler6TR(data6TR);
                             }
                         }
 
+                        break;
+                    case "Pokal":
+                        break;
+                    case "Sargkegeln":
+                        break;
+                    case "Meisterschaft":
+                        if (droppedData is AktiveSpieler dataM)
+                        {
+                            if (AktiveMitglieder.Contains(dataM))
+                            {
+                                //AktiveMitglieder.Remove(data);
+                                AddSpielerMeisterschaft(dataM);
+                            }
+                        }
+                        break;
+                    case "Blitztunier":
+                        break;
+                    case "Kombimeisterschaft":
                         break;
                 }
                 break;
@@ -140,11 +189,25 @@ public partial class ErgebniseingabeViewModel : BaseViewModel
     [ObservableProperty] private List<string> spielNummer = new();
     [ObservableProperty] private string selectedSpiel = string.Empty;
     [ObservableProperty] private string selectedSpielNummer = "1";
+    [ObservableProperty] private string selectedHinRueckrunde = "Hinrunde";
+    public int SelectedHinRueckrundeID = 0;
     [ObservableProperty] private DateTime? selectedDate = null;
+
+    [ObservableProperty] private ObservableCollection<string> cboHinRueckrundeItems =
+        new ObservableCollection<string>()
+        {
+            "Hinrunde" ,
+            "Rückrunde" 
+        };
     
     [ObservableProperty] private ObservableCollection<AktiveSpieler> aktiveMitglieder = new();
     [ObservableProperty] private ObservableCollection<NeunerRatten> neunerRatten = new();
     [ObservableProperty] private ObservableCollection<Spiel6TageRennen> spiel6TageRennen = new();
+    [ObservableProperty] private ObservableCollection<SpielPokal> spielPokal = new();
+    [ObservableProperty] private ObservableCollection<SpielSargKegeln> spielSargkegeln = new();
+    [ObservableProperty] private ObservableCollection<SpielMeisterschaft> spielMeisterschaft = new();
+    [ObservableProperty] private ObservableCollection<SpielBlitztunier> spielBlitzrunier = new();
+    [ObservableProperty] private ObservableCollection<SpielKombimeisterschaft> spielKombimeisterschaft = new();
     
     [RelayCommand]
     public void GetInitialData()
@@ -157,10 +220,21 @@ public partial class ErgebniseingabeViewModel : BaseViewModel
     }
 
     [RelayCommand]
+    public void CboHinRueckrundeSelectionChanged()
+    {
+        if (SelectedHinRueckrunde == "Hinrunde")
+            SelectedHinRueckrundeID = 0;
+        else
+            SelectedHinRueckrundeID = 1;
+    }
+    
+    [RelayCommand]
     public void ErgebnisseSpeichern()
     {
         var a = SelectedDate;
         var b = SelectedSpiel;
         var c = SelectedSpielNummer;
+        var d = SelectedHinRueckrunde;
+        var e = SelectedHinRueckrundeID;
     }
 }

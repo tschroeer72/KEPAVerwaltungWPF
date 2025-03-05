@@ -193,7 +193,7 @@ public partial class MitgliederViewModel : BaseViewModel
     public async Task MitgliedSpeichernAsync()
     {
         ValidationMessage = "";
-        
+
         if (ViewManager.ShowConfirmationWindow("Wollen Sie die geänderten Daten speichern?"))
         {
             if (CurrentMitglied.ID == -1)
@@ -214,13 +214,24 @@ public partial class MitgliederViewModel : BaseViewModel
                     return;
                 }
             }
-           
-            await _dbService.SaveMitgliedAsync(CurrentMitglied);
-            await LoadAndSetData();
-            
-            if(CurrentMitglied.ID == -1) DelShowMainInfoFlyout.Invoke($"{CurrentMitglied.Vorname} {currentMitglied.Nachname} wurde angelegt");
-            else DelShowMainInfoFlyout.Invoke($"{CurrentMitglied.Vorname} {currentMitglied.Nachname} wurde aktualisiert");
-            
+
+            if (IsPageNotBusy)
+            {
+                IsPageBusy = true;
+
+                await _dbService.SaveMitgliedAsync(CurrentMitglied);
+                await LoadAndSetData();
+
+                if (CurrentMitglied.ID == -1)
+                    DelShowMainInfoFlyout.Invoke(
+                        $"{CurrentMitglied.Vorname} {currentMitglied.Nachname} wurde angelegt");
+                else
+                    DelShowMainInfoFlyout.Invoke(
+                        $"{CurrentMitglied.Vorname} {currentMitglied.Nachname} wurde aktualisiert");
+                
+                IsPageBusy = false;
+            }
+
             CurrentMitglied = new();
             
             AreFieldsEditable = false;

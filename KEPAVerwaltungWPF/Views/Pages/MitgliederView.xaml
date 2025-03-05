@@ -314,7 +314,7 @@
                                             <DataGridTextColumn Header="HolzAVG" Binding="{Binding HolzAVG}" MinWidth="200" Width="*"/>
                                             
                                             
-                                            <DataGridTextColumn Header="RattenSummer" Binding="{Binding RattenSumme}" MinWidth="200" Width="*"/>
+                                            <DataGridTextColumn Header="RattenSumme" Binding="{Binding RattenSumme}" MinWidth="200" Width="*"/>
                                             <DataGridTextColumn Header="RattenMax" Binding="{Binding RattenMax}" MinWidth="200" Width="*"/>
                                             <DataGridTextColumn Header="NeunerSumme" Binding="{Binding NeunerSumme}" MinWidth="200" Width="*"/>
                                             <DataGridTextColumn Header="NeunerMax" Binding="{Binding NeunerMax}" MinWidth="200" Width="*"/>
