@@ -8,19 +8,24 @@ public class DragAdorner : Adorner
 {
     private readonly UIElement _child;
     private Point _currentPosition;
-
-    public DragAdorner(UIElement adornedElement, UIElement child) 
+    private double _offsetX;
+    private double _offsetY;
+    
+    public DragAdorner(UIElement adornedElement, UIElement child, double offsetX = 0, double offsetY = 0)
         : base(adornedElement)
     {
         _child = child ?? throw new ArgumentNullException(nameof(child));
-
+        _offsetX = offsetX;
+        _offsetY = offsetY;
+        
         AddVisualChild(_child);
         AddLogicalChild(_child);
     }
 
     public void UpdatePosition(Point currentPosition)
     {
-        _currentPosition = currentPosition;
+        _currentPosition.X = currentPosition.X + _offsetX;
+        _currentPosition.Y = currentPosition.Y + _offsetY;
         InvalidateVisual();
     }
 

@@ -4,6 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes" 
+             xmlns:mw="http://metro.mahapps.com/winfx/xaml/controls" 
              xmlns:local="clr-namespace:KEPAVerwaltungWPF.Views.Pages"
              xmlns:vm="clr-namespace:KEPAVerwaltungWPF.ViewModels"
              xmlns:i="http://schemas.microsoft.com/xaml/behaviors" 
@@ -84,6 +85,7 @@
                              Margin="20 0"
                              MinHeight="410"
                              MinWidth="1000"
+                             MaxWidth="1600"
                              Background="{DynamicResource BackgroundBrush}"
                              md:ElevationAssist.Elevation="Dp3">
                         <StackPanel VerticalAlignment="Top"
@@ -136,17 +138,22 @@
                                             </i:EventTrigger>
                                         </i:Interaction.Triggers>
                                     </ComboBox>
-                                    <DataGrid x:Name="dgEingabe" 
-                                              AutoGenerateColumns="True"
-                                              IsReadOnly="False"
-                                              MinWidth="400"
-                                              AllowDrop="True"
-                                              DragEnter="DataGrid_DragEnter"
-                                              Drop="DataGrid_Drop"
-                                              DragOver="DataGrid_DragOver"
-                                              PreviewMouseLeftButtonDown="DataGrid_PreviewMouseLeftButtonDown">
-                                    </DataGrid>
-                                    
+                                    <ScrollViewer HorizontalScrollBarVisibility="Auto"
+                                                  VerticalScrollBarVisibility="Auto">
+                                        <DataGrid x:Name="dgEingabe" 
+                                                  AutoGenerateColumns="True"
+                                                  IsReadOnly="False"
+                                                  MinWidth="400"
+                                                  MaxWidth="900"
+                                                  MinHeight="300"
+                                                  MaxHeight="600"
+                                                  AllowDrop="True"
+                                                  DragEnter="DataGrid_DragEnter"
+                                                  Drop="DataGrid_Drop"
+                                                  DragOver="DataGrid_DragOver"
+                                                  PreviewMouseLeftButtonDown="DataGrid_PreviewMouseLeftButtonDown">
+                                        </DataGrid>
+                                    </ScrollViewer>
                                 </StackPanel>
                             </StackPanel>
                                
@@ -163,6 +170,16 @@
                         </StackPanel>
                     </md:Card>
                 </StackPanel>
+                
+                <!--ProgressRing-->
+                <mw:ProgressRing
+                    IsActive="True"
+                    Visibility="{Binding IsPageBusy, Converter={StaticResource BoolToVisConverter}}"
+                    VerticalAlignment="Center"
+                    HorizontalAlignment="Center"
+                    Foreground="{DynamicResource PrimaryBrush}"
+                    Height="100" Width="100">
+                </mw:ProgressRing>
             </Grid>
             
             <!-- Ausgabe -->

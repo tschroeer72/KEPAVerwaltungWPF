@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using System.Drawing;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
@@ -6,6 +7,7 @@ using System.Windows.Input;
 using KEPAVerwaltungWPF.DTOs;
 using KEPAVerwaltungWPF.Helper;
 using KEPAVerwaltungWPF.ViewModels;
+using Size = System.Windows.Size;
 
 namespace KEPAVerwaltungWPF.Views.Pages;
 
@@ -54,7 +56,8 @@ public partial class ErgebniseingabeView : UserControl
             _adornerLayer = AdornerLayer.GetAdornerLayer(dataGrid);
             if (_adornerLayer != null)
             {
-                _dragAdorner = new DragAdorner(dataGrid, visual);
+                //_dragAdorner = new DragAdorner(dataGrid, visual, offsetX: 10, offsetY: 10);
+                _dragAdorner = new DragAdorner(dataGrid, visual, -260, -160);
                 _adornerLayer.Add(_dragAdorner);
             }
             
@@ -62,6 +65,41 @@ public partial class ErgebniseingabeView : UserControl
         }
     }
 
+    // private void DataGrid_MouseMove(object sender, MouseEventArgs e)
+    // {
+    //     if (_dragAdorner != null)
+    //     {
+    //         var position = e.GetPosition(sender as DataGrid);
+    //         _dragAdorner.UpdatePosition(position);
+    //     }
+    // }
+    
+    // private void StartDrag()
+    // {
+    //     var visual = new Rectangle
+    //     {
+    //         Width = 100,
+    //         Height = 100,
+    //         Fill = Brushes.LightBlue
+    //     };
+    //
+    //     _adornerLayer = AdornerLayer.GetAdornerLayer(dataGrid);
+    //     _dragAdorner = new DragAdorner(dataGrid, visual, offsetX: -10, offsetY: -10);
+    //     _adornerLayer.Add(_dragAdorner);
+    //
+    //     dataGrid.MouseMove += DataGrid_MouseMove;
+    // }
+    //
+    // private void StopDrag()
+    // {
+    //     if (_dragAdorner != null)
+    //     {
+    //         _adornerLayer.Remove(_dragAdorner);
+    //         _dragAdorner = null;
+    //         dataGrid.MouseMove -= DataGrid_MouseMove;
+    //     }
+    // }
+    
     private void DataGrid_DragEnter(object sender, DragEventArgs e)
     {
         
@@ -90,22 +128,105 @@ public partial class ErgebniseingabeView : UserControl
         }
         
         // Handle the drop
-        if (e.Data.GetDataPresent(typeof(AktiveSpieler)))
+        // if (e.Data.GetDataPresent(typeof(AktiveSpieler)))
+        // {
+        //     //var droppedData = e.Data.GetData(typeof(object));
+        //     var droppedData = e.Data.GetData(typeof(AktiveSpieler));
+        //     var targetDataGrid = sender as DataGrid;
+        //
+        //     if (droppedData != null && targetDataGrid != null)
+        //     {
+        //         // Notify ViewModel to handle the data transfer
+        //         // var viewModel = DataContext as MeisterschaftenViewModel;
+        //         // viewModel?.HandleDrop(droppedData, targetDataGrid.Name);
+        //         
+        //         ErgebniseingabeViewModel.HandleDrop(droppedData, targetDataGrid.Name);
+        //     }
+        // }
+        
+        var targetDataGrid = sender as DataGrid;
+        switch (targetDataGrid.Name)
         {
-            //var droppedData = e.Data.GetData(typeof(object));
-            var droppedData = e.Data.GetData(typeof(AktiveSpieler));
-            var targetDataGrid = sender as DataGrid;
-
-            if (droppedData != null && targetDataGrid != null)
-            {
-                // Notify ViewModel to handle the data transfer
-                // var viewModel = DataContext as MeisterschaftenViewModel;
-                // viewModel?.HandleDrop(droppedData, targetDataGrid.Name);
+            case "dgAktiveMitglieder":
+                switch (ErgebniseingabeViewModel.SelectedSpiel)
+                {
+                    case "9er/Ratten":
+                        var droppedDataNR = e.Data.GetData(typeof(NeunerRatten));
                 
-                ErgebniseingabeViewModel.HandleDrop(droppedData, targetDataGrid.Name);
-            }
+                        if (droppedDataNR != null && targetDataGrid != null)
+                        {
+                            // Notify ViewModel to handle the data transfer
+                            ErgebniseingabeViewModel.HandleDrop(droppedDataNR, targetDataGrid.Name);
+                        }
+                        break;
+                    case "6-Tage-Rennen":
+                        var droppedData6TR = e.Data.GetData(typeof(Spiel6TageRennen));
+                
+                        if (droppedData6TR != null && targetDataGrid != null)
+                        {
+                            // Notify ViewModel to handle the data transfer
+                            ErgebniseingabeViewModel.HandleDrop(droppedData6TR, targetDataGrid.Name);
+                        }
+                        break;
+                    case "Pokal":
+                        var droppedDataPokal = e.Data.GetData(typeof(SpielPokal));
+                
+                        if (droppedDataPokal != null && targetDataGrid != null)
+                        {
+                            // Notify ViewModel to handle the data transfer
+                            ErgebniseingabeViewModel.HandleDrop(droppedDataPokal, targetDataGrid.Name);
+                        }
+                        break;
+                    case "Sargkegeln":
+                        var droppedDataSarg = e.Data.GetData(typeof(SpielSargkegeln));
+                
+                        if (droppedDataSarg != null && targetDataGrid != null)
+                        {
+                            // Notify ViewModel to handle the data transfer
+                            ErgebniseingabeViewModel.HandleDrop(droppedDataSarg, targetDataGrid.Name);
+                        }
+                        break;
+                    case "Meisterschaft":
+                        var droppedDataMeister = e.Data.GetData(typeof(SpielMeisterschaft));
+                
+                        if (droppedDataMeister != null && targetDataGrid != null)
+                        {
+                            // Notify ViewModel to handle the data transfer
+                            ErgebniseingabeViewModel.HandleDrop(droppedDataMeister, targetDataGrid.Name);
+                        }
+                        break;
+                    case "Blitztunier":
+                        var droppedDataBlitz = e.Data.GetData(typeof(SpielBlitztunier));
+                
+                        if (droppedDataBlitz != null && targetDataGrid != null)
+                        {
+                            // Notify ViewModel to handle the data transfer
+                            ErgebniseingabeViewModel.HandleDrop(droppedDataBlitz, targetDataGrid.Name);
+                        }
+                        break;
+                    case "Kombimeisterschaft":
+                        var droppedDataKombi = e.Data.GetData(typeof(SpielKombimeisterschaft));
+                
+                        if (droppedDataKombi != null && targetDataGrid != null)
+                        {
+                            // Notify ViewModel to handle the data transfer
+                            ErgebniseingabeViewModel.HandleDrop(droppedDataKombi, targetDataGrid.Name);
+                        }
+                        break;
+                }
+                break;
+            case "dgEingabe":
+                var droppedDataAktiveSpieler = e.Data.GetData(typeof(AktiveSpieler));
+                
+                if (droppedDataAktiveSpieler != null && targetDataGrid != null)
+                {
+                    // Notify ViewModel to handle the data transfer
+                    ErgebniseingabeViewModel.HandleDrop(droppedDataAktiveSpieler, targetDataGrid.Name);
+                }
+                break;
         }
     }
+    
     // private void ChangeColumntypeOfColumnHinRueckrunde(int iColIndex)
     // {
     //     // Create a new DataGridTemplateColumn
@@ -144,8 +265,8 @@ public partial class ErgebniseingabeView : UserControl
     
     private void CboSpielauswahl_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
     {
-        dgEingabe.HorizontalScrollBarVisibility = ScrollBarVisibility.Auto;
-        dgEingabe.VerticalScrollBarVisibility = ScrollBarVisibility.Auto;
+        // dgEingabe.HorizontalScrollBarVisibility = ScrollBarVisibility.Visible;
+        // dgEingabe.VerticalScrollBarVisibility = ScrollBarVisibility.Auto;
         
         //Setzen der Datenquelle für das Eingabegrid
         switch (ErgebniseingabeViewModel.SelectedSpiel)
@@ -176,7 +297,7 @@ public partial class ErgebniseingabeView : UserControl
                 CboHinRueckrunde.Visibility = Visibility.Visible;
                 break;
             case "Blitztunier":
-                dgEingabe.ItemsSource = ErgebniseingabeViewModel.SpielBlitzrunier;
+                dgEingabe.ItemsSource = ErgebniseingabeViewModel.SpielBlitztunier;
                 CboSpielnummer.Visibility = Visibility.Collapsed;
                 CboHinRueckrunde.Visibility = Visibility.Visible;
                 break;
