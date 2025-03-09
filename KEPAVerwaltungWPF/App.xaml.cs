@@ -123,8 +123,8 @@ public partial class App : Application
         services.AddSingleton<EMailRundmailView>();
         services.AddSingleton<EMailRundmailViewModel>();
         
-        services.AddSingleton<BerichtsView>();
-        services.AddSingleton<BerichtsViewModel>();
+        services.AddSingleton<VordruckeView>();
+        services.AddSingleton<VordruckeViewModel>();
         
         services.AddSingleton<EinstellungenView>();
         services.AddSingleton<EinstellungenViewModel>();

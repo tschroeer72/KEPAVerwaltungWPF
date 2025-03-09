@@ -11,10 +11,12 @@ namespace KEPAVerwaltungWPF.ViewModels;
 public partial class ErgebniseingabeViewModel : BaseViewModel
 {
     private readonly DBService _dbService;
+    private readonly CommonService _commonService;
 
-    public ErgebniseingabeViewModel(DBService dbService)
+    public ErgebniseingabeViewModel(DBService dbService, CommonService commonService)
     {
         _dbService = dbService;
+        _commonService = commonService;
         Titel = "Ergebniseingabe";
     }
 
@@ -185,43 +187,101 @@ public partial class ErgebniseingabeViewModel : BaseViewModel
                 {
                     case "9er/Ratten":
                         if (droppedData is NeunerRatten dataNR)
+                        {
                             if (NeunerRatten.Contains(dataNR))
                                 NeunerRatten.Remove(dataNR);
+
+                            if (NeunerRatten.Count == 0)
+                            {
+                                CboSpielauswahlEnabled = true;
+                                CheckMandatoryFields();
+                            }
+                        }
 
                         break;
                     case "6-Tage-Rennen":
                         if (droppedData is Spiel6TageRennen data6TR)
+                        {
                             if (Spiel6TageRennen.Contains(data6TR))
                                 Spiel6TageRennen.Remove(data6TR);
+                            
+                            if(Spiel6TageRennen.Count == 0)
+                            {
+                                CboSpielauswahlEnabled = true;
+                                CheckMandatoryFields();
+                            }
+                        }
 
                         break;
                     case "Pokal":
                         if (droppedData is SpielPokal dataP)
+                        {
                             if (SpielPokal.Contains(dataP))
                                 SpielPokal.Remove(dataP);
+                            
+                            if(SpielPokal.Count == 0)
+                            {
+                                CboSpielauswahlEnabled = true;
+                                CheckMandatoryFields();
+                            }
+                        }
 
                         break;
                     case "Sargkegeln":
                         if (droppedData is SpielSargkegeln dataS)
+                        {
                             if (SpielSargkegeln.Contains(dataS))
                                 SpielSargkegeln.Remove(dataS);
-                        
+                            
+                            if(SpielSargkegeln.Count == 0)
+                            {
+                                CboSpielauswahlEnabled = true;
+                                CheckMandatoryFields();
+                            }
+                        }
+
                         break;
                     case "Meisterschaft":
                         if (droppedData is SpielMeisterschaft dataM)
+                        {
                             if (SpielMeisterschaft.Contains(dataM))
                                 SpielMeisterschaft.Remove(dataM);
-                        
+                            
+                            if(SpielMeisterschaft.Count == 0)
+                            {
+                                CboSpielauswahlEnabled = true;
+                                CheckMandatoryFields();
+                            }
+                        }
+
                         break;
                     case "Blitztunier":
                         if (droppedData is SpielBlitztunier dataB)
+                        {
                             if (SpielBlitztunier.Contains(dataB))
                                 SpielBlitztunier.Remove(dataB);
+                            
+                            if(SpielBlitztunier.Count == 0)
+                            {
+                                CboSpielauswahlEnabled = true;
+                                CheckMandatoryFields();
+                            }
+                        }
+
                         break;
                     case "Kombimeisterschaft":
                         if (droppedData is SpielKombimeisterschaft dataKM)
+                        {
                             if (SpielKombimeisterschaft.Contains(dataKM))
                                 SpielKombimeisterschaft.Remove(dataKM);
+                            
+                            if(SpielKombimeisterschaft.Count == 0)
+                            {
+                                CboSpielauswahlEnabled = true;
+                                CheckMandatoryFields();
+                            }
+                        }
+
                         break;
                 }
                 break;
@@ -233,11 +293,17 @@ public partial class ErgebniseingabeViewModel : BaseViewModel
                         {
                             if (AktiveMitglieder.Contains(dataNR))
                             {
-                                //AktiveMitglieder.Remove(data);
-                                NeunerRatten obj9erRatten = new();
-                                obj9erRatten.SpielerID = dataNR.ID;
-                                obj9erRatten.Spielername = dataNR.Anzeigename;
-                                NeunerRatten.Add(obj9erRatten);
+                                var nr = NeunerRatten.Where(x => x.SpielerID == dataNR.ID).ToList();
+                                if (nr.Count == 0)
+                                {
+                                    NeunerRatten obj9erRatten = new();
+                                    obj9erRatten.SpielerID = dataNR.ID;
+                                    obj9erRatten.Spielername = dataNR.Anzeigename;
+                                    NeunerRatten.Add(obj9erRatten);
+                                }
+
+                                CboSpielauswahlEnabled = false;
+                                CheckMandatoryFields();
                             }
                         }
 
@@ -249,6 +315,9 @@ public partial class ErgebniseingabeViewModel : BaseViewModel
                             {
                                 //AktiveMitglieder.Remove(data);
                                 AddSpieler6TR(data6TR);
+                                
+                                CboSpielauswahlEnabled = false;
+                                CheckMandatoryFields();
                             }
                         }
 
@@ -263,6 +332,9 @@ public partial class ErgebniseingabeViewModel : BaseViewModel
                                 objPokal.SpielerID = dataP.ID;
                                 objPokal.Spielername = dataP.Anzeigename;
                                 SpielPokal.Add(objPokal);
+                                
+                                CboSpielauswahlEnabled = false;
+                                CheckMandatoryFields();
                             }
                         }
                         
@@ -277,6 +349,9 @@ public partial class ErgebniseingabeViewModel : BaseViewModel
                                 objSarg.SpielerID = dataS.ID;
                                 objSarg.Spielername = dataS.Anzeigename;
                                 SpielSargkegeln.Add(objSarg);
+                                
+                                CboSpielauswahlEnabled = false;
+                                CheckMandatoryFields();
                             }
                         }
                         
@@ -288,6 +363,9 @@ public partial class ErgebniseingabeViewModel : BaseViewModel
                             {
                                 //AktiveMitglieder.Remove(data);
                                 AddSpielerMeisterschaft(dataM);
+                                
+                                CboSpielauswahlEnabled = false;
+                                CheckMandatoryFields();
                             }
                         }
                         
@@ -299,6 +377,9 @@ public partial class ErgebniseingabeViewModel : BaseViewModel
                             {
                                 //AktiveMitglieder.Remove(data);
                                 AddSpielerBlitztunier(dataB);
+                                
+                                CboSpielauswahlEnabled = false;
+                                CheckMandatoryFields();
                             }
                         }
                         
@@ -310,6 +391,9 @@ public partial class ErgebniseingabeViewModel : BaseViewModel
                             {
                                 //AktiveMitglieder.Remove(data);
                                 AddSpielerKombimeisterschaft(dataKM);
+                                
+                                CboSpielauswahlEnabled = false;
+                                CheckMandatoryFields();
                             }
                         }
                         
@@ -319,13 +403,74 @@ public partial class ErgebniseingabeViewModel : BaseViewModel
         }
     }
     
+    public void CheckMandatoryFields()
+    {
+        if (SelectedDate != null && SelectedSpiel != "")
+        {
+            switch (SelectedSpiel)
+            {
+                case "9er/Ratten":
+                    if (NeunerRatten.Count > 0)
+                        BtnSpeichernEnabled = true;
+                    else
+                        BtnSpeichernEnabled = false;
+                    
+                    break;
+                case "6-Tage-Rennen":
+                    if (Spiel6TageRennen.Count > 0)
+                        BtnSpeichernEnabled = true;
+                    else
+                        BtnSpeichernEnabled = false;
+                    
+                    break;
+                case "Pokal":
+                    if (SpielPokal.Count > 0)
+                        BtnSpeichernEnabled = true;
+                    else
+                        BtnSpeichernEnabled = false;
+                    
+                    break;
+                case "Sargkegeln":
+                    if (SpielSargkegeln.Count > 0)
+                        BtnSpeichernEnabled = true;
+                    else
+                        BtnSpeichernEnabled = false;
+                    
+                    break;
+                case "Meisterschaft":
+                    if (SpielMeisterschaft.Count > 0)
+                        BtnSpeichernEnabled = true;
+                    else
+                        BtnSpeichernEnabled = false;
+                    
+                    break;
+                case "Blitztunier":
+                    if (SpielBlitztunier.Count > 0)
+                        BtnSpeichernEnabled = true;
+                    else
+                        BtnSpeichernEnabled = false;
+                    
+                    break;
+                case "Kombimeisterschaft":
+                    if (SpielKombimeisterschaft.Count > 0)
+                        BtnSpeichernEnabled = true;
+                    else
+                        BtnSpeichernEnabled = false;
+                    
+                    break;
+            }
+        }
+        else
+            BtnSpeichernEnabled = false;
+    }
+    
     [ObservableProperty] private List<string> spiele = new();
     [ObservableProperty] private List<string> spielNummer = new();
     [ObservableProperty] private string selectedSpiel = string.Empty;
     [ObservableProperty] private string selectedSpielNummer = "1";
+    [ObservableProperty] private DateTime? selectedDate = DateTime.Now;
     [ObservableProperty] private string selectedHinRueckrunde = "Hinrunde";
     public int SelectedHinRueckrundeID = 0;
-    [ObservableProperty] private DateTime? selectedDate = null;
 
     [ObservableProperty] private ObservableCollection<string> cboHinRueckrundeItems =
         new ObservableCollection<string>()
@@ -333,6 +478,9 @@ public partial class ErgebniseingabeViewModel : BaseViewModel
             "Hinrunde" ,
             "Rückrunde" 
         };
+
+    [ObservableProperty] private bool btnSpeichernEnabled = false;
+    [ObservableProperty] private bool cboSpielauswahlEnabled = true;
     
     [ObservableProperty] private ObservableCollection<AktiveSpieler> aktiveMitglieder = new();
     [ObservableProperty] private ObservableCollection<NeunerRatten> neunerRatten = new();
@@ -363,12 +511,47 @@ public partial class ErgebniseingabeViewModel : BaseViewModel
     }
     
     [RelayCommand]
-    public void ErgebnisseSpeichern()
+    public async Task ErgebnisseSpeichernAsync()
     {
-        var a = SelectedDate;
-        var b = SelectedSpiel;
-        var c = SelectedSpielNummer;
-        var d = SelectedHinRueckrunde;
-        var e = SelectedHinRueckrundeID;
+        int intMeisterschaftsID = _commonService.AktiveMeisterschaft.ID;
+
+        if (IsPageNotBusy)
+        {
+            IsPageBusy = true;
+            
+            switch (SelectedSpiel)
+            {
+                case "9er/Ratten":
+                    await _dbService.SaveEingabeAsync(intMeisterschaftsID, SelectedDate.Value, SelectedSpiel,
+                        NeunerRatten.ToList());
+                    break;
+                case "6-Tage-Rennen":
+                    await _dbService.SaveEingabeAsync(intMeisterschaftsID, SelectedDate.Value, SelectedSpiel,
+                        Spiel6TageRennen);
+                    break;
+                case "Pokal":
+                    await _dbService.SaveEingabeAsync(intMeisterschaftsID, SelectedDate.Value, SelectedSpiel,
+                        SpielPokal);
+                    break;
+                case "Sargkegeln":
+                    await _dbService.SaveEingabeAsync(intMeisterschaftsID, SelectedDate.Value, SelectedSpiel,
+                        SpielSargkegeln);
+                    break;
+                case "Meisterschaft":
+                    await _dbService.SaveEingabeAsync(intMeisterschaftsID, SelectedDate.Value, SelectedSpiel,
+                        SpielMeisterschaft);
+                    break;
+                case "Blitztunier":
+                    await _dbService.SaveEingabeAsync(intMeisterschaftsID, SelectedDate.Value, SelectedSpiel,
+                        SpielBlitztunier);
+                    break;
+                case "Kombimeisterschaft":
+                    await _dbService.SaveEingabeAsync(intMeisterschaftsID, SelectedDate.Value, SelectedSpiel,
+                        SpielKombimeisterschaft);
+                    break;
+            }
+
+            IsPageBusy = false;
+        }
     }
 }

@@ -484,7 +484,8 @@
                     <Condition Property="DataGridCell.IsMouseOver" Value="True" />
                 </MultiTrigger.Conditions>
                 <MultiTrigger.Setters>
-                    <Setter Property="Background" Value="{DynamicResource HoverBrush}"/>
+                    <Setter Property="Background" Value="{DynamicResource PrimaryAccentBrush}"/>
+                    <Setter Property="Foreground" Value="{DynamicResource HoverBrush}"/>
                 </MultiTrigger.Setters>
             </MultiTrigger>
         </Style.Triggers>
@@ -499,7 +500,6 @@
         <Setter Property="VerticalAlignment" Value="Top"/>
         <Setter Property="AutoGenerateColumns" Value="False"/>
         <Setter Property="HeadersVisibility" Value="Column"/>
-        <Setter Property="IsReadOnly" Value="True"/>
         <Setter Property="CanUserAddRows" Value="False"/>
     </Style>
     

@@ -9,5 +9,6 @@ public class AutoMapperConfig  : Profile
     {
         CreateMap<Mitgliederliste, Mitgliederliste>();
         CreateMap<Meisterschaftsdaten, Meisterschaftsdaten>();
+        // CreateMap<Models.Local.TblMeisterschaften, Models.Web.TblMeisterschaften>();
     }
 }

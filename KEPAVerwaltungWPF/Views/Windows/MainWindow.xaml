@@ -263,10 +263,10 @@
                              Width="100" Height="44"
                              Click="OpenPageOnMain">
                 </RadioButton>
-                <RadioButton x:Name="BtnBerichte" GroupName="grpTitleBar"
+                <RadioButton x:Name="BtnVordrucke" GroupName="grpTitleBar"
                              Style="{StaticResource BtnMainMenuStyle}"
-                             Content="Berichte" 
-                             Width="120" Height="44"
+                             Content="Vordrucke" 
+                             Width="140" Height="44"
                              Click="OpenPageOnMain">
                 </RadioButton>
                 <RadioButton x:Name="BtnEinstellungen" GroupName="grpTitleBar"

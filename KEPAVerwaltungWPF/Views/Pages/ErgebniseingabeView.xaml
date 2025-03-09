@@ -61,6 +61,7 @@
                                       md:HintAssist.Hint="Spielauswahl" 
                                       MinWidth="150"
                                       MinHeight="40"
+                                      IsEnabled="{Binding CboSpielauswahlEnabled}"
                                       ItemsSource="{Binding Spiele}"
                                       SelectedItem="{Binding SelectedSpiel}"
                                       ItemContainerStyle="{StaticResource ComboBoxItemValueStyle}"
@@ -109,7 +110,8 @@
                                     <DataGrid x:Name="dgAktiveMitglieder"
                                               ItemsSource="{Binding AktiveMitglieder}"
                                               AllowDrop="True"
-                                              DragEnter="DataGrid_DragEnter"
+                                              IsReadOnly="True"
+                                              SelectionMode="Single"
                                               Drop="DataGrid_Drop"
                                               DragOver="DataGrid_DragOver"
                                               PreviewMouseLeftButtonDown="DataGrid_PreviewMouseLeftButtonDown">
@@ -141,14 +143,14 @@
                                     <ScrollViewer HorizontalScrollBarVisibility="Auto"
                                                   VerticalScrollBarVisibility="Auto">
                                         <DataGrid x:Name="dgEingabe" 
-                                                  AutoGenerateColumns="True"
+                                                  AutoGenerateColumns="False"
                                                   IsReadOnly="False"
+                                                  SelectionMode="Single"
                                                   MinWidth="400"
                                                   MaxWidth="900"
                                                   MinHeight="300"
                                                   MaxHeight="600"
                                                   AllowDrop="True"
-                                                  DragEnter="DataGrid_DragEnter"
                                                   Drop="DataGrid_Drop"
                                                   DragOver="DataGrid_DragOver"
                                                   PreviewMouseLeftButtonDown="DataGrid_PreviewMouseLeftButtonDown">
@@ -164,6 +166,7 @@
                                 <Button Margin="8,4,8,8"
                                         HorizontalAlignment="Left"
                                         Content="Speichern"
+                                        IsEnabled="{Binding BtnSpeichernEnabled}"
                                         Command="{Binding ErgebnisseSpeichernCommand}">
                                 </Button>
                             </StackPanel>

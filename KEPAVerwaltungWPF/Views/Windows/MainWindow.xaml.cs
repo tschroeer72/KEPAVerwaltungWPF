@@ -46,8 +46,8 @@ public partial class MainWindow : MetroWindow
                 case "BtnEMail":
                     ViewManager.ShowPageOnMainView<EMailView>();
                     break;
-                case "BtnBerichte":
-                    ViewManager.ShowPageOnMainView<BerichtsView>();
+                case "BtnVordrucke":
+                    ViewManager.ShowPageOnMainView<VordruckeView>();
                     break;
                 case "BtnEinstellungen":
                     ViewManager.ShowPageOnMainView<EinstellungenView>();
