@@ -2,7 +2,7 @@
 
 namespace KEPAVerwaltungWPF.DTOs;
 
-public partial class SpielSargkegeln : ObservableObject
+public partial class Pokal : ObservableObject
 {
     [ObservableProperty] private int iD;
     [ObservableProperty] private int spieltagID;

@@ -70,27 +70,31 @@ public partial class ErgebniseingabeView : UserControl
             DependencyObject dep = (DependencyObject)e.OriginalSource;
             while (dep != null && !(dep is DataGridCell))
                 dep = VisualTreeHelper.GetParent(dep);
+            
             DataGridCell cell = dep as DataGridCell;
-            DataGridRow row = DataGridRow.GetRowContainingElement(cell);
-            DataGrid dataGrid = ItemsControl.ItemsControlFromItemContainer(row) as DataGrid;
-            //int col = dataGrid?.Columns.IndexOf(cell.Column) ?? -1;
-            var columnHeader = cell.Column.Header as string;
-            //if (cell != null && col == 1)
-            if (cell != null && columnHeader.EndsWith("name"))
+            if (cell != null)
             {
-                // Erstelle ein visuelles Element für den Adorner
-                var visual = CreateDragVisual(dataGridR.SelectedItem);
-                
-                // Adorner-Layer abrufen
-                _adornerLayer = AdornerLayer.GetAdornerLayer(dataGridR);
-                if (_adornerLayer != null)
+                DataGridRow row = DataGridRow.GetRowContainingElement(cell);
+                DataGrid dataGrid = ItemsControl.ItemsControlFromItemContainer(row) as DataGrid;
+                //int col = dataGrid?.Columns.IndexOf(cell.Column) ?? -1;
+                var columnHeader = cell.Column.Header as string;
+                //if (cell != null && col == 1)
+                if ( columnHeader.EndsWith("name"))
                 {
-                    //_dragAdorner = new DragAdorner(dataGrid, visual, offsetX: 10, offsetY: 10);
-                    _dragAdorner = new DragAdorner(dataGridR, visual, -260, -160);
-                    _adornerLayer.Add(_dragAdorner);
+                    // Erstelle ein visuelles Element für den Adorner
+                    var visual = CreateDragVisual(dataGridR.SelectedItem);
+
+                    // Adorner-Layer abrufen
+                    _adornerLayer = AdornerLayer.GetAdornerLayer(dataGridR);
+                    if (_adornerLayer != null)
+                    {
+                        //_dragAdorner = new DragAdorner(dataGrid, visual, offsetX: 10, offsetY: 10);
+                        _dragAdorner = new DragAdorner(dataGridR, visual, -260, -160);
+                        _adornerLayer.Add(_dragAdorner);
+                    }
+
+                    DragDrop.DoDragDrop(cell, cell.DataContext, DragDropEffects.Move);
                 }
-                
-                DragDrop.DoDragDrop(cell, cell.DataContext, DragDropEffects.Move);
             }
         }
     }
@@ -123,7 +127,7 @@ public partial class ErgebniseingabeView : UserControl
 
                         break;
                     case "6-Tage-Rennen":
-                        var droppedData6TR = e.Data.GetData(typeof(Spiel6TageRennen));
+                        var droppedData6TR = e.Data.GetData(typeof(SechsTageRennen));
 
                         if (droppedData6TR != null && targetDataGrid != null)
                         {
@@ -133,7 +137,7 @@ public partial class ErgebniseingabeView : UserControl
 
                         break;
                     case "Pokal":
-                        var droppedDataPokal = e.Data.GetData(typeof(SpielPokal));
+                        var droppedDataPokal = e.Data.GetData(typeof(Pokal));
 
                         if (droppedDataPokal != null && targetDataGrid != null)
                         {
@@ -143,7 +147,7 @@ public partial class ErgebniseingabeView : UserControl
 
                         break;
                     case "Sargkegeln":
-                        var droppedDataSarg = e.Data.GetData(typeof(SpielSargkegeln));
+                        var droppedDataSarg = e.Data.GetData(typeof(Sargkegeln));
 
                         if (droppedDataSarg != null && targetDataGrid != null)
                         {
@@ -153,7 +157,7 @@ public partial class ErgebniseingabeView : UserControl
 
                         break;
                     case "Meisterschaft":
-                        var droppedDataMeister = e.Data.GetData(typeof(SpielMeisterschaft));
+                        var droppedDataMeister = e.Data.GetData(typeof(Meisterschaft));
 
                         if (droppedDataMeister != null && targetDataGrid != null)
                         {
@@ -163,7 +167,7 @@ public partial class ErgebniseingabeView : UserControl
 
                         break;
                     case "Blitztunier":
-                        var droppedDataBlitz = e.Data.GetData(typeof(SpielBlitztunier));
+                        var droppedDataBlitz = e.Data.GetData(typeof(Blitztunier));
 
                         if (droppedDataBlitz != null && targetDataGrid != null)
                         {
@@ -173,7 +177,7 @@ public partial class ErgebniseingabeView : UserControl
 
                         break;
                     case "Kombimeisterschaft":
-                        var droppedDataKombi = e.Data.GetData(typeof(SpielKombimeisterschaft));
+                        var droppedDataKombi = e.Data.GetData(typeof(Kombimeisterschaft));
 
                         if (droppedDataKombi != null && targetDataGrid != null)
                         {
@@ -293,6 +297,7 @@ public partial class ErgebniseingabeView : UserControl
             _dragAdorner.UpdatePosition(position);
         }
     }
+    
     //
     // private void DataGrid_Drop(object sender, DragEventArgs e)
     // {
@@ -390,41 +395,38 @@ public partial class ErgebniseingabeView : UserControl
     //     ErgebniseingabeViewModel.CheckMandatoryFields();
     // }
 
-    // private void ChangeColumntypeOfColumnHinRueckrunde(int iColIndex)
-    // {
-    //     // Create a new DataGridTemplateColumn
-    //     DataGridTemplateColumn comboBoxColumn = new DataGridTemplateColumn();
-    //     comboBoxColumn.Header = "HinRueckrunde";
-    //
-    //     // Define the CellTemplate
-    //     DataTemplate cellTemplate = new DataTemplate();
-    //     FrameworkElementFactory textBlockFactory = new FrameworkElementFactory(typeof(TextBlock));
-    //     textBlockFactory.SetBinding(TextBlock.TextProperty, new Binding("HinRueckrunde"));
-    //     cellTemplate.VisualTree = textBlockFactory;
-    //     comboBoxColumn.CellTemplate = cellTemplate;
-    //
-    //     // Define the CellEditingTemplate
-    //     DataTemplate cellEditingTemplate = new DataTemplate();
-    //     FrameworkElementFactory comboBoxFactory = new FrameworkElementFactory(typeof(ComboBox));
-    //     
-    //     //comboBoxFactory.SetBinding(ComboBox.ItemsSourceProperty, new Binding("CboHinRueckrundeItems"));
-    //     Binding itemsSourceBinding = new Binding("CboHinRueckrundeItems")
-    //     {
-    //         RelativeSource = new RelativeSource(RelativeSourceMode.FindAncestor, typeof(UserControl), 1)
-    //     };
-    //     comboBoxFactory.SetBinding(ComboBox.ItemsSourceProperty, itemsSourceBinding);
-    //     
-    //     comboBoxFactory.SetBinding(ComboBox.SelectedValueProperty, new Binding("HinRueckrunde"));
-    //     comboBoxFactory.SetValue(ComboBox.DisplayMemberPathProperty, "Value");
-    //     comboBoxFactory.SetValue(ComboBox.SelectedValuePathProperty, "Key");
-    //     cellEditingTemplate.VisualTree = comboBoxFactory;
-    //     comboBoxColumn.CellEditingTemplate = cellEditingTemplate;
-    //
-    //     // Replace the existing column with the new ComboBox column
-    //     DataGridColumn existingColumn = dgEingabe.Columns[iColIndex];
-    //     dgEingabe.Columns.Remove(existingColumn);
-    //     dgEingabe.Columns.Insert(iColIndex, comboBoxColumn);
-    // }
+    private DataGridColumn CreateColumnHinRueckrunde()
+    {
+        // Create a new DataGridTemplateColumn
+        DataGridTemplateColumn comboBoxColumn = new DataGridTemplateColumn();
+        comboBoxColumn.Header = "HinRueckrunde";
+        comboBoxColumn.MinWidth = 150;
+    
+        // Define the CellTemplate
+        DataTemplate cellTemplate = new DataTemplate();
+        FrameworkElementFactory textBlockFactory = new FrameworkElementFactory(typeof(TextBlock));
+        textBlockFactory.SetBinding(TextBlock.TextProperty, new Binding("HinRueckrunde"));
+        cellTemplate.VisualTree = textBlockFactory;
+        comboBoxColumn.CellTemplate = cellTemplate;
+    
+        // Define the CellEditingTemplate
+        DataTemplate cellEditingTemplate = new DataTemplate();
+        FrameworkElementFactory comboBoxFactory = new FrameworkElementFactory(typeof(ComboBox));
+        
+        Binding itemsSourceBinding = new Binding("DataContext.GridCboHinRueckrundeItems")
+        {
+            RelativeSource = new RelativeSource(RelativeSourceMode.FindAncestor, typeof(DataGrid), 1)
+        };
+        comboBoxFactory.SetBinding(ComboBox.ItemsSourceProperty, itemsSourceBinding);
+        
+        comboBoxFactory.SetBinding(ComboBox.SelectedValueProperty, new Binding("HinRueckrunde"));
+        comboBoxFactory.SetValue(ComboBox.DisplayMemberPathProperty, "Value");
+        comboBoxFactory.SetValue(ComboBox.SelectedValuePathProperty, "Key");
+        cellEditingTemplate.VisualTree = comboBoxFactory;
+        comboBoxColumn.CellEditingTemplate = cellEditingTemplate;
+    
+        return comboBoxColumn;
+    }
 
     private void CboSpielauswahl_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
     {
@@ -440,31 +442,38 @@ public partial class ErgebniseingabeView : UserControl
                 dgEingabe.ItemsSource = ErgebniseingabeViewModel.Spiel6TageRennen;
                 CboSpielnummer.Visibility = Visibility.Visible;
                 CboHinRueckrunde.Visibility = Visibility.Collapsed;
+                InitEingabeGrid6TageRennen();
+                CboSpielauswahl.IsDropDownOpen = true;
                 break;
             case "Pokal":
                 dgEingabe.ItemsSource = ErgebniseingabeViewModel.SpielPokal;
                 CboSpielnummer.Visibility = Visibility.Collapsed;
                 CboHinRueckrunde.Visibility = Visibility.Collapsed;
+                InitEingabeGridPokal();
                 break;
             case "Sargkegeln":
                 dgEingabe.ItemsSource = ErgebniseingabeViewModel.SpielSargkegeln;
                 CboSpielnummer.Visibility = Visibility.Collapsed;
                 CboHinRueckrunde.Visibility = Visibility.Collapsed;
+                InitEingabeGridSargkegeln();
                 break;
             case "Meisterschaft":
                 dgEingabe.ItemsSource = ErgebniseingabeViewModel.SpielMeisterschaft;
                 CboSpielnummer.Visibility = Visibility.Collapsed;
                 CboHinRueckrunde.Visibility = Visibility.Visible;
+                InitEingabeGridMeisterschaft();
                 break;
             case "Blitztunier":
                 dgEingabe.ItemsSource = ErgebniseingabeViewModel.SpielBlitztunier;
                 CboSpielnummer.Visibility = Visibility.Collapsed;
                 CboHinRueckrunde.Visibility = Visibility.Visible;
+                InitEingabeGridBlitztunier();
                 break;
             case "Kombimeisterschaft":
                 dgEingabe.ItemsSource = ErgebniseingabeViewModel.SpielKombimeisterschaft;
                 CboSpielnummer.Visibility = Visibility.Collapsed;
                 CboHinRueckrunde.Visibility = Visibility.Visible;
+                InitEingabeGridKombimeisterschaft();
                 break;
         }
 
@@ -583,9 +592,10 @@ public partial class ErgebniseingabeView : UserControl
         };
     }
 
-
     private void InitEingabeGrid9erRatten()
     {
+        dgEingabe.ItemsSource = null;
+        dgEingabe.Columns.Clear();
         dgEingabe.IsReadOnly = false;
         dgEingabe.AutoGenerateColumns = false;
         dgEingabe.Columns.Add(CreateTextColumn("ID", "ID", Visibility.Collapsed, false, 0));
@@ -595,6 +605,127 @@ public partial class ErgebniseingabeView : UserControl
         dgEingabe.Columns.Add(CreateTextColumn("Neuner", "Neuner", Visibility.Visible, false, 90));
         dgEingabe.Columns.Add(CreateTextColumn("Ratten", "Ratten", Visibility.Visible, false, 90));
 
-        dgEingabe.ItemsSource = ErgebniseingabeViewModel.NeunerRatten;
+        dgEingabe.ItemsSource = ErgebniseingabeViewModel.SpielNeunerRatten;
+    }
+    
+    private void InitEingabeGrid6TageRennen ()
+    {
+        dgEingabe.ItemsSource = null;
+        dgEingabe.Columns.Clear();
+        dgEingabe.IsReadOnly = false;
+        dgEingabe.AutoGenerateColumns = false;
+        dgEingabe.Columns.Add(CreateTextColumn("ID", "ID", Visibility.Collapsed, false, 0));
+        dgEingabe.Columns.Add(CreateTextColumn("SpieltagID", "SpieltagID", Visibility.Collapsed, false, 0));
+        dgEingabe.Columns.Add(CreateTextColumn("Spieler1ID", "Spieler1ID", Visibility.Collapsed, false, 0));
+        dgEingabe.Columns.Add(CreateTextColumn("Spieler1Name", "Spieler1Name", Visibility.Visible, true, 200));
+        dgEingabe.Columns.Add(CreateTextColumn("Spieler2ID", "Spieler2ID", Visibility.Collapsed, false, 0));
+        dgEingabe.Columns.Add(CreateTextColumn("Spieler2Name", "Spieler2Name", Visibility.Visible, true, 200));
+        dgEingabe.Columns.Add(CreateTextColumn("Runden", "Runden", Visibility.Visible, false, 90));
+        dgEingabe.Columns.Add(CreateTextColumn("Punkte", "Punkte", Visibility.Visible, false, 90));
+        dgEingabe.Columns.Add(CreateTextColumn("Spielnr", "Spielnr", Visibility.Visible, true, 90));
+        dgEingabe.Columns.Add(CreateTextColumn("Platz", "Platz", Visibility.Collapsed, false, 90));
+
+        dgEingabe.ItemsSource = ErgebniseingabeViewModel.Spiel6TageRennen;
+    }
+
+    private void InitEingabeGridPokal()
+    {
+        dgEingabe.ItemsSource = null;
+        dgEingabe.Columns.Clear();
+        dgEingabe.IsReadOnly = false;
+        dgEingabe.AutoGenerateColumns = false;
+        dgEingabe.Columns.Add(CreateTextColumn("ID", "ID", Visibility.Collapsed, false, 0));
+        dgEingabe.Columns.Add(CreateTextColumn("SpieltagID", "SpieltagID", Visibility.Collapsed, false, 0));
+        dgEingabe.Columns.Add(CreateTextColumn("SpielerID", "SpielerID", Visibility.Collapsed, false, 0));
+        dgEingabe.Columns.Add(CreateTextColumn("Spielername", "Spielername", Visibility.Visible, true, 200));
+        dgEingabe.Columns.Add(CreateTextColumn("Platzierung", "Platzierung", Visibility.Visible, false, 90));
+
+        dgEingabe.ItemsSource = ErgebniseingabeViewModel.SpielPokal;
+    }
+    
+    private void InitEingabeGridSargkegeln()
+    {
+        dgEingabe.ItemsSource = null;
+        dgEingabe.Columns.Clear();
+        dgEingabe.IsReadOnly = false;
+        dgEingabe.AutoGenerateColumns = false;
+        dgEingabe.Columns.Add(CreateTextColumn("ID", "ID", Visibility.Collapsed, false, 0));
+        dgEingabe.Columns.Add(CreateTextColumn("SpieltagID", "SpieltagID", Visibility.Collapsed, false, 0));
+        dgEingabe.Columns.Add(CreateTextColumn("SpielerID", "SpielerID", Visibility.Collapsed, false, 0));
+        dgEingabe.Columns.Add(CreateTextColumn("Spielername", "Spielername", Visibility.Visible, true, 200));
+        dgEingabe.Columns.Add(CreateTextColumn("Platzierung", "Platzierung", Visibility.Visible, false, 90));
+
+        dgEingabe.ItemsSource = ErgebniseingabeViewModel.SpielSargkegeln;
+    }
+    
+    private void InitEingabeGridMeisterschaft()
+    {
+        dgEingabe.ItemsSource = null;
+        dgEingabe.Columns.Clear();
+        dgEingabe.IsReadOnly = false;
+        dgEingabe.AutoGenerateColumns = false;
+        dgEingabe.Columns.Add(CreateTextColumn("ID", "ID", Visibility.Collapsed, false, 0));
+        dgEingabe.Columns.Add(CreateTextColumn("SpieltagID", "SpieltagID", Visibility.Collapsed, false, 0));
+        dgEingabe.Columns.Add(CreateTextColumn("Spieler1ID", "Spieler1ID", Visibility.Collapsed, false, 0));
+        dgEingabe.Columns.Add(CreateTextColumn("Spieler1Name", "Spieler1Name", Visibility.Visible, true, 200));
+        dgEingabe.Columns.Add(CreateTextColumn("Spieler2ID", "Spieler2ID", Visibility.Collapsed, false, 0));
+        dgEingabe.Columns.Add(CreateTextColumn("Spieler2Name", "Spieler2Name", Visibility.Visible, true, 200));
+        dgEingabe.Columns.Add(CreateTextColumn("HolzSpieler1", "HolzSpieler1", Visibility.Visible, false, 150));
+        dgEingabe.Columns.Add(CreateTextColumn("HolzSpieler2", "HolzSpieler2", Visibility.Visible, false, 150));
+        //dgEingabe.Columns.Add(CreateTextColumn("HinRueckrunde", "HinRueckrunde", Visibility.Visible, true, 90));
+        dgEingabe.Columns.Add(CreateColumnHinRueckrunde());
+        
+        dgEingabe.ItemsSource = ErgebniseingabeViewModel.SpielMeisterschaft;
+    }
+    
+    private void InitEingabeGridBlitztunier()
+    {
+        dgEingabe.ItemsSource = null;
+        dgEingabe.Columns.Clear();
+        dgEingabe.IsReadOnly = false;
+        dgEingabe.AutoGenerateColumns = false;
+        dgEingabe.Columns.Add(CreateTextColumn("ID", "ID", Visibility.Collapsed, false, 0));
+        dgEingabe.Columns.Add(CreateTextColumn("SpieltagID", "SpieltagID", Visibility.Collapsed, false, 0));
+        dgEingabe.Columns.Add(CreateTextColumn("Spieler1ID", "Spieler1ID", Visibility.Collapsed, false, 0));
+        dgEingabe.Columns.Add(CreateTextColumn("Spieler1Name", "Spieler1Name", Visibility.Visible, true, 200));
+        dgEingabe.Columns.Add(CreateTextColumn("Spieler2ID", "Spieler2ID", Visibility.Collapsed, false, 0));
+        dgEingabe.Columns.Add(CreateTextColumn("Spieler2Name", "Spieler2Name", Visibility.Visible, true, 200));
+        dgEingabe.Columns.Add(CreateTextColumn("PunkteSpieler1", "PunkteSpieler1", Visibility.Visible, false, 150));
+        dgEingabe.Columns.Add(CreateTextColumn("PunkteSpieler2", "PunkteSpieler2", Visibility.Visible, false, 150));
+        //dgEingabe.Columns.Add(CreateTextColumn("HinRueckrunde", "HinRueckrunde", Visibility.Visible, true, 90));
+        dgEingabe.Columns.Add(CreateColumnHinRueckrunde());
+        
+        dgEingabe.ItemsSource = ErgebniseingabeViewModel.SpielBlitztunier;
+    }
+    
+    private void InitEingabeGridKombimeisterschaft()
+    {
+        dgEingabe.ItemsSource = null;
+        dgEingabe.Columns.Clear();
+        dgEingabe.IsReadOnly = false;
+        dgEingabe.AutoGenerateColumns = false;
+        dgEingabe.Columns.Add(CreateTextColumn("ID", "ID", Visibility.Collapsed, false, 0));
+        dgEingabe.Columns.Add(CreateTextColumn("SpieltagID", "SpieltagID", Visibility.Collapsed, false, 0));
+        dgEingabe.Columns.Add(CreateTextColumn("Spieler1ID", "Spieler1ID", Visibility.Collapsed, false, 0));
+        dgEingabe.Columns.Add(CreateTextColumn("Spieler1Name", "Spieler1Name", Visibility.Visible, true, 200));
+        dgEingabe.Columns.Add(CreateTextColumn("Spieler2ID", "Spieler2ID", Visibility.Collapsed, false, 0));
+        dgEingabe.Columns.Add(CreateTextColumn("Spieler2Name", "Spieler2Name", Visibility.Visible, true, 200));
+        dgEingabe.Columns.Add(CreateTextColumn("Spieler1Punkte3bis8", "Spieler1Punkte3bis8", Visibility.Visible, false, 220));
+        dgEingabe.Columns.Add(CreateTextColumn("Spieler1Punkte5Kugeln", "Spieler1Punkte5Kugeln", Visibility.Visible, false, 220));
+        dgEingabe.Columns.Add(CreateTextColumn("Spieler2Punkte3bis8", "Spieler2Punkte3bis8", Visibility.Visible, false, 220));
+        dgEingabe.Columns.Add(CreateTextColumn("Spieler2Punkte5Kugeln", "Spieler2Punkte5Kugeln", Visibility.Visible, false, 220));
+        //dgEingabe.Columns.Add(CreateTextColumn("HinRueckrunde", "HinRueckrunde", Visibility.Visible, true, 90));
+        dgEingabe.Columns.Add(CreateColumnHinRueckrunde());
+        
+        dgEingabe.ItemsSource = ErgebniseingabeViewModel.SpielKombimeisterschaft;
+    }
+    
+    private void CboSpielnummer_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        var comboBox = sender as ComboBox;
+        if (comboBox != null)
+        {
+            comboBox.IsDropDownOpen = true;
+        }
     }
 }

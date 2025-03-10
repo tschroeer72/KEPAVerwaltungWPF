@@ -2,7 +2,7 @@
 
 namespace KEPAVerwaltungWPF.DTOs;
 
-public partial class SpielKombimeisterschaft : ObservableObject
+public partial class Blitztunier : ObservableObject
 {
     [ObservableProperty] private int iD;
     [ObservableProperty] private int spieltagID;
@@ -10,9 +10,7 @@ public partial class SpielKombimeisterschaft : ObservableObject
     [ObservableProperty] private string spieler1Name;
     [ObservableProperty] private int spieler2ID;
     [ObservableProperty] private string spieler2Name;
-    [ObservableProperty] private int spieler1Punkte3bis8;
-    [ObservableProperty] private int spieler1Punkte5Kugeln;
-    [ObservableProperty] private int spieler2Punkte3bis8;
-    [ObservableProperty] private int spieler2Punkte5Kugeln;
+    [ObservableProperty] private int punkteSpieler1;
+    [ObservableProperty] private int punkteSpieler2;
     [ObservableProperty] private int hinRueckrunde;
 }

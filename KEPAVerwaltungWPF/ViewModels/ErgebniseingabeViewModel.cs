@@ -58,11 +58,57 @@ public partial class ErgebniseingabeViewModel : BaseViewModel
         }
     }
 
+    private bool IsPlayerInList(int iSpielerID, string sSpiel, object oList)
+    {
+        bool bolReturn = false;
+        
+        switch (sSpiel)
+        {
+            case "9er/Ratten":
+                var lstNR = oList as List<NeunerRatten>;
+                var nr = lstNR.Where(w => w.SpielerID == iSpielerID).ToList();
+                bolReturn = nr.Count > 0;
+                break;
+            case "6-Tage-Rennen":
+                var lst6TR = oList as List<SechsTageRennen>;
+                var str = lst6TR.Where(w => w.Spieler1ID == iSpielerID || w.Spieler2ID == iSpielerID).ToList();
+                bolReturn = str.Count > 0;
+                break;
+            case "Pokal":
+                var lstP = oList as List<Pokal>;
+                var p = lstP.Where(w => w.SpielerID == iSpielerID).ToList();
+                bolReturn = p.Count > 0;
+                break;
+            case "Sargkegeln":
+                var lstSK = oList as List<Sargkegeln>;
+                var sk = lstSK.Where(w => w.SpielerID == iSpielerID).ToList();
+                bolReturn = sk.Count > 0;
+                break;
+            case "Meisterschaft":
+                var lstM = oList as List<Meisterschaft>;
+                var m = lstM.Where(w => w.Spieler1ID == iSpielerID || w.Spieler2ID == iSpielerID).ToList();
+                bolReturn = m.Count > 0;
+                break;
+            case "Blitztunier":
+                var lstBT = oList as List<Blitztunier>;
+                var bt = lstBT.Where(w => w.Spieler1ID == iSpielerID || w.Spieler2ID == iSpielerID).ToList();
+                bolReturn = bt.Count > 0;
+                break;
+            case "Kombimeisterschaft":
+                var lstKM = oList as List<Kombimeisterschaft>;
+                var km = lstKM.Where(w => w.Spieler1ID == iSpielerID || w.Spieler2ID == iSpielerID).ToList();
+                bolReturn = km.Count > 0;
+                break;
+        }
+
+        return bolReturn;
+    }
+    
     private void AddSpieler6TR(AktiveSpieler oSpieler)
     {
         if (Spiel6TageRennen.Count == 0)
         {
-            Spiel6TageRennen obj6TageRennen = new();
+            SechsTageRennen obj6TageRennen = new();
             obj6TageRennen.Spieler1ID = oSpieler.ID;
             obj6TageRennen.Spieler1Name = oSpieler.Anzeigename;
             obj6TageRennen.Spielnr = Convert.ToInt32(SelectedSpielNummer);
@@ -73,8 +119,22 @@ public partial class ErgebniseingabeViewModel : BaseViewModel
             int intIndex = Spiel6TageRennen.Count - 1;
             if (Spiel6TageRennen[intIndex].Spieler2ID <= 0)
             {
-                Spiel6TageRennen[intIndex].Spieler2ID = oSpieler.ID;
-                Spiel6TageRennen[intIndex].Spieler2Name = oSpieler.Anzeigename;
+                if (!IsPlayerInList(oSpieler.ID, "6-Tage-Rennen", Spiel6TageRennen.ToList()))
+                {
+                    Spiel6TageRennen[intIndex].Spieler2ID = oSpieler.ID;
+                    Spiel6TageRennen[intIndex].Spieler2Name = oSpieler.Anzeigename;
+                }
+            }
+            else
+            {
+                if (!IsPlayerInList(oSpieler.ID, "6-Tage-Rennen", Spiel6TageRennen.ToList()))
+                {
+                    SechsTageRennen obj6TageRennen = new();
+                    obj6TageRennen.Spieler1ID = oSpieler.ID;
+                    obj6TageRennen.Spieler1Name = oSpieler.Anzeigename;
+                    obj6TageRennen.Spielnr = Convert.ToInt32(SelectedSpielNummer);
+                    Spiel6TageRennen.Add(obj6TageRennen);
+                }
             }
         }
     }
@@ -83,7 +143,7 @@ public partial class ErgebniseingabeViewModel : BaseViewModel
     {
         if (SpielMeisterschaft.Count == 0)
         {
-            SpielMeisterschaft objMeister = new();
+            Meisterschaft objMeister = new();
             objMeister.Spieler1ID = oSpieler.ID;
             objMeister.Spieler1Name = oSpieler.Anzeigename;
             objMeister.Spieler2ID = -1;
@@ -96,18 +156,24 @@ public partial class ErgebniseingabeViewModel : BaseViewModel
             int intIndex = SpielMeisterschaft.Count - 1;
             if (SpielMeisterschaft[intIndex].Spieler2ID <= 0)
             {
-                SpielMeisterschaft[intIndex].Spieler2ID = oSpieler.ID;
-                SpielMeisterschaft[intIndex].Spieler2Name = oSpieler.Anzeigename;
+                if (!IsPlayerInList(oSpieler.ID, "Meisterschaft", SpielMeisterschaft.ToList()))
+                {
+                    SpielMeisterschaft[intIndex].Spieler2ID = oSpieler.ID;
+                    SpielMeisterschaft[intIndex].Spieler2Name = oSpieler.Anzeigename;
+                }
             }
             else
             {
-                SpielMeisterschaft objMeister = new();
-                objMeister.Spieler1ID = oSpieler.ID;
-                objMeister.Spieler1Name = oSpieler.Anzeigename;
-                objMeister.Spieler2ID = -1;
-                objMeister.Spieler2Name = "";
-                objMeister.HinRueckrunde = SelectedHinRueckrundeID;
-                SpielMeisterschaft.Add(objMeister);
+                if (!IsPlayerInList(oSpieler.ID, "Meisterschaft", SpielMeisterschaft.ToList()))
+                {
+                    Meisterschaft objMeister = new();
+                    objMeister.Spieler1ID = oSpieler.ID;
+                    objMeister.Spieler1Name = oSpieler.Anzeigename;
+                    objMeister.Spieler2ID = -1;
+                    objMeister.Spieler2Name = "";
+                    objMeister.HinRueckrunde = SelectedHinRueckrundeID;
+                    SpielMeisterschaft.Add(objMeister);
+                }
             }
         }
     }
@@ -116,7 +182,7 @@ public partial class ErgebniseingabeViewModel : BaseViewModel
     {
         if (SpielKombimeisterschaft.Count == 0)
         {
-            DTOs.SpielKombimeisterschaft objKombi = new();
+            DTOs.Kombimeisterschaft objKombi = new();
             objKombi.Spieler1ID = oSpieler.ID;
             objKombi.Spieler1Name = oSpieler.Anzeigename;
             objKombi.Spieler2ID = -1;
@@ -129,18 +195,24 @@ public partial class ErgebniseingabeViewModel : BaseViewModel
             int intIndex = SpielKombimeisterschaft.Count - 1;
             if (SpielKombimeisterschaft[intIndex].Spieler2ID <= 0)
             {
-                SpielKombimeisterschaft[intIndex].Spieler2ID = oSpieler.ID;
-                SpielKombimeisterschaft[intIndex].Spieler2Name = oSpieler.Anzeigename;
+                if (!IsPlayerInList(oSpieler.ID, "Kombimeisterschaft", SpielKombimeisterschaft.ToList()))
+                {
+                    SpielKombimeisterschaft[intIndex].Spieler2ID = oSpieler.ID;
+                    SpielKombimeisterschaft[intIndex].Spieler2Name = oSpieler.Anzeigename;
+                }
             }
             else
             {
-                DTOs.SpielKombimeisterschaft objKombi = new();
-                objKombi.Spieler1ID = oSpieler.ID;
-                objKombi.Spieler1Name = oSpieler.Anzeigename;
-                objKombi.Spieler2ID = -1;
-                objKombi.Spieler2Name = "";
-                objKombi.HinRueckrunde = SelectedHinRueckrundeID;
-                SpielKombimeisterschaft.Add(objKombi);
+                if (!IsPlayerInList(oSpieler.ID, "Kombimeisterschaft", SpielKombimeisterschaft.ToList()))
+                {
+                    DTOs.Kombimeisterschaft objKombi = new();
+                    objKombi.Spieler1ID = oSpieler.ID;
+                    objKombi.Spieler1Name = oSpieler.Anzeigename;
+                    objKombi.Spieler2ID = -1;
+                    objKombi.Spieler2Name = "";
+                    objKombi.HinRueckrunde = SelectedHinRueckrundeID;
+                    SpielKombimeisterschaft.Add(objKombi);
+                }
             }
         }
     }
@@ -149,7 +221,7 @@ public partial class ErgebniseingabeViewModel : BaseViewModel
     {
         if (SpielBlitztunier.Count == 0)
         {
-            DTOs.SpielBlitztunier objBlitz = new();
+            DTOs.Blitztunier objBlitz = new();
             objBlitz.Spieler1ID = oSpieler.ID;
             objBlitz.Spieler1Name = oSpieler.Anzeigename;
             objBlitz.Spieler2ID = -1;
@@ -162,18 +234,24 @@ public partial class ErgebniseingabeViewModel : BaseViewModel
             int intIndex = SpielBlitztunier.Count - 1;
             if (SpielBlitztunier[intIndex].Spieler2ID <= 0)
             {
-                SpielBlitztunier[intIndex].Spieler2ID = oSpieler.ID;
-                SpielBlitztunier[intIndex].Spieler2Name = oSpieler.Anzeigename;
+                if (!IsPlayerInList(oSpieler.ID, "Blitztunier", SpielBlitztunier.ToList()))
+                {
+                    SpielBlitztunier[intIndex].Spieler2ID = oSpieler.ID;
+                    SpielBlitztunier[intIndex].Spieler2Name = oSpieler.Anzeigename;
+                }
             }
             else
             {
-                DTOs.SpielBlitztunier objBlitz = new();
-                objBlitz.Spieler1ID = oSpieler.ID;
-                objBlitz.Spieler1Name = oSpieler.Anzeigename;
-                objBlitz.Spieler2ID = -1;
-                objBlitz.Spieler2Name = "";
-                objBlitz.HinRueckrunde = SelectedHinRueckrundeID;
-                SpielBlitztunier.Add(objBlitz);
+                if (!IsPlayerInList(oSpieler.ID, "Blitztunier", SpielBlitztunier.ToList()))
+                {
+                    DTOs.Blitztunier objBlitz = new();
+                    objBlitz.Spieler1ID = oSpieler.ID;
+                    objBlitz.Spieler1Name = oSpieler.Anzeigename;
+                    objBlitz.Spieler2ID = -1;
+                    objBlitz.Spieler2Name = "";
+                    objBlitz.HinRueckrunde = SelectedHinRueckrundeID;
+                    SpielBlitztunier.Add(objBlitz);
+                }
             }
         }
     }
@@ -188,19 +266,19 @@ public partial class ErgebniseingabeViewModel : BaseViewModel
                     case "9er/Ratten":
                         if (droppedData is NeunerRatten dataNR)
                         {
-                            if (NeunerRatten.Contains(dataNR))
-                                NeunerRatten.Remove(dataNR);
-
-                            if (NeunerRatten.Count == 0)
+                            if (SpielNeunerRatten.Contains(dataNR))
+                                SpielNeunerRatten.Remove(dataNR);
+        
+                            if (SpielNeunerRatten.Count == 0)
                             {
                                 CboSpielauswahlEnabled = true;
                                 CheckMandatoryFields();
                             }
                         }
-
+        
                         break;
                     case "6-Tage-Rennen":
-                        if (droppedData is Spiel6TageRennen data6TR)
+                        if (droppedData is SechsTageRennen data6TR)
                         {
                             if (Spiel6TageRennen.Contains(data6TR))
                                 Spiel6TageRennen.Remove(data6TR);
@@ -211,10 +289,10 @@ public partial class ErgebniseingabeViewModel : BaseViewModel
                                 CheckMandatoryFields();
                             }
                         }
-
+        
                         break;
                     case "Pokal":
-                        if (droppedData is SpielPokal dataP)
+                        if (droppedData is Pokal dataP)
                         {
                             if (SpielPokal.Contains(dataP))
                                 SpielPokal.Remove(dataP);
@@ -225,10 +303,10 @@ public partial class ErgebniseingabeViewModel : BaseViewModel
                                 CheckMandatoryFields();
                             }
                         }
-
+        
                         break;
                     case "Sargkegeln":
-                        if (droppedData is SpielSargkegeln dataS)
+                        if (droppedData is Sargkegeln dataS)
                         {
                             if (SpielSargkegeln.Contains(dataS))
                                 SpielSargkegeln.Remove(dataS);
@@ -239,10 +317,10 @@ public partial class ErgebniseingabeViewModel : BaseViewModel
                                 CheckMandatoryFields();
                             }
                         }
-
+        
                         break;
                     case "Meisterschaft":
-                        if (droppedData is SpielMeisterschaft dataM)
+                        if (droppedData is Meisterschaft dataM)
                         {
                             if (SpielMeisterschaft.Contains(dataM))
                                 SpielMeisterschaft.Remove(dataM);
@@ -253,10 +331,10 @@ public partial class ErgebniseingabeViewModel : BaseViewModel
                                 CheckMandatoryFields();
                             }
                         }
-
+        
                         break;
                     case "Blitztunier":
-                        if (droppedData is SpielBlitztunier dataB)
+                        if (droppedData is Blitztunier dataB)
                         {
                             if (SpielBlitztunier.Contains(dataB))
                                 SpielBlitztunier.Remove(dataB);
@@ -267,10 +345,10 @@ public partial class ErgebniseingabeViewModel : BaseViewModel
                                 CheckMandatoryFields();
                             }
                         }
-
+        
                         break;
                     case "Kombimeisterschaft":
-                        if (droppedData is SpielKombimeisterschaft dataKM)
+                        if (droppedData is Kombimeisterschaft dataKM)
                         {
                             if (SpielKombimeisterschaft.Contains(dataKM))
                                 SpielKombimeisterschaft.Remove(dataKM);
@@ -281,7 +359,7 @@ public partial class ErgebniseingabeViewModel : BaseViewModel
                                 CheckMandatoryFields();
                             }
                         }
-
+        
                         break;
                 }
                 break;
@@ -293,46 +371,46 @@ public partial class ErgebniseingabeViewModel : BaseViewModel
                         {
                             if (AktiveMitglieder.Contains(dataNR))
                             {
-                                var nr = NeunerRatten.Where(x => x.SpielerID == dataNR.ID).ToList();
-                                if (nr.Count == 0)
+                                if (!IsPlayerInList(dataNR.ID, "9er/Ratten", SpielNeunerRatten.ToList()))
                                 {
                                     NeunerRatten obj9erRatten = new();
                                     obj9erRatten.SpielerID = dataNR.ID;
                                     obj9erRatten.Spielername = dataNR.Anzeigename;
-                                    NeunerRatten.Add(obj9erRatten);
+                                    SpielNeunerRatten.Add(obj9erRatten);
                                 }
-
+        
                                 CboSpielauswahlEnabled = false;
                                 CheckMandatoryFields();
                             }
                         }
-
+        
                         break;
                     case "6-Tage-Rennen":
                         if (droppedData is AktiveSpieler data6TR)
                         {
                             if (AktiveMitglieder.Contains(data6TR))
                             {
-                                //AktiveMitglieder.Remove(data);
                                 AddSpieler6TR(data6TR);
                                 
                                 CboSpielauswahlEnabled = false;
                                 CheckMandatoryFields();
                             }
                         }
-
+        
                         break;
                     case "Pokal":
                         if (droppedData is AktiveSpieler dataP)
                         {
                             if (AktiveMitglieder.Contains(dataP))
                             {
-                                //AktiveMitglieder.Remove(data);
-                                SpielPokal objPokal = new();
-                                objPokal.SpielerID = dataP.ID;
-                                objPokal.Spielername = dataP.Anzeigename;
-                                SpielPokal.Add(objPokal);
-                                
+                                if (!IsPlayerInList(dataP.ID, "Pokal", SpielPokal.ToList()))
+                                {
+                                    Pokal objPokal = new();
+                                    objPokal.SpielerID = dataP.ID;
+                                    objPokal.Spielername = dataP.Anzeigename;
+                                    SpielPokal.Add(objPokal);
+                                }
+        
                                 CboSpielauswahlEnabled = false;
                                 CheckMandatoryFields();
                             }
@@ -344,12 +422,14 @@ public partial class ErgebniseingabeViewModel : BaseViewModel
                         {
                             if (AktiveMitglieder.Contains(dataS))
                             {
-                                //AktiveMitglieder.Remove(data);
-                                SpielSargkegeln objSarg = new();
-                                objSarg.SpielerID = dataS.ID;
-                                objSarg.Spielername = dataS.Anzeigename;
-                                SpielSargkegeln.Add(objSarg);
-                                
+                                if (!IsPlayerInList(dataS.ID, "Sargkegeln", SpielSargkegeln.ToList()))
+                                {
+                                    Sargkegeln objSarg = new();
+                                    objSarg.SpielerID = dataS.ID;
+                                    objSarg.Spielername = dataS.Anzeigename;
+                                    SpielSargkegeln.Add(objSarg);
+                                }
+        
                                 CboSpielauswahlEnabled = false;
                                 CheckMandatoryFields();
                             }
@@ -361,7 +441,6 @@ public partial class ErgebniseingabeViewModel : BaseViewModel
                         {
                             if (AktiveMitglieder.Contains(dataM))
                             {
-                                //AktiveMitglieder.Remove(data);
                                 AddSpielerMeisterschaft(dataM);
                                 
                                 CboSpielauswahlEnabled = false;
@@ -375,7 +454,6 @@ public partial class ErgebniseingabeViewModel : BaseViewModel
                         {
                             if (AktiveMitglieder.Contains(dataB))
                             {
-                                //AktiveMitglieder.Remove(data);
                                 AddSpielerBlitztunier(dataB);
                                 
                                 CboSpielauswahlEnabled = false;
@@ -389,7 +467,6 @@ public partial class ErgebniseingabeViewModel : BaseViewModel
                         {
                             if (AktiveMitglieder.Contains(dataKM))
                             {
-                                //AktiveMitglieder.Remove(data);
                                 AddSpielerKombimeisterschaft(dataKM);
                                 
                                 CboSpielauswahlEnabled = false;
@@ -410,7 +487,7 @@ public partial class ErgebniseingabeViewModel : BaseViewModel
             switch (SelectedSpiel)
             {
                 case "9er/Ratten":
-                    if (NeunerRatten.Count > 0)
+                    if (SpielNeunerRatten.Count > 0)
                         BtnSpeichernEnabled = true;
                     else
                         BtnSpeichernEnabled = false;
@@ -478,18 +555,25 @@ public partial class ErgebniseingabeViewModel : BaseViewModel
             "Hinrunde" ,
             "Rückrunde" 
         };
-
+    
+    [ObservableProperty] private ObservableCollection<KeyValuePair<int, string>> gridCboHinRueckrundeItems =
+        new ObservableCollection<KeyValuePair<int, string>>()
+        {
+            new KeyValuePair<int, string>(0, "Hinrunde"),
+            new KeyValuePair<int, string>(1, "Rueckrunde"),
+        };
+    
     [ObservableProperty] private bool btnSpeichernEnabled = false;
     [ObservableProperty] private bool cboSpielauswahlEnabled = true;
     
     [ObservableProperty] private ObservableCollection<AktiveSpieler> aktiveMitglieder = new();
-    [ObservableProperty] private ObservableCollection<NeunerRatten> neunerRatten = new();
-    [ObservableProperty] private ObservableCollection<Spiel6TageRennen> spiel6TageRennen = new();
-    [ObservableProperty] private ObservableCollection<SpielPokal> spielPokal = new();
-    [ObservableProperty] private ObservableCollection<SpielSargkegeln> spielSargkegeln = new();
-    [ObservableProperty] private ObservableCollection<SpielMeisterschaft> spielMeisterschaft = new();
-    [ObservableProperty] private ObservableCollection<SpielBlitztunier> spielBlitztunier = new();
-    [ObservableProperty] private ObservableCollection<SpielKombimeisterschaft> spielKombimeisterschaft = new();
+    [ObservableProperty] private ObservableCollection<NeunerRatten> spielNeunerRatten = new();
+    [ObservableProperty] private ObservableCollection<SechsTageRennen> spiel6TageRennen = new();
+    [ObservableProperty] private ObservableCollection<Pokal> spielPokal = new();
+    [ObservableProperty] private ObservableCollection<Sargkegeln> spielSargkegeln = new();
+    [ObservableProperty] private ObservableCollection<Meisterschaft> spielMeisterschaft = new();
+    [ObservableProperty] private ObservableCollection<Blitztunier> spielBlitztunier = new();
+    [ObservableProperty] private ObservableCollection<Kombimeisterschaft> spielKombimeisterschaft = new();
     
     [RelayCommand]
     public void GetInitialData()
@@ -523,7 +607,7 @@ public partial class ErgebniseingabeViewModel : BaseViewModel
             {
                 case "9er/Ratten":
                     await _dbService.SaveEingabeAsync(intMeisterschaftsID, SelectedDate.Value, SelectedSpiel,
-                        NeunerRatten.ToList());
+                        SpielNeunerRatten.ToList());
                     break;
                 case "6-Tage-Rennen":
                     await _dbService.SaveEingabeAsync(intMeisterschaftsID, SelectedDate.Value, SelectedSpiel,
