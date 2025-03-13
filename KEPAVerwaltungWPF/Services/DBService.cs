@@ -1,8 +1,10 @@
 ﻿using System.Data;
 using System.Runtime.InteropServices.JavaScript;
 using System.Text;
+using System.Windows.Documents;
 using AutoMapper;
 using KEPAVerwaltungWPF.DTOs;
+using KEPAVerwaltungWPF.DTOs.Ausgabe;
 using KEPAVerwaltungWPF.Models.Local;
 using KEPAVerwaltungWPF.Models.Web;
 using KEPAVerwaltungWPF.Views;
@@ -12,296 +14,12 @@ using TblMeisterschaften = KEPAVerwaltungWPF.Models.Local.TblMeisterschaften;
 
 namespace KEPAVerwaltungWPF.Services;
 
-public class DBService(LocalDbContext _localDbContext, WebDbContext _webDbContext, CommonService _commonService) //, IMapper _mapper
+public class DBService(
+    LocalDbContext _localDbContext,
+    WebDbContext _webDbContext,
+    CommonService _commonService) //, IMapper _mapper
 {
-    //private ClsDBWeb m_objDBWeb = new ClsDBWeb();
-
-    public async Task<List<Mitgliederliste>> GetMitgliederlisteAsync()
-    {
-        List<Mitgliederliste> lstMitglieder = new List<Mitgliederliste>();
-
-        try
-        {
-            var tv = await (_localDbContext.TblMitglieders.OrderBy(o => o.Nachname)
-                .Select(s => s)).ToListAsync();
-
-            foreach (var item in tv)
-            {
-                Mitgliederliste objItem = new Mitgliederliste();
-                objItem.Initial = item.Nachname.Substring(0, 1);
-                objItem.Anzeigename = item.Nachname + ", " + item.Vorname;
-                objItem.Nachname = item.Nachname;
-                objItem.Vorname = item.Vorname;
-                objItem.ID = item.Id;
-                lstMitglieder.Add(objItem);
-            }
-
-            //------------------
-
-            //Testdaten
-            // Mitgliederliste objItem = new Mitgliederliste();
-            // objItem.Initial = "S";
-            // objItem.Anzeigename = "Schröer, Thorsten";
-            // objItem.Nachname = "Schröer";
-            // objItem.Vorname = "Thorsten";
-            // objItem.ID = 1;
-            // lstMitglieder.Add(objItem);
-            //
-            // objItem = new Mitgliederliste();
-            // objItem.Initial = "S";
-            // objItem.Anzeigename = "Schmidt, Wolfgang";
-            // objItem.Nachname = "Schmidt";
-            // objItem.Vorname = "Wolfgang";
-            // objItem.ID = 2;
-            // lstMitglieder.Add(objItem);
-            //
-            // objItem = new Mitgliederliste();
-            // objItem.Initial = "B";
-            // objItem.Anzeigename = "Bohn, Karl-Heinz";
-            // objItem.Nachname = "Bohn";
-            // objItem.Vorname = "Karl-Heinz";
-            // objItem.ID = 3;
-            // lstMitglieder.Add(objItem);
-        }
-        catch (Exception ex)
-        {
-            ViewManager.ShowErrorWindow("DBService", "GetMitgliederliste", ex.ToString());
-        }
-
-        return lstMitglieder;
-    }
-
-    public async Task<List<EmailListe>> GetEMaillisteAsync(bool bAktiv = false)
-    {
-        List<EmailListe> lstEMails = new List<EmailListe>();
-
-        try
-        {
-            if (bAktiv)
-            {
-                var lst = await (_localDbContext.TblMitglieders
-                    .Where(w => w.PassivSeit == null && w.Email != null)
-                    .Select(s => new { s.Vorname, s.Email })).ToListAsync();
-                //lstEMails = lst.ToList();
-
-                foreach (var item in lst)
-                {
-                    EmailListe objEMail = new EmailListe();
-                    objEMail.Vorname = item.Vorname;
-                    objEMail.EMail = item.Email;
-                    lstEMails.Add(objEMail);
-                }
-            }
-            else
-            {
-                var lst = await (_localDbContext.TblMitglieders
-                    .Where(w => w.Email != null)
-                    .Select(s => new { s.Vorname, s.Email })).ToListAsync();
-                //lstEMails = lst.ToList();
-
-                foreach (var item in lst)
-                {
-                    EmailListe objEMail = new EmailListe();
-                    objEMail.Vorname = item.Vorname;
-                    objEMail.EMail = item.Email;
-                    lstEMails.Add(objEMail);
-                }
-            }
-        }
-        catch (Exception ex)
-        {
-            //FrmError objForm = new FrmError("ClsDB", "GetEMailliste", ex.ToString());
-            //objForm.ShowDialog();
-            ViewManager.ShowErrorWindow("DBService", "GetEMailliste", ex.ToString());
-        }
-
-        return lstEMails;
-    }
-
-    /*
-    public List<ClsDBChangeLog> GetDBChangeLog()
-    {
-        List<ClsDBChangeLog> lstListe = new List<ClsDBChangeLog>();
-
-        try
-        {
-            using (KEPAVerwaltungEntities DBContext = new KEPAVerwaltungEntities())
-            {
-                var lst = from l in DBContext.tblDBChangeLog
-                          orderby l.Zeitstempel
-                          select l;
-
-                foreach (var item in lst.ToList())
-                {
-                    ClsDBChangeLog objItem = new ClsDBChangeLog();
-                    objItem.ID = item.ID;
-                    objItem.Zeitstempel = item.Zeitstempel.Value;
-                    objItem.Computername = item.Computername;
-                    objItem.Changeype = item.Changetype;
-                    objItem.Tablename = item.Tablename;
-                    objItem.Command = item.Command;
-                    lstListe.Add(objItem);
-                }
-
-            }
-        }
-        catch (Exception ex)
-        {
-            FrmError objForm = new FrmError("ClsDB", "GetDBChangeLog", ex.ToString());
-            objForm.ShowDialog();
-        }
-        return lstListe;
-    }
-    */
-
-    public async Task<DateTime> GetDBVersionWebAsync()
-    {
-        DateTime dtVersion = DateTime.MinValue;
-
-        try
-        {
-            var vers = await (from v in _webDbContext.TblDbchangeLogs
-                orderby v.Zeitstempel
-                select v).ToListAsync();
-
-            dtVersion = vers[vers.Count() - 1].Zeitstempel;
-        }
-        catch (Exception ex)
-        {
-            ViewManager.ShowErrorWindow("DBService", "GetDBVersionWeb", ex.ToString());
-        }
-
-        return dtVersion;
-    }
-
-    public async Task<DateTime> GetDBVersionLocalAsync()
-    {
-        DateTime dtVersion = DateTime.MinValue;
-
-        try
-        {
-            var vers = await (from v in _localDbContext.TblDbchangeLogs
-                orderby v.Zeitstempel
-                select v).ToListAsync();
-
-            dtVersion = vers[vers.Count() - 1].Zeitstempel.Value;
-        }
-        catch (Exception ex)
-        {
-            ViewManager.ShowErrorWindow("DBService", "GetDBVersionLocal", ex.ToString());
-        }
-
-        return dtVersion;
-    }
-
-    public async Task<MitgliedDetails> GetMitgliedDetailsAsync(Int32 iID)
-    {
-        MitgliedDetails objMitglied = new();
-
-        try
-        {
-            // var item = from m in _localDbContext.TblMitglieders
-            //     where m.Id == iID
-            //     select m;
-
-            var item = await _localDbContext.TblMitglieders.Where(w => w.Id == iID).ToListAsync();
-
-            var objM = item.First();
-
-            objMitglied.ID = objM.Id;
-            objMitglied.Anrede = objM.Anrede;
-            objMitglied.Vorname = objM.Vorname;
-            objMitglied.Nachname = objM.Nachname;
-            objMitglied.Spitzname = objM.Spitzname;
-            objMitglied.Straße = objM.Straße;
-            objMitglied.PLZ = objM.Plz;
-            objMitglied.Ort = objM.Ort;
-            objMitglied.Geburtsdatum = objM.Geburtsdatum.Value;
-            objMitglied.MitgliedSeit = objM.MitgliedSeit;
-            objMitglied.PassivSeit = objM.PassivSeit;
-            objMitglied.AusgeschiedenAm = objM.AusgeschiedenAm;
-            objMitglied.TelefonPrivat = objM.TelefonPrivat;
-            objMitglied.TelefonMobil = objM.TelefonMobil;
-            objMitglied.EMail = objM.Email;
-            objMitglied.Ehemaliger = objM.Ehemaliger;
-            objMitglied.Notizen = objM.Notizen;
-            objMitglied.Bemerkungen = objM.Bemerkungen;
-
-            //-------------------
-
-            //Testdaten
-            // switch (iID)
-            // {
-            //     case 1:
-            //         objMitglied.ID = 1;
-            //         objMitglied.Anrede = "Herr";
-            //         objMitglied.Vorname = "Thorsten";
-            //         objMitglied.Nachname = "Schröer";
-            //         objMitglied.Spitzname = "Thor";
-            //         objMitglied.Straße = "Druckerkehre 3";
-            //         objMitglied.PLZ = "12355";
-            //         objMitglied.Ort = "Berlin";
-            //         objMitglied.Geburtsdatum = new DateTime(1972, 1, 9);
-            //         objMitglied.MitgliedSeit = new DateTime(2021, 8, 18);
-            //         objMitglied.PassivSeit = DateTime.Now;
-            //         objMitglied.AusgeschiedenAm = DateTime.Now;
-            //         objMitglied.TelefonPrivat = "Test";
-            //         objMitglied.TelefonMobil = "Test";
-            //         objMitglied.EMail = "Test";
-            //         objMitglied.Ehemaliger = false;
-            //         objMitglied.Notizen = "Notizen TS";
-            //         objMitglied.Bemerkungen = "Bemerkungen TS";
-            //         break;
-            //     case 2:
-            //         objMitglied.ID = 3;
-            //         objMitglied.Anrede = "Herr";
-            //         objMitglied.Vorname = "Wolfgang";
-            //         objMitglied.Nachname = "Schmidt";
-            //         objMitglied.Spitzname = "";
-            //         objMitglied.Straße = "Prierosser Straße 51";
-            //         objMitglied.PLZ = "12355";
-            //         objMitglied.Ort = "Berlin";
-            //         objMitglied.Geburtsdatum = new DateTime(1950, 11, 1);
-            //         objMitglied.MitgliedSeit = new DateTime(2021, 11, 25);
-            //         objMitglied.PassivSeit = null;
-            //         objMitglied.AusgeschiedenAm = null;
-            //         objMitglied.TelefonPrivat = "";
-            //         objMitglied.TelefonMobil = "";
-            //         objMitglied.EMail = "";
-            //         objMitglied.Ehemaliger = false;
-            //         objMitglied.Notizen = "Notizen WS";
-            //         objMitglied.Bemerkungen = "Bemerkungen WS";
-            //         break;
-            //     case 3:
-            //         objMitglied.ID = 3;
-            //         objMitglied.Anrede = "Herr";
-            //         objMitglied.Vorname = "Karl-Heinz";
-            //         objMitglied.Nachname = "Bohn";
-            //         objMitglied.Spitzname = "Kalle";
-            //         objMitglied.Straße = "Lorenzweg 3";
-            //         objMitglied.PLZ = "12099";
-            //         objMitglied.Ort = "Berlin";
-            //         objMitglied.Geburtsdatum = new DateTime(1966, 5, 28);
-            //         objMitglied.MitgliedSeit = new DateTime(1997, 7, 2);
-            //         objMitglied.PassivSeit = null;
-            //         objMitglied.AusgeschiedenAm = null;
-            //         objMitglied.TelefonPrivat = "";
-            //         objMitglied.TelefonMobil = "";
-            //         objMitglied.EMail = "";
-            //         objMitglied.Ehemaliger = false;
-            //         objMitglied.Notizen = "Notizen KHB";
-            //         objMitglied.Bemerkungen = "Bemerkungen KHB";
-            //         break;
-            // }
-        }
-        catch (Exception ex)
-        {
-            ViewManager.ShowErrorWindow("DBService", "GetMitgliedDetails", ex.ToString());
-        }
-
-        return objMitglied;
-    }
-
+  
     /*
     public Int32 GetIDFromTurboDBNumber(Int32 iTurboDBNumber)
     {
@@ -330,790 +48,7 @@ public class DBService(LocalDbContext _localDbContext, WebDbContext _webDbContex
     }
     */
 
-    public async Task<List<MitgliedDetails>> GetMitgliedDetailsAsync()
-    {
-        List<MitgliedDetails> lstMitglieder = new List<MitgliedDetails>();
 
-        try
-        {
-            // var items = from m in DBContext.tblMitglieder
-            //     select m;
-
-            var items = await _localDbContext.TblMitglieders.ToListAsync();
-            foreach (var objM in items)
-            {
-                MitgliedDetails objMitglied = new MitgliedDetails();
-
-                objMitglied.ID = objM.Id;
-                objMitglied.Anrede = objM.Anrede;
-                objMitglied.Vorname = objM.Vorname;
-                objMitglied.Nachname = objM.Nachname;
-                objMitglied.Spitzname = objM.Spitzname;
-                objMitglied.Straße = objM.Straße;
-                objMitglied.PLZ = objM.Plz;
-                objMitglied.Ort = objM.Ort;
-                objMitglied.Geburtsdatum = objM.Geburtsdatum.Value;
-                objMitglied.MitgliedSeit = objM.MitgliedSeit;
-                objMitglied.PassivSeit = objM.PassivSeit;
-                objMitglied.AusgeschiedenAm = objM.AusgeschiedenAm;
-                objMitglied.TelefonPrivat = objM.TelefonPrivat;
-                objMitglied.TelefonMobil = objM.TelefonMobil;
-                objMitglied.EMail = objM.Email;
-                objMitglied.Ehemaliger = objM.Ehemaliger;
-                objMitglied.Notizen = objM.Notizen;
-                objMitglied.Bemerkungen = objM.Bemerkungen;
-
-                lstMitglieder.Add(objMitglied);
-            }
-        }
-        catch (Exception ex)
-        {
-            //FrmError objForm = new FrmError("ClsDB", "GetMitgliedDetails", ex.ToString());
-            //objForm.ShowDialog();
-            ViewManager.ShowErrorWindow("DBService", "GetMitgliedDetails", ex.ToString());
-        }
-
-        return lstMitglieder;
-    }
-
-    public async Task<List<MitgliedDetails>> GetMitlgiederlisteDruckAsync(bool bAktiv = true)
-    {
-        List<MitgliedDetails> lstMitglieder = new List<MitgliedDetails>();
-
-        try
-        {
-            if (bAktiv)
-            {
-                var items = await (_localDbContext.TblMitglieders
-                    .Where(w => w.PassivSeit == null && w.Ehemaliger == false)
-                    .OrderBy(o => o.Nachname).ThenBy(o => o.Vorname)
-                    .Select(s => s)).ToListAsync();
-
-                //var objM = item.First();
-                foreach (var objM in items)
-                {
-                    MitgliedDetails objMitglied = new MitgliedDetails();
-                    objMitglied.ID = objM.Id;
-                    objMitglied.Anrede = objM.Anrede;
-                    objMitglied.Vorname = objM.Vorname;
-                    objMitglied.Nachname = objM.Nachname;
-                    objMitglied.Spitzname = objM.Spitzname;
-                    objMitglied.Straße = objM.Straße;
-                    objMitglied.PLZ = objM.Plz;
-                    objMitglied.Ort = objM.Ort;
-                    objMitglied.Geburtsdatum = objM.Geburtsdatum.Value;
-                    objMitglied.MitgliedSeit = objM.MitgliedSeit;
-                    objMitglied.AusgeschiedenAm = objM.AusgeschiedenAm;
-                    objMitglied.TelefonPrivat = objM.TelefonPrivat;
-                    objMitglied.TelefonMobil = objM.TelefonMobil;
-                    objMitglied.EMail = objM.Email;
-                    objMitglied.Ehemaliger = objM.Ehemaliger;
-
-                    lstMitglieder.Add(objMitglied);
-                }
-            }
-            else
-            {
-                var items = await (_localDbContext.TblMitglieders
-                    .OrderBy(o => o.Nachname).ThenBy(o => o.Vorname)
-                    .Select(s => s)).ToListAsync();
-
-                //var objM = item.First();
-                foreach (var objM in items)
-                {
-                    MitgliedDetails objMitglied = new MitgliedDetails();
-                    objMitglied.ID = objM.Id;
-                    objMitglied.Anrede = objM.Anrede;
-                    objMitglied.Vorname = objM.Vorname;
-                    objMitglied.Nachname = objM.Nachname;
-                    objMitglied.Spitzname = objM.Spitzname;
-                    objMitglied.Straße = objM.Straße;
-                    objMitglied.PLZ = objM.Plz;
-                    objMitglied.Ort = objM.Ort;
-                    objMitglied.Geburtsdatum = objM.Geburtsdatum.Value;
-                    objMitglied.MitgliedSeit = objM.MitgliedSeit;
-                    objMitglied.AusgeschiedenAm = objM.AusgeschiedenAm;
-                    objMitglied.TelefonPrivat = objM.TelefonPrivat;
-                    objMitglied.TelefonMobil = objM.TelefonMobil;
-                    objMitglied.EMail = objM.Email;
-                    objMitglied.Ehemaliger = objM.Ehemaliger;
-
-                    lstMitglieder.Add(objMitglied);
-                }
-            }
-        }
-        catch (Exception ex)
-        {
-            //FrmError objForm = new FrmError("ClsDB", "GetMitlgiederlisteDruck", ex.ToString());
-            //objForm.ShowDialog();
-            ViewManager.ShowErrorWindow("DBService", "GetMitlgiederlisteDruck", ex.ToString());
-        }
-
-        return lstMitglieder;
-    }
-
-    public async Task<List<Meisterschaftsdaten>> GetMeisterschaftenAsync()
-    {
-        List<Meisterschaftsdaten> lstMeisterschaft = new List<Meisterschaftsdaten>();
-
-        try
-        {
-            var mst = await _localDbContext.TblMeisterschaftens
-                .Join(_localDbContext.TblMeisterschaftstyps, mt => mt.MeisterschaftstypId, t => t.Id,
-                    (mt, t) => new
-                    {
-                        mt.Id, mt.Bezeichnung, mt.Beginn, mt.Ende, mt.MeisterschaftstypId, t.Meisterschaftstyp,
-                        mt.Aktiv,
-                        mt.Bemerkungen
-                    })
-                .OrderBy(o => o.Beginn)
-                .ToListAsync();
-
-            foreach (var item in mst)
-            {
-                Meisterschaftsdaten objMeister = new Meisterschaftsdaten();
-                objMeister.ID = item.Id;
-                objMeister.Bezeichnung = item.Bezeichnung;
-                objMeister.Beginn = item.Beginn;
-                objMeister.Ende = item.Ende;
-                objMeister.MeisterschaftstypID = item.MeisterschaftstypId;
-                objMeister.Meisterschaftstyp = item.Meisterschaftstyp;
-                objMeister.Aktiv = item.Aktiv;
-                objMeister.Bemerkungen = item.Bemerkungen;
-
-                lstMeisterschaft.Add(objMeister);
-            }
-
-            //--------------------
-
-            //Testdaten
-            // Meisterschaftsliste objMeister = new();
-            // objMeister.ID = 1;
-            // objMeister.Bezeichnung = "Testmeisterschaft 2023";
-            // objMeister.Beginn = new DateTime(2023, 1, 1);
-            // objMeister.Ende = new DateTime(2023, 12, 31);
-            // objMeister.MeisterschaftstypID = 3;
-            // objMeister.Meisterschaftstyp = "Kombimeisterschaft";
-            // objMeister.Aktiv = 0;
-            // objMeister.Bemerkungen = "";
-            // lstMeisterschaft.Add(objMeister);
-            //
-            // objMeister = new();
-            // objMeister.ID = 2;
-            // objMeister.Bezeichnung = "Jahreswechseltunier 2024";
-            // objMeister.Beginn = new DateTime(2024, 1, 3);
-            // objMeister.Ende = new DateTime(2024, 1, 3);
-            // objMeister.MeisterschaftstypID = 1;
-            // objMeister.Meisterschaftstyp = "Kurztunier";
-            // objMeister.Aktiv = 0;
-            // objMeister.Bemerkungen = "";
-            // lstMeisterschaft.Add(objMeister);
-            //
-            // objMeister = new();
-            // objMeister.ID = 2;
-            // objMeister.Bezeichnung = "Testmeisterschaft 2024";
-            // objMeister.Beginn = new DateTime(2024, 1, 4);
-            // objMeister.Ende = new DateTime(2024, 12, 31);
-            // objMeister.MeisterschaftstypID = 2;
-            // objMeister.Meisterschaftstyp = "Meisterschaft";
-            // objMeister.Aktiv = 1;
-            // objMeister.Bemerkungen = "";
-            // lstMeisterschaft.Add(objMeister);
-        }
-        catch (Exception ex)
-        {
-            ViewManager.ShowErrorWindow("DBService", "GetMeisterschaften", ex.ToString());
-        }
-
-        var lstMeisterschaftSort = lstMeisterschaft.OrderByDescending(o => o.ID).ToList();
-        return lstMeisterschaftSort;
-    }
-
-    public async Task<List<Meisterschaftstyp>> GetMeisterschaftstypenAsync()
-    {
-        List<Meisterschaftstyp> lstTypen = new();
-
-        try
-        {
-            var mt = await _localDbContext.TblMeisterschaftstyps
-                .Select(s => s).ToListAsync();
-
-            foreach (var item in mt)
-            {
-                Meisterschaftstyp objTyp = new Meisterschaftstyp();
-                objTyp.ID = item.Id;
-                objTyp.Value = item.Meisterschaftstyp;
-
-                lstTypen.Add(objTyp);
-            }
-
-            //---------------
-
-            //Testdaten
-            // Meisterschaftstyp objTyp = new();
-            // objTyp.ID = 1;
-            // objTyp.Value = "Kurztunier";
-            // lstTypen.Add(objTyp);
-            //
-            // objTyp = new();
-            // objTyp.ID = 2;
-            // objTyp.Value = "Meisterschaft";
-            // lstTypen.Add(objTyp);
-            //
-            // objTyp = new();
-            // objTyp.ID = 3;
-            // objTyp.Value = "Kombimeisterschaft";
-            // lstTypen.Add(objTyp);
-        }
-        catch (Exception ex)
-        {
-            ViewManager.ShowErrorWindow("DBService", "GetMeisterschaftstypenAsync", ex.ToString());
-        }
-
-        return lstTypen;
-    }
-
-    public async Task<Int32> GetAktiveMeisterschaftsIDAsync()
-    {
-        Int32 intID = -1;
-
-        try
-        {
-            // var item = (from m in DBContext.tblMeisterschaften
-            //     orderby m.ID descending
-            //     where m.Aktiv == 1
-            //     select m).FirstOrDefault();
-
-            AktiveMeisterschaft aktiveMeisterschaft = new();
-
-            var item = await _localDbContext.TblMeisterschaftens
-                .OrderByDescending(o => o.Id)
-                .FirstOrDefaultAsync(f => f.Aktiv == 1);
-
-            if (item != null)
-            {
-                intID = item.Id;
-
-                aktiveMeisterschaft.ID = intID;
-                aktiveMeisterschaft.Bezeichnung = item.Bezeichnung;
-            }
-            else
-            {
-                // var itm = (from m in DBContext.tblMeisterschaften
-                //     orderby m.ID descending
-                //     select m).FirstOrDefault();
-
-                var itm = await _localDbContext.TblMeisterschaftens
-                    .OrderByDescending(o => o.Id)
-                    .FirstOrDefaultAsync();
-
-                intID = itm.Id;
-                itm.Aktiv = 1;
-
-                aktiveMeisterschaft.ID = intID;
-                aktiveMeisterschaft.Bezeichnung = itm.Bezeichnung;
-                await _localDbContext.SaveChangesAsync();
-            }
-
-            _commonService.AktiveMeisterschaft = aktiveMeisterschaft;
-        }
-        catch (Exception ex)
-        {
-            //FrmError objForm = new FrmError("ClsDB", "GetAktiveMeisterschaftsID", ex.ToString());
-            //objForm.ShowDialog();
-            ViewManager.ShowErrorWindow("DBService", "GetAktiveMeisterschaftsID", ex.ToString());
-        }
-
-        return intID;
-    }
-
-    public async Task<Int32> GetLetzteMeisterschaftsIDAsync()
-    {
-        Int32 intID = -1;
-        Int32 intAktiveID = await GetAktiveMeisterschaftsIDAsync();
-
-        try
-        {
-            // var item = from m in DBContext.tblMeisterschaften
-            //     orderby m.ID descending
-            //     where m.ID != intAktiveID
-            //     select m;
-
-            var item = await _localDbContext.TblMeisterschaftens
-                .OrderByDescending(o => o.Id)
-                .Where(w => w.Id != intAktiveID)
-                .ToListAsync();
-
-            item.FirstOrDefault();
-            if (item != null)
-            {
-                intID = item.ToList()[0].Id;
-            }
-        }
-        catch (Exception ex)
-        {
-            //FrmError objForm = new FrmError("ClsDB", "GetLetzteMeisterschaftsID", ex.ToString());
-            //objForm.ShowDialog();
-            ViewManager.ShowErrorWindow("DBService", "GetLetzteMeisterschaftsID", ex.ToString());
-        }
-
-        return intID;
-    }
-
-    public async Task<string> GetMeisterschaftsbezeichnungAsync(Int32 iID)
-    {
-        string strBezeichnung = "";
-
-        try
-        {
-            if (iID == -1)
-            {
-                strBezeichnung = "Keine aktive Meisterschaft";
-            }
-            else
-            {
-                // var item = from m in DBContext.tblMeisterschaften
-                //     where m.ID == iID
-                //     select m;
-
-                var item = await _localDbContext.TblMeisterschaftens
-                    .Where(w => w.Id == iID)
-                    .ToListAsync();
-
-                item.FirstOrDefault();
-                if (item == null)
-                {
-                    strBezeichnung = "Keine aktive Meisterschaft";
-                }
-                else
-                {
-                    strBezeichnung = item.ToList()[0].Bezeichnung;
-                }
-            }
-        }
-        catch (Exception ex)
-        {
-            //FrmError objForm = new FrmError("ClsDB", "GetMeisterschaftsbezeichnung", ex.ToString());
-            //objForm.ShowDialog();
-            ViewManager.ShowErrorWindow("DBService", "GetMeisterschaftsbezeichnung", ex.ToString());
-        }
-
-        return strBezeichnung;
-    }
-
-    public async Task<List<AktiveSpieler>> GetAktiveMitgliederAsync()
-    {
-        List<AktiveSpieler> lstAktiveMitglieder = new();
-
-        try
-        {
-            var items = await (_localDbContext.TblMitglieders
-                .OrderBy(o => o.Nachname).ThenBy(t => t.Vorname)
-                .Where(w => w.PassivSeit == null)
-                .Select(s => s)).ToListAsync();
-
-            foreach (var objM in items)
-            {
-                AktiveSpieler objMitglied = new AktiveSpieler();
-
-                objMitglied.ID = objM.Id;
-                objMitglied.Vorname = objM.Vorname;
-                objMitglied.Nachname = objM.Nachname;
-                objMitglied.Spitzname = objM.Spitzname;
-                if (!string.IsNullOrEmpty(objM.Spitzname))
-                {
-                    objMitglied.Anzeigename = objM.Spitzname;
-                }
-                else
-                {
-                    objMitglied.Anzeigename = objM.Vorname;
-                }
-
-                lstAktiveMitglieder.Add(objMitglied);
-            }
-
-            //----------------------
-
-            //Testdaten
-            // AktiveSpieler objItem = new();
-            // objItem.Anzeigename = "Schröer, Thorsten";
-            // objItem.Nachname = "Schröer";
-            // objItem.Vorname = "Thorsten";
-            // objItem.Spitzname = "Thor";
-            // objItem.ID = 1;
-            // lstAktiveMitglieder.Add(objItem);
-            //
-            // objItem = new();
-            // objItem.Anzeigename = "Schmidt, Wolfgang";
-            // objItem.Nachname = "Schmidt";
-            // objItem.Vorname = "Wolfgang";
-            // objItem.ID = 2;
-            // lstAktiveMitglieder.Add(objItem);
-            //
-            // objItem = new();
-            // objItem.Anzeigename = "Bohn, Karl-Heinz";
-            // objItem.Nachname = "Bohn";
-            // objItem.Vorname = "Karl-Heinz";
-            // objItem.Spitzname = "Kalle";
-            // objItem.ID = 3;
-            // lstAktiveMitglieder.Add(objItem);
-        }
-        catch (Exception ex)
-        {
-            ViewManager.ShowErrorWindow("DBService", "GetAktiveMitgliederAsync", ex.ToString());
-        }
-
-        return lstAktiveMitglieder;
-    }
-
-    public async Task<List<AktiveSpieler>> GetAktiveMitgliederAsync(Int32 iMeisterschaftsID)
-    {
-        List<AktiveSpieler> lstAktiveMitglieder = new List<AktiveSpieler>();
-
-        try
-        {
-            var aktiveTeilnemer = await _localDbContext.TblTeilnehmers
-                .Where(w => w.MeisterschaftsId == iMeisterschaftsID)
-                .Select(s => s).ToListAsync();
-
-            var items = _localDbContext.TblMitglieders
-                .Where(w => w.PassivSeit == null) // Zuerst nur diesen Teil in SQL filtern
-                .AsEnumerable() // Danach wird die restliche Filterung in Speicher durchgeführt
-                .Where(w => aktiveTeilnemer.All(w2 => w2.SpielerId != w.Id))
-                .OrderBy(o => o.Nachname).ThenBy(t => t.Vorname)
-                .ToList();
-
-            foreach (var objM in items)
-            {
-                AktiveSpieler objMitglied = new AktiveSpieler();
-
-                objMitglied.ID = objM.Id;
-                objMitglied.Vorname = objM.Vorname;
-                objMitglied.Nachname = objM.Nachname;
-                objMitglied.Spitzname = objM.Spitzname;
-                if (!string.IsNullOrEmpty(objM.Spitzname))
-                {
-                    objMitglied.Anzeigename = objM.Spitzname;
-                }
-                else
-                {
-                    objMitglied.Anzeigename = objM.Vorname;
-                }
-
-                lstAktiveMitglieder.Add(objMitglied);
-            }
-
-            //----------------------
-
-            //Testdaten
-            // AktiveSpieler objItem = new();
-            // objItem.Anzeigename = "Schröer, Thorsten";
-            // objItem.Nachname = "Schröer";
-            // objItem.Vorname = "Thorsten";
-            // objItem.Spitzname = "Thor";
-            // objItem.ID = 1;
-            // lstAktiveMitglieder.Add(objItem);
-            //
-            // objItem = new();
-            // objItem.Anzeigename = "Schmidt, Wolfgang";
-            // objItem.Nachname = "Schmidt";
-            // objItem.Vorname = "Wolfgang";
-            // objItem.ID = 2;
-            // lstAktiveMitglieder.Add(objItem);
-            //
-            // objItem = new();
-            // objItem.Anzeigename = "Bohn, Karl-Heinz";
-            // objItem.Nachname = "Bohn";
-            // objItem.Vorname = "Karl-Heinz";
-            // objItem.Spitzname = "Kalle";
-            // objItem.ID = 3;
-            // lstAktiveMitglieder.Add(objItem);
-        }
-        catch (Exception ex)
-        {
-            ViewManager.ShowErrorWindow("DBService", "GetAktiveMitgliederAsync(MeisterschaftID)", ex.ToString());
-        }
-
-        return lstAktiveMitglieder;
-    }
-
-    public async Task<List<AktiveSpieler>> GetAktiveTeilnehmerAsync(Int32 iMeisterschaftsID)
-    {
-        List<AktiveSpieler> lstAktiveMitglieder = new();
-
-        try
-        {
-            var items = await (_localDbContext.TblTeilnehmers
-                .Join(_localDbContext.TblMitglieders, tln => tln.SpielerId, mgl => mgl.Id,
-                    (t, m) => new { t.MeisterschaftsId, m.Id, m.Vorname, m.Nachname, m.Spitzname })
-                .Where(w => w.MeisterschaftsId == iMeisterschaftsID)
-                .Select(s => s)).ToListAsync();
-
-            foreach (var objM in items)
-            {
-                AktiveSpieler objMitglied = new AktiveSpieler();
-
-                objMitglied.ID = objM.Id;
-                objMitglied.Vorname = objM.Vorname;
-                objMitglied.Nachname = objM.Nachname;
-                objMitglied.Spitzname = objM.Spitzname;
-                if (!string.IsNullOrEmpty(objM.Spitzname))
-                {
-                    objMitglied.Anzeigename = objM.Spitzname;
-                }
-                else
-                {
-                    objMitglied.Anzeigename = objM.Vorname;
-                }
-
-                lstAktiveMitglieder.Add(objMitglied);
-            }
-
-            //----------------------
-
-            //Testdaten
-            // AktiveSpieler objItem = new();
-            // objItem.Anzeigename = "Schröer, Thorsten";
-            // objItem.Nachname = "Schröer";
-            // objItem.Vorname = "Thorsten";
-            // objItem.Spitzname = "Thor";
-            // objItem.ID = 1;
-            // lstAktiveMitglieder.Add(objItem);
-            //
-            // objItem = new();
-            // objItem.Anzeigename = "Schmidt, Wolfgang";
-            // objItem.Nachname = "Schmidt";
-            // objItem.Vorname = "Wolfgang";
-            // objItem.ID = 2;
-            // lstAktiveMitglieder.Add(objItem);
-            //
-            // objItem = new();
-            // objItem.Anzeigename = "Bohn, Karl-Heinz";
-            // objItem.Nachname = "Bohn";
-            // objItem.Vorname = "Karl-Heinz";
-            // objItem.Spitzname = "Kalle";
-            // objItem.ID = 3;
-            // lstAktiveMitglieder.Add(objItem);
-        }
-        catch (Exception ex)
-        {
-            ViewManager.ShowErrorWindow("DBService", "GetAktiveTeilnehmerAsync", ex.ToString());
-        }
-
-        return lstAktiveMitglieder;
-    }
-
-
-    /*
-    public List<Cls9erRatten> Get9erRatten(Int32 iSpieltagID)
-    {
-        List<Cls9erRatten> lst9erRatten = new List<Cls9erRatten>();
-
-        try
-        {
-            using (KEPAVerwaltungEntities DBContext = new KEPAVerwaltungEntities())
-            {
-                //var items = (DBContext.tblSpieltag
-                //    .Join(DBContext.tblMapSpieltag2Spiele, t => t.ID, map => map.SpieltagID, (t, map) => new { t.ID, t.MeisterschaftsID, t.Spieltag, map.SpieltagID, map.C9erRattenID })
-                //    .Join(DBContext.tbl9erRatten, j => j.C9erRattenID, nr => nr.ID, (j, nr) => new { j.SpieltagID, j.C9erRattenID, nr.SpielerID, nr.Neuner, nr.Ratten })
-                //    .Join(DBContext.tblMitglieder, j => j.SpielerID, m => m.ID, (j, m) => new { j.SpieltagID, j.C9erRattenID, j.SpielerID, m.Vorname, m.Spitzname, j.Neuner, j.Ratten })
-                //    .Where(w => w.SpieltagID == iSpieltagID)
-                //    .Select(s => s));
-
-                var items = (DBContext.vw9erRatten
-                    .Where(w => w.SpieltagID == iSpieltagID)
-                    .Select(s => s));
-
-                foreach (var objM in items)
-                {
-                    Cls9erRatten objNR = new Cls9erRatten();
-                    objNR.ID = objM.C9erRattenID;
-                    objNR.SpieltagID = iSpieltagID;
-                    objNR.SpielerID = objM.SpielerID;
-                    if (!string.IsNullOrEmpty(objM.Spitzname))
-                    {
-                        objNR.Spielername = objM.Spitzname;
-                    }
-                    else
-                    {
-                        objNR.Spielername = objM.Vorname;
-                    }
-                    objNR.Neuner = objM.Neuner;
-                    objNR.Ratten = objM.Ratten;
-
-                    lst9erRatten.Add(objNR);
-                }
-            }
-        }
-        catch (Exception ex)
-        {
-            FrmError objForm = new FrmError("ClsDB", "Get9erRatten", ex.ToString());
-            objForm.ShowDialog();
-        }
-        return lst9erRatten;
-    }
-    */
-
-    /*
-    public List<ClsSpiel6TageRennen> GetSpiel6TageRennen(Int32 iSpieltagID)
-    {
-        List<ClsSpiel6TageRennen> lst6TageRennen = new List<ClsSpiel6TageRennen>();
-
-        try
-        {
-            using (KEPAVerwaltungEntities DBContext = new KEPAVerwaltungEntities())
-            {
-                var items = (DBContext.vwSpiel6TageRennen
-                    .Where(w => w.SpieltagID == iSpieltagID)
-                    .Select(s => s));
-
-                foreach (var objM in items)
-                {
-                    ClsSpiel6TageRennen obj6TR = new ClsSpiel6TageRennen();
-                    obj6TR.ID = objM.C6TageRennenID;
-                    obj6TR.SpieltagID = objM.SpieltagID;
-                    obj6TR.Spieler1ID = objM.SpielerID1;
-                    if (!string.IsNullOrEmpty(objM.Spieler1Spitzname))
-                    {
-                        obj6TR.Spieler1Name = objM.Spieler1Spitzname;
-                    }
-                    else
-                    {
-                        obj6TR.Spieler1Name = objM.Spieler1Vorname;
-                    }
-                    obj6TR.Spieler2ID = objM.SpielerID2;
-                    if (!string.IsNullOrEmpty(objM.Spieler2Spitzname))
-                    {
-                        obj6TR.Spieler2Name = objM.Spieler2Spitzname;
-                    }
-                    else
-                    {
-                        obj6TR.Spieler2Name = objM.Spieler2Vorname;
-                    }
-                    obj6TR.Runden = objM.Runden;
-                    obj6TR.Punkte = objM.Punkte;
-                    obj6TR.Spielnummer = objM.Spielnummer.Value;
-                    obj6TR.Platz = objM.Platz.Value;
-
-                    lst6TageRennen.Add(obj6TR);
-                }
-            }
-        }
-        catch (Exception ex)
-        {
-            FrmError objForm = new FrmError("ClsDB", "GetSpiel6TageRennen", ex.ToString());
-            objForm.ShowDialog();
-        }
-        return lst6TageRennen;
-    }
-    */
-
-    /*
-    public List<ClsSpielBlitztunier> GetSpielBlitztunier(Int32 iSpieltagID)
-    {
-        List<ClsSpielBlitztunier> lstBlitz = new List<ClsSpielBlitztunier>();
-
-        try
-        {
-            using (KEPAVerwaltungEntities DBContext = new KEPAVerwaltungEntities())
-            {
-                var items = (DBContext.vwSpielBlitztunier
-                    .Where(w => w.SpieltagID == iSpieltagID)
-                    .Select(s => s));
-
-                foreach (var objM in items)
-                {
-                    ClsSpielBlitztunier objBlitz = new ClsSpielBlitztunier();
-                    objBlitz.ID = objM.BlitztunierID;
-                    objBlitz.SpieltagID = objM.SpieltagID;
-                    objBlitz.Spieler1ID = objM.SpielerID1;
-                    if (!string.IsNullOrEmpty(objM.Spieler1Spitzname))
-                    {
-                        objBlitz.Spieler1Name = objM.Spieler1Spitzname;
-                    }
-                    else
-                    {
-                        objBlitz.Spieler1Name = objM.Spieler1Vorname;
-                    }
-                    objBlitz.Spieler2ID = objM.SpielerID2;
-                    if (!string.IsNullOrEmpty(objM.Spieler2Spitzname))
-                    {
-                        objBlitz.Spieler2Name = objM.Spieler2Spitzname;
-                    }
-                    else
-                    {
-                        objBlitz.Spieler2Name = objM.Spieler2Vorname;
-                    }
-                    objBlitz.PunkteSpieler1 = objM.PunkteSpieler1;
-                    objBlitz.PunkteSpieler2 = objM.PunkteSpieler2;
-
-                    lstBlitz.Add(objBlitz);
-                }
-            }
-        }
-        catch (Exception ex)
-        {
-            FrmError objForm = new FrmError("ClsDB", "GetSpielBlitztunier", ex.ToString());
-            objForm.ShowDialog();
-        }
-        return lstBlitz;
-    }
-    */
-
-    /*
-    public List<ClsSpielKombimeisterschaft> GetSpielKombimeisterschaft(Int32 iSpieltagID)
-    {
-        List<ClsSpielKombimeisterschaft> lstKombi = new List<ClsSpielKombimeisterschaft>();
-
-        try
-        {
-            using (KEPAVerwaltungEntities DBContext = new KEPAVerwaltungEntities())
-            {
-                var items = (DBContext.vwSpielKombimeisterschaft
-                    .Where(w => w.SpieltagID == iSpieltagID)
-                    .Select(s => s));
-
-                foreach (var objM in items)
-                {
-                    ClsSpielKombimeisterschaft objKombi = new ClsSpielKombimeisterschaft();
-                    objKombi.ID = objM.KombimeisterschaftID;
-                    objKombi.SpieltagID = objM.SpieltagID;
-                    objKombi.Spieler1ID = objM.SpielerID1;
-                    if (!string.IsNullOrEmpty(objM.Spieler1Spitzname))
-                    {
-                        objKombi.Spieler1Name = objM.Spieler1Spitzname;
-                    }
-                    else
-                    {
-                        objKombi.Spieler1Name = objM.Spieler1Vorname;
-                    }
-                    objKombi.Spieler2ID = objM.SpielerID2;
-                    if (!string.IsNullOrEmpty(objM.Spieler2Spitzname))
-                    {
-                        objKombi.Spieler2Name = objM.Spieler2Spitzname;
-                    }
-                    else
-                    {
-                        objKombi.Spieler2Name = objM.Spieler2Vorname;
-                    }
-                    objKombi.Spieler1Punkte3bis8 = objM.Spieler1Punkte3bis8;
-                    objKombi.Spieler1Punkte5Kugeln = objM.Spieler1Punkte5Kugeln;
-                    objKombi.Spieler2Punkte3bis8 = objM.Spieler2Punkte3bis8;
-                    objKombi.Spieler2Punkte5Kugeln = objM.Spieler2Punkte5Kugeln;
-                    objKombi.HinRueckrunde = objM.HinRückrunde;
-
-                    lstKombi.Add(objKombi);
-                }
-            }
-        }
-        catch (Exception ex)
-        {
-            FrmError objForm = new FrmError("ClsDB", "GetSpielKombimeisterschaft", ex.ToString());
-            objForm.ShowDialog();
-        }
-        return lstKombi;
-    }
-    */
 
     /*
     public List<ClsErgebnisKombimeisterschaftKreuztabelle> GetErgebnisKombimeisterschaft(Int32 iMeisterschaftsID)
@@ -1329,175 +264,7 @@ public class DBService(LocalDbContext _localDbContext, WebDbContext _webDbContex
     }
     */
 
-    public async Task<string> GetMeisterschaftsjahrAsync(Int32 iMeisterschaftsID)
-    {
-        string strJahr = string.Empty;
 
-        try
-        {
-            // var mst = (from m in DBContext.tblMeisterschaften
-            //     where m.ID == iMeisterschaftsID
-            //     select m).FirstOrDefault();
-
-            var mst = await _localDbContext.TblMeisterschaftens.FirstOrDefaultAsync(f => f.Id == iMeisterschaftsID);
-            if (mst != null)
-            {
-                strJahr = mst.Beginn.Year.ToString();
-                if (mst.Ende.HasValue)
-                {
-                    if (mst.Beginn.Year != mst.Ende.Value.Year)
-                    {
-                        strJahr += "/" + mst.Ende.Value.Year.ToString();
-                    }
-                }
-            }
-        }
-        catch (Exception ex)
-        {
-            //FrmError objForm = new FrmError("ClsDB", "GetMeisterschaftsjahr", ex.ToString());
-            //objForm.ShowDialog();
-            ViewManager.ShowErrorWindow("DBService", "GetMeisterschaftsjahr", ex.ToString());
-        }
-
-        return strJahr;
-    }
-
-
-    /*
-    public List<ClsSpielMeisterschaft> GetSpielMeisterschaft(Int32 iSpieltagID)
-    {
-        List<ClsSpielMeisterschaft> lstMeisterschaft = new List<ClsSpielMeisterschaft>();
-
-        try
-        {
-            using (KEPAVerwaltungEntities DBContext = new KEPAVerwaltungEntities())
-            {
-                var items = (DBContext.vwSpielMeisterschaft
-                    .Where(w => w.SpieltagID == iSpieltagID)
-                    .Select(s => s));
-
-                foreach (var objM in items)
-                {
-                    ClsSpielMeisterschaft objMeisterschaft = new ClsSpielMeisterschaft();
-                    objMeisterschaft.ID = objM.SpielMeisterschaftID;
-                    objMeisterschaft.SpieltagID = objM.SpieltagID;
-                    objMeisterschaft.Spieler1ID = objM.SpielerID1;
-                    if (!string.IsNullOrEmpty(objM.Spieler1Spitzname))
-                    {
-                        objMeisterschaft.Spieler1Name = objM.Spieler1Spitzname;
-                    }
-                    else
-                    {
-                        objMeisterschaft.Spieler1Name = objM.Spieler1Vorname;
-                    }
-                    objMeisterschaft.Spieler2ID = objM.SpielerID2;
-                    if (!string.IsNullOrEmpty(objM.Spieler2Spitzname))
-                    {
-                        objMeisterschaft.Spieler2Name = objM.Spieler2Spitzname;
-                    }
-                    else
-                    {
-                        objMeisterschaft.Spieler2Name = objM.Spieler2Vorname;
-                    }
-                    objMeisterschaft.HolzSpieler1 = objM.HolzSpieler1;
-                    objMeisterschaft.HolzSpieler2 = objM.HolzSpieler2;
-
-                    lstMeisterschaft.Add(objMeisterschaft);
-                }
-            }
-        }
-        catch (Exception ex)
-        {
-            FrmError objForm = new FrmError("ClsDB", "GetSpielMeisterschaft", ex.ToString());
-            objForm.ShowDialog();
-        }
-        return lstMeisterschaft;
-    }
-    */
-
-    /*
-    public List<ClsSpielPokal> GetSpielPokal(Int32 iSpieltagID)
-    {
-        List<ClsSpielPokal> lstPokal = new List<ClsSpielPokal>();
-
-        try
-        {
-            using (KEPAVerwaltungEntities DBContext = new KEPAVerwaltungEntities())
-            {
-                var items = (DBContext.vwSpielPokal
-                    .Where(w => w.SpieltagID == iSpieltagID)
-                    .Select(s => s));
-
-                foreach (var objM in items)
-                {
-                    ClsSpielPokal objPokal = new ClsSpielPokal();
-                    objPokal.ID = objM.SpielPokalID;
-                    objPokal.SpieltagID = objM.SpieltagID;
-                    objPokal.SpielerID = objM.SpielerID;
-                    if (!string.IsNullOrEmpty(objM.Spitzname))
-                    {
-                        objPokal.Spielername = objM.Spitzname;
-                    }
-                    else
-                    {
-                        objPokal.Spielername = objM.Vorname;
-                    }
-                    objPokal.Platzierung = objM.Platzierung;
-
-                    lstPokal.Add(objPokal);
-                }
-            }
-        }
-        catch (Exception ex)
-        {
-            FrmError objForm = new FrmError("ClsDB", "GetSpielPokal", ex.ToString());
-            objForm.ShowDialog();
-        }
-        return lstPokal;
-    }
-    */
-
-    /*
-    public List<ClsSpielSargKegeln> GetSpielSargKegeln(Int32 iSpieltagID)
-    {
-        List<ClsSpielSargKegeln> lstSargKegeln = new List<ClsSpielSargKegeln>();
-
-        try
-        {
-            using (KEPAVerwaltungEntities DBContext = new KEPAVerwaltungEntities())
-            {
-                var items = (DBContext.vwSpielSargKegeln
-                    .Where(w => w.SpieltagID == iSpieltagID)
-                    .Select(s => s));
-
-                foreach (var objM in items)
-                {
-                    ClsSpielSargKegeln objSarg = new ClsSpielSargKegeln();
-                    objSarg.ID = objM.SpielSargKegelnID;
-                    objSarg.SpieltagID = objM.SpieltagID;
-                    objSarg.SpielerID = objM.SpielerID;
-                    if (!string.IsNullOrEmpty(objM.Spitzname))
-                    {
-                        objSarg.Spielername = objM.Spitzname;
-                    }
-                    else
-                    {
-                        objSarg.Spielername = objM.Vorname;
-                    }
-                    objSarg.Platzierung = objM.Platzierung;
-
-                    lstSargKegeln.Add(objSarg);
-                }
-            }
-        }
-        catch (Exception ex)
-        {
-            FrmError objForm = new FrmError("ClsDB", "GetSpielSargKegeln", ex.ToString());
-            objForm.ShowDialog();
-        }
-        return lstSargKegeln;
-    }
-    */
 
     /*
     public List<ClsStatistik9erRatten> GetStatistik9erRatten(Int32 iZeitbereich, out Dictionary<string, int> oNeunerkönig, out Dictionary<string, int> oRattenkönig, DateTime? dtVon = null, DateTime? dtBis = null)
@@ -2959,6 +1726,2584 @@ public class DBService(LocalDbContext _localDbContext, WebDbContext _webDbContex
     */
 
 
+
+    #region Hilfsmethoden
+
+    private DataTable CreateDataTable<T>(IEnumerable<T> entities)
+    {
+        var dt = new DataTable();
+
+        //creating columns
+        foreach (var prop in typeof(T).GetProperties())
+        {
+            dt.Columns.Add(prop.Name, prop.PropertyType);
+        }
+
+        //creating rows
+        foreach (var entity in entities)
+        {
+            var values = GetObjectValues(entity);
+            dt.Rows.Add(values);
+        }
+
+
+        return dt;
+    }
+
+    private object[] GetObjectValues<T>(T entity)
+    {
+        var values = new List<object>();
+        foreach (var prop in typeof(T).GetProperties())
+        {
+            values.Add(prop.GetValue(entity));
+        }
+
+        return values.ToArray();
+    }
+
+    private bool tablesAreTheSame(DataTable table1, DataTable table2)
+    {
+        // DataTable dt;
+        // dt = getDifferentRecords(table1, table2);
+        //
+        // if (dt.Rows.Count == 0)
+        //     return true;
+        // else
+        return false;
+    }
+
+    private async Task<List<Models.Web.TblDbchangeLog>> getDifferentRecordsAsync()
+    {
+        var localDBChanges = await _localDbContext.TblDbchangeLogs.Where(w => w.Tablename != "init").ToListAsync();
+        var webDBChanges = await _webDbContext.TblDbchangeLogs.Where(w => w.Tablename != "init").ToListAsync();
+
+        var differences = webDBChanges
+            .Where(w => !localDBChanges.Any(w2 => w2.Tablename == "init" && w2.Zeitstempel == w.Zeitstempel))
+            .ToList();
+
+        return differences;
+    }
+
+    #endregion
+
+    #region Settings und Splashscreen
+
+    public async Task<bool> ExistsSettingsWebAsync()
+    {
+        bool bolExists = false;
+
+        var settings = await _webDbContext.TblSettings
+            .Select(s => s)
+            .ToListAsync();
+
+        if (settings.Count > 0)
+            bolExists = true;
+
+        return bolExists;
+    }
+
+    public async Task SaveSettingsLocalAsync(string sParametername, string sParametervalue)
+    {
+        StringBuilder sb = new StringBuilder();
+        Models.Local.TblDbchangeLog objLog = new();
+        Models.Web.TblDbchangeLog objLogWeb = new();
+        DateTime dtLogTimestamp = DateTime.Now;
+
+        var settings = await _localDbContext.TblSettings
+            .Where(w => w.Parametername == sParametername)
+            .Select(s => s)
+            .FirstOrDefaultAsync();
+
+        if (settings == null)
+        {
+            Models.Local.TblSetting objSetting = new();
+            objSetting.Parametername = sParametername;
+            objSetting.Parameterwert = sParametervalue;
+            objSetting.Computername = Environment.MachineName;
+            await _localDbContext.TblSettings.AddAsync(objSetting);
+            await _localDbContext.SaveChangesAsync();
+
+            sb.Append("insert into tblSettings(Parametername, Parameterwert, Computername) ");
+            sb.Append("values(");
+            sb.Append("'").Append(sParametername).Append("', ");
+            sb.Append("'").Append(sParametervalue).Append("', ");
+            sb.Append("'").Append(Environment.MachineName).Append("')");
+
+            objLog.Changetype = "insert";
+            objLog.Command = sb.ToString();
+            objLog.Tablename = "tblSettings";
+            objLog.Computername = Environment.MachineName;
+            objLog.Zeitstempel = dtLogTimestamp;
+
+            await _localDbContext.TblDbchangeLogs.AddAsync(objLog);
+            await _localDbContext.SaveChangesAsync();
+
+            objLogWeb.Changetype = "insert";
+            objLogWeb.Command = sb.ToString();
+            ;
+            objLogWeb.Tablename = "tblSettings";
+            objLogWeb.Computername = Environment.MachineName;
+            objLogWeb.Zeitstempel = dtLogTimestamp;
+
+            await _webDbContext.TblDbchangeLogs.AddAsync(objLogWeb);
+            await _webDbContext.SaveChangesAsync();
+        }
+        else
+        {
+            settings.Parametername = sParametername;
+            await _localDbContext.SaveChangesAsync();
+
+            sb.Append("update tblSettings set Parametername = ");
+            sb.Append("'").Append(sParametername).Append("', ");
+            sb.Append("Parameterwert = ");
+            sb.Append("'").Append(sParametervalue).Append("', ");
+            sb.Append("Computername = ");
+            sb.Append("'").Append(Environment.MachineName).Append("' ");
+            sb.Append("where Parametername = '").Append(sParametername).Append("'");
+
+            objLog.Changetype = "update";
+            objLog.Command = sb.ToString();
+            objLog.Tablename = "tblSettings";
+            objLog.Computername = Environment.MachineName;
+            objLog.Zeitstempel = dtLogTimestamp;
+
+            await _localDbContext.TblDbchangeLogs.AddAsync(objLog);
+            await _localDbContext.SaveChangesAsync();
+
+            objLogWeb.Changetype = "update";
+            objLogWeb.Command = sb.ToString();
+            ;
+            objLogWeb.Tablename = "tblSettings";
+            objLogWeb.Computername = Environment.MachineName;
+            objLogWeb.Zeitstempel = dtLogTimestamp;
+
+            await _webDbContext.TblDbchangeLogs.AddAsync(objLogWeb);
+            await _webDbContext.SaveChangesAsync();
+        }
+
+        await SaveSettingsWebAsync();
+    }
+
+    public async Task SaveSettingsWebAsync()
+    {
+        var settings = await _localDbContext.TblSettings
+            .Select(s => s)
+            .ToListAsync();
+
+        foreach (var item in settings)
+        {
+            switch (item.Parametername)
+            {
+                case "AktiveMeisterschaft":
+                    var meisterschaftAktiv = await _webDbContext.TblMeisterschaftens
+                        .Where(w => w.Aktiv == 1)
+                        .ToListAsync();
+
+                    foreach (var ma in meisterschaftAktiv)
+                    {
+                        ma.Aktiv = 0;
+                    }
+
+                    int intID = Convert.ToInt32(item.Parameterwert);
+                    var objMeisterSearch = await _webDbContext.TblMeisterschaftens
+                        .Select(m => m).SingleOrDefaultAsync(m => m.Id == intID);
+                    if (objMeisterSearch != null)
+                        objMeisterSearch!.Aktiv = 1;
+
+                    var setting = await _webDbContext.TblSettings
+                        .Select(s => s)
+                        .SingleOrDefaultAsync(s => s.Parametername == "AktiveMeisterschaft");
+                    setting!.Parameterwert = intID.ToString();
+
+                    await _webDbContext.SaveChangesAsync();
+
+                    break;
+            }
+        }
+    }
+
+    public async Task LoadSettingsWebAsync()
+    {
+        var settings = await _webDbContext.TblSettings
+            .Select(s => s)
+            .ToListAsync();
+
+        foreach (var item in settings)
+        {
+            switch (item.Parametername)
+            {
+                case "AktiveMeisterschaft":
+                    var meisterschaftAktiv = await _localDbContext.TblMeisterschaftens
+                        .Where(w => w.Aktiv == 1)
+                        .ToListAsync();
+
+                    foreach (var ma in meisterschaftAktiv)
+                    {
+                        ma.Aktiv = 0;
+                    }
+
+                    int intID = Convert.ToInt32(item.Parameterwert);
+                    var objMeisterSearch = await _localDbContext.TblMeisterschaftens
+                        .Select(m => m).SingleOrDefaultAsync(m => m.Id == intID);
+                    if (objMeisterSearch != null)
+                    {
+                        objMeisterSearch!.Aktiv = 1;
+                        await _localDbContext.SaveChangesAsync();
+
+                        AktiveMeisterschaft aktiveMeisterschaft = new();
+                        aktiveMeisterschaft.ID = intID;
+                        aktiveMeisterschaft.Bezeichnung = objMeisterSearch.Bezeichnung;
+                        _commonService.AktiveMeisterschaft = aktiveMeisterschaft;
+                    }
+
+                    break;
+            }
+        }
+    }
+
+    public async Task<DateTime> GetDBVersionWebAsync()
+    {
+        DateTime dtVersion = DateTime.MinValue;
+
+        try
+        {
+            var vers = await (from v in _webDbContext.TblDbchangeLogs
+                orderby v.Zeitstempel
+                select v).ToListAsync();
+
+            dtVersion = vers[vers.Count() - 1].Zeitstempel;
+        }
+        catch (Exception ex)
+        {
+            ViewManager.ShowErrorWindow("DBService", "GetDBVersionWeb", ex.ToString());
+        }
+
+        return dtVersion;
+    }
+
+    public async Task<DateTime> GetDBVersionLocalAsync()
+    {
+        DateTime dtVersion = DateTime.MinValue;
+
+        try
+        {
+            var vers = await (from v in _localDbContext.TblDbchangeLogs
+                orderby v.Zeitstempel
+                select v).ToListAsync();
+
+            dtVersion = vers[vers.Count() - 1].Zeitstempel.Value;
+        }
+        catch (Exception ex)
+        {
+            ViewManager.ShowErrorWindow("DBService", "GetDBVersionLocal", ex.ToString());
+        }
+
+        return dtVersion;
+    }
+
+    public async Task UpdateLocalDBAsync()
+    {
+        List<Models.Web.TblDbchangeLog> lstDiff = await getDifferentRecordsAsync();
+        List<Models.Web.TblDbchangeLog> lstDiffOrdered = lstDiff.OrderBy(o => o.Zeitstempel).ToList();
+        string strSQL = string.Empty;
+
+        foreach (var row in lstDiffOrdered)
+        {
+            //if (row.Tablename == "tblSettings") continue;
+
+            if (strSQL != "init")
+            {
+                using (var transaction = await _localDbContext.Database.BeginTransactionAsync())
+                {
+                    try
+                    {
+                        await IdentityInsertAsync(row.Tablename);
+                        strSQL = row.Command;
+                        int intRowsAffected = await _localDbContext.Database.ExecuteSqlRawAsync(strSQL);
+                        await IdentityInsertAsync(row.Tablename, "OFF");
+
+                        Models.Local.TblDbchangeLog objLog = new Models.Local.TblDbchangeLog();
+                        objLog.Computername = row.Computername;
+                        objLog.Tablename = row.Tablename;
+                        objLog.Changetype = row.Changetype;
+                        objLog.Command = row.Command;
+                        objLog.Zeitstempel = row.Zeitstempel;
+                        await _localDbContext.TblDbchangeLogs.AddAsync(objLog);
+                        await _localDbContext.SaveChangesAsync();
+
+                        transaction.Commit();
+                    }
+                    catch (Exception ex)
+                    {
+                        transaction.Rollback();
+                        ViewManager.ShowErrorWindow("DBService", "UpdateLocalDBAsync",
+                            strSQL + Environment.NewLine + Environment.NewLine + ex.ToString());
+                    }
+                }
+            }
+        }
+    }
+
+    private async Task IdentityInsertAsync(string sTablename, string sOnOff = "ON")
+    {
+        string strSQLIdentity;
+
+        switch (sTablename)
+        {
+            case "tblMeisterschaften":
+                strSQLIdentity = "SET IDENTITY_INSERT " + sTablename + " " + sOnOff;
+                await _localDbContext.Database.ExecuteSqlRawAsync(strSQLIdentity);
+                break;
+            case "tbl9erRatten":
+                strSQLIdentity = "SET IDENTITY_INSERT " + sTablename + " " + sOnOff;
+                await _localDbContext.Database.ExecuteSqlRawAsync(strSQLIdentity);
+                break;
+            case "tblSpieltag":
+                strSQLIdentity = "SET IDENTITY_INSERT " + sTablename + " " + sOnOff;
+                await _localDbContext.Database.ExecuteSqlRawAsync(strSQLIdentity);
+                break;
+            case "tblSpiel6TageRennen":
+                strSQLIdentity = "SET IDENTITY_INSERT " + sTablename + " " + sOnOff;
+                await _localDbContext.Database.ExecuteSqlRawAsync(strSQLIdentity);
+                break;
+            case "tblSpielBlitztunier":
+                strSQLIdentity = "SET IDENTITY_INSERT " + sTablename + " " + sOnOff;
+                await _localDbContext.Database.ExecuteSqlRawAsync(strSQLIdentity);
+                break;
+            case "tblSpielKombimeisterschaft":
+                strSQLIdentity = "SET IDENTITY_INSERT " + sTablename + " " + sOnOff;
+                await _localDbContext.Database.ExecuteSqlRawAsync(strSQLIdentity);
+                break;
+            case "tblSpielMeisterschaft":
+                strSQLIdentity = "SET IDENTITY_INSERT " + sTablename + " " + sOnOff;
+                await _localDbContext.Database.ExecuteSqlRawAsync(strSQLIdentity);
+                break;
+            case "tblSpielPokal":
+                strSQLIdentity = "SET IDENTITY_INSERT " + sTablename + " " + sOnOff;
+                await _localDbContext.Database.ExecuteSqlRawAsync(strSQLIdentity);
+                break;
+            case "tblSpielSargKegeln":
+                strSQLIdentity = "SET IDENTITY_INSERT " + sTablename + " " + sOnOff;
+                await _localDbContext.Database.ExecuteSqlRawAsync(strSQLIdentity);
+                break;
+        }
+    }
+
+    #endregion
+
+    #region Ergebniseingabe
+
+    public async Task Delete9erRattenAsync(Int32 iID)
+    {
+        StringBuilder sb = new StringBuilder();
+        string strSQL = string.Empty;
+        Models.Local.TblDbchangeLog objLog = new();
+        Models.Web.TblDbchangeLog objLogWeb = new();
+        DateTime dtLogTimestamp = DateTime.Now;
+
+        var objNR = await _localDbContext.Tbl9erRattens
+            .Where(w => w.Id == iID)
+            .Select(s => s).SingleOrDefaultAsync();
+
+        _localDbContext.Tbl9erRattens.Remove(objNR);
+        await _localDbContext.SaveChangesAsync();
+
+        sb.Append("delete from tbl9erRatten ");
+        sb.Append("where ID = " + iID.ToString());
+        strSQL = sb.ToString();
+
+        objLog.Changetype = "delete";
+        objLog.Command = strSQL;
+        objLog.Tablename = "tbl9erRatten";
+        objLog.Computername = Environment.MachineName;
+        objLog.Zeitstempel = dtLogTimestamp;
+        await _localDbContext.TblDbchangeLogs.AddAsync(objLog);
+        await _localDbContext.SaveChangesAsync();
+
+        objLogWeb.Changetype = "delete";
+        objLogWeb.Command = strSQL;
+        objLogWeb.Tablename = "tbl9erRatten";
+        objLogWeb.Computername = Environment.MachineName;
+        objLogWeb.Zeitstempel = dtLogTimestamp;
+        await _webDbContext.TblDbchangeLogs.AddAsync(objLogWeb);
+        await _webDbContext.SaveChangesAsync();
+    }
+
+    public async Task DeleteSpielPokalAsync(Int32 iID)
+    {
+        StringBuilder sb = new StringBuilder();
+        string strSQL = string.Empty;
+        Models.Local.TblDbchangeLog objLog = new();
+        Models.Web.TblDbchangeLog objLogWeb = new();
+        DateTime dtLogTimestamp = DateTime.Now;
+
+        var objPokal = await _localDbContext.TblSpielPokals
+            .Where(w => w.Id == iID)
+            .Select(s => s).SingleOrDefaultAsync();
+
+        if (objPokal != null)
+        {
+            _localDbContext.TblSpielPokals.Remove(objPokal);
+            await _localDbContext.SaveChangesAsync();
+
+            sb.Append("delete from tblSpielPokal ");
+            sb.Append("where ID = " + iID.ToString());
+            strSQL = sb.ToString();
+
+            objLog.Changetype = "delete";
+            objLog.Command = strSQL;
+            objLog.Tablename = "tblSpielPokal";
+            objLog.Computername = Environment.MachineName;
+            objLog.Zeitstempel = dtLogTimestamp;
+            await _localDbContext.TblDbchangeLogs.AddAsync(objLog);
+            await _localDbContext.SaveChangesAsync();
+
+            objLogWeb.Changetype = "delete";
+            objLogWeb.Command = strSQL;
+            objLogWeb.Tablename = "tblSpielPokal";
+            objLogWeb.Computername = Environment.MachineName;
+            objLogWeb.Zeitstempel = dtLogTimestamp;
+            await _webDbContext.TblDbchangeLogs.AddAsync(objLogWeb);
+            await _webDbContext.SaveChangesAsync();
+        }
+    }
+
+    public async Task DeleteSpielSargKegelnAsync(Int32 iID)
+    {
+        StringBuilder sb = new StringBuilder();
+        string strSQL = string.Empty;
+        Models.Local.TblDbchangeLog objLog = new();
+        Models.Web.TblDbchangeLog objLogWeb = new();
+        DateTime dtLogTimestamp = DateTime.Now;
+
+        var objSarg = await _localDbContext.TblSpielSargKegelns
+            .Where(w => w.Id == iID)
+            .Select(s => s).SingleOrDefaultAsync();
+
+        if (objSarg != null)
+        {
+            _localDbContext.TblSpielSargKegelns.Remove(objSarg);
+            await _localDbContext.SaveChangesAsync();
+
+            sb.Append("delete from tblSpielSargKegeln ");
+            sb.Append("where ID = " + iID.ToString());
+            strSQL = sb.ToString();
+
+            objLog.Changetype = "delete";
+            objLog.Command = strSQL;
+            objLog.Tablename = "tblSpielSargKegeln";
+            objLog.Computername = Environment.MachineName;
+            objLog.Zeitstempel = dtLogTimestamp;
+            await _localDbContext.TblDbchangeLogs.AddAsync(objLog);
+            await _localDbContext.SaveChangesAsync();
+
+            objLogWeb.Changetype = "delete";
+            objLogWeb.Command = strSQL;
+            objLogWeb.Tablename = "tblSpielSargKegeln";
+            objLogWeb.Computername = Environment.MachineName;
+            objLogWeb.Zeitstempel = dtLogTimestamp;
+            await _webDbContext.TblDbchangeLogs.AddAsync(objLogWeb);
+            await _webDbContext.SaveChangesAsync();
+        }
+    }
+
+    public async Task DeleteSpiel6TageRennenAsync(Int32 iID)
+    {
+        StringBuilder sb = new StringBuilder();
+        string strSQL = string.Empty;
+        Models.Local.TblDbchangeLog objLog = new();
+        Models.Web.TblDbchangeLog objLogWeb = new();
+        DateTime dtLogTimestamp = DateTime.Now;
+
+        var obj6TR = await _localDbContext.TblSpiel6TageRennens
+            .Where(w => w.Id == iID)
+            .Select(s => s).SingleOrDefaultAsync();
+
+        if (obj6TR != null)
+        {
+            _localDbContext.TblSpiel6TageRennens.Remove(obj6TR);
+            await _localDbContext.SaveChangesAsync();
+
+            sb.Append("delete from tblSpiel6TageRennen ");
+            sb.Append("where ID = " + iID.ToString());
+            strSQL = sb.ToString();
+
+            objLog.Changetype = "delete";
+            objLog.Command = strSQL;
+            objLog.Tablename = "tblSpiel6TageRennen";
+            objLog.Computername = Environment.MachineName;
+            objLog.Zeitstempel = dtLogTimestamp;
+            await _localDbContext.TblDbchangeLogs.AddAsync(objLog);
+            await _localDbContext.SaveChangesAsync();
+
+            objLogWeb.Changetype = "delete";
+            objLogWeb.Command = strSQL;
+            objLogWeb.Tablename = "tblSpiel6TageRennen";
+            objLogWeb.Computername = Environment.MachineName;
+            objLogWeb.Zeitstempel = dtLogTimestamp;
+            await _webDbContext.TblDbchangeLogs.AddAsync(objLogWeb);
+            await _webDbContext.SaveChangesAsync();
+        }
+    }
+
+    public async Task DeleteSpielMeisterschaftAsync(Int32 iID)
+    {
+        StringBuilder sb = new StringBuilder();
+        string strSQL = string.Empty;
+        Models.Local.TblDbchangeLog objLog = new();
+        Models.Web.TblDbchangeLog objLogWeb = new();
+        DateTime dtLogTimestamp = DateTime.Now;
+
+        var objMeisterschaft = await _localDbContext.TblSpielMeisterschafts
+            .Where(w => w.Id == iID)
+            .Select(s => s).SingleOrDefaultAsync();
+
+        if (objMeisterschaft != null)
+        {
+            _localDbContext.TblSpielMeisterschafts.Remove(objMeisterschaft);
+            await _localDbContext.SaveChangesAsync();
+
+            sb.Append("delete from tblSpielMeisterschaft ");
+            sb.Append("where ID = " + iID.ToString());
+            strSQL = sb.ToString();
+
+            objLog.Changetype = "delete";
+            objLog.Command = strSQL;
+            objLog.Tablename = "tblSpielMeisterschaft";
+            objLog.Computername = Environment.MachineName;
+            objLog.Zeitstempel = DateTime.Now;
+            await _localDbContext.TblDbchangeLogs.AddAsync(objLog);
+            await _localDbContext.SaveChangesAsync();
+
+            objLogWeb.Changetype = "delete";
+            objLogWeb.Command = strSQL;
+            objLogWeb.Tablename = "tblSpielMeisterschaft";
+            objLogWeb.Computername = Environment.MachineName;
+            objLogWeb.Zeitstempel = dtLogTimestamp;
+            await _webDbContext.TblDbchangeLogs.AddAsync(objLogWeb);
+            await _webDbContext.SaveChangesAsync();
+        }
+    }
+
+    public async Task DeleteSpielBlitztunierAsync(Int32 iID)
+    {
+        StringBuilder sb = new StringBuilder();
+        string strSQL = string.Empty;
+        Models.Local.TblDbchangeLog objLog = new();
+        Models.Web.TblDbchangeLog objLogWeb = new();
+        DateTime dtLogTimestamp = DateTime.Now;
+
+        var objBlitz = await _localDbContext.TblSpielBlitztuniers
+            .Where(w => w.Id == iID)
+            .Select(s => s).SingleOrDefaultAsync();
+
+        if (objBlitz != null)
+        {
+            _localDbContext.TblSpielBlitztuniers.Remove(objBlitz);
+            await _localDbContext.SaveChangesAsync();
+
+            sb.Append("delete from tblSpielBlitztunier ");
+            sb.Append("where ID = " + iID.ToString());
+            strSQL = sb.ToString();
+
+            objLog.Changetype = "delete";
+            objLog.Command = strSQL;
+            objLog.Tablename = "tblSpielBlitztunier";
+            objLog.Computername = Environment.MachineName;
+            objLog.Zeitstempel = dtLogTimestamp;
+            await _localDbContext.TblDbchangeLogs.AddAsync(objLog);
+            await _localDbContext.SaveChangesAsync();
+
+            objLogWeb.Changetype = "delete";
+            objLogWeb.Command = strSQL;
+            objLogWeb.Tablename = "tblSpielBlitztunier";
+            objLogWeb.Computername = Environment.MachineName;
+            objLogWeb.Zeitstempel = dtLogTimestamp;
+            await _webDbContext.TblDbchangeLogs.AddAsync(objLogWeb);
+            await _webDbContext.SaveChangesAsync();
+        }
+    }
+
+    public async Task DeleteSpielKombimeisterschaftAsync(Int32 iID)
+    {
+        StringBuilder sb = new StringBuilder();
+        string strSQL = string.Empty;
+        Models.Local.TblDbchangeLog objLog = new();
+        Models.Web.TblDbchangeLog objLogWeb = new();
+        DateTime dtLogTimestamp = DateTime.Now;
+
+        var objKombi = await _localDbContext.TblSpielKombimeisterschafts
+            .Where(w => w.Id == iID)
+            .Select(s => s).SingleOrDefaultAsync();
+
+        if (objKombi != null)
+        {
+            _localDbContext.TblSpielKombimeisterschafts.Remove(objKombi);
+            await _localDbContext.SaveChangesAsync();
+
+            sb.Append("delete from tblSpielKombimeisterschaft ");
+            sb.Append("where ID = " + iID.ToString());
+            strSQL = sb.ToString();
+
+            objLog.Changetype = "delete";
+            objLog.Command = strSQL;
+            objLog.Tablename = "tblSpielKombimeisterschaft";
+            objLog.Computername = Environment.MachineName;
+            objLog.Zeitstempel = dtLogTimestamp;
+            await _localDbContext.TblDbchangeLogs.AddAsync(objLog);
+            await _localDbContext.SaveChangesAsync();
+
+            objLogWeb.Changetype = "delete";
+            objLogWeb.Command = strSQL;
+            objLogWeb.Tablename = "tblSpielKombimeisterschaft";
+            objLogWeb.Computername = Environment.MachineName;
+            objLogWeb.Zeitstempel = dtLogTimestamp;
+            await _webDbContext.TblDbchangeLogs.AddAsync(objLogWeb);
+            await _webDbContext.SaveChangesAsync();
+        }
+    }
+
+    public async Task<List<AusgabeNeunerRatten>> GetAusgabe9erRattenAsync(int iSpieltagID)
+    {
+        List<AusgabeNeunerRatten> lstAusgabe = new();
+
+        var lstNR = await _localDbContext.Vw9erRattens
+            .Where(w => w.SpieltagId == iSpieltagID)
+            .Select(s => s)
+            .ToListAsync();
+
+        foreach (var item in lstNR)
+        {
+            AusgabeNeunerRatten objAusgabe = new();
+            objAusgabe.MeisterschaftsID = item.MeisterschaftsId;
+            objAusgabe.SpieltagID = item.SpieltagId;
+            objAusgabe.Spieltag = item.Spieltag;
+            objAusgabe.SpielerID = item.SpielerId;
+            if (!string.IsNullOrEmpty(item.Spitzname))
+            {
+                objAusgabe.Spielername = item.Spitzname;
+            }
+            else
+            {
+                objAusgabe.Spielername = item.Vorname;
+            }
+
+            objAusgabe.Neuner = item.Neuner;
+            objAusgabe.Ratten = item.Ratten;
+
+            lstAusgabe.Add(objAusgabe);
+        }
+
+        return lstAusgabe;
+    }
+
+    public async Task<List<AusgabePokal>> GetAusgabePokalAsync(int iSpieltagID)
+    {
+        List<AusgabePokal> lstAusgabe = new();
+
+        var lstPokal = await _localDbContext.VwSpielPokals
+            .Where(w => w.SpieltagId == iSpieltagID)
+            .Select(s => s)
+            .ToListAsync();
+
+        foreach (var item in lstPokal)
+        {
+            AusgabePokal objAusgabe = new();
+            objAusgabe.SpieltagID = item.SpieltagId;
+            objAusgabe.Spieltag = item.Spieltag;
+            objAusgabe.SpielerID = item.SpielerId;
+            if (!string.IsNullOrEmpty(item.Spitzname))
+            {
+                objAusgabe.Spielername = item.Spitzname;
+            }
+            else
+            {
+                objAusgabe.Spielername = item.Vorname;
+            }
+
+            objAusgabe.Platzierung = item.Platzierung;
+
+            lstAusgabe.Add(objAusgabe);
+        }
+
+        return lstAusgabe;
+    }
+
+    public async Task<List<AusgabeSargkegeln>> GetAusgabeSargkegelnAsync(int iSpieltagID)
+    {
+        List<AusgabeSargkegeln> lstAusgabe = new();
+
+        var lstSarg = await _localDbContext.VwSpielSargKegelns
+            .Where(w => w.SpieltagId == iSpieltagID)
+            .Select(s => s)
+            .ToListAsync();
+
+        foreach (var item in lstSarg)
+        {
+            AusgabeSargkegeln objAusgabe = new();
+            objAusgabe.SpieltagID = item.SpieltagId;
+            objAusgabe.Spieltag = item.Spieltag;
+            objAusgabe.SpielerID = item.SpielerId;
+            if (!string.IsNullOrEmpty(item.Spitzname))
+            {
+                objAusgabe.Spielername = item.Spitzname;
+            }
+            else
+            {
+                objAusgabe.Spielername = item.Vorname;
+            }
+
+            objAusgabe.Platzierung = item.Platzierung;
+
+            lstAusgabe.Add(objAusgabe);
+        }
+
+        return lstAusgabe;
+    }
+
+    public async Task<List<AusgabeSechsTageRennen>> GetAusgabe6TageRennenAsync(int iSpieltagID)
+    {
+        List<AusgabeSechsTageRennen> lstAusgabe = new();
+
+        var lstNR = await _localDbContext.VwSpiel6TageRennens
+            .Where(w => w.SpieltagId == iSpieltagID)
+            .Select(s => s)
+            .ToListAsync();
+
+        foreach (var item in lstNR)
+        {
+            AusgabeSechsTageRennen objAusgabe = new();
+            objAusgabe.SpieltagID = item.SpieltagId;
+            objAusgabe.Spieltag = item.Spieltag;
+            objAusgabe.Spieler1ID = item.SpielerId1;
+            if (!string.IsNullOrEmpty(item.Spieler1Spitzname))
+            {
+                objAusgabe.Spieler1Name = item.Spieler1Spitzname;
+            }
+            else
+            {
+                objAusgabe.Spieler1Name = item.Spieler1Vorname;
+            }
+
+            objAusgabe.Spieler2ID = item.SpielerId2;
+            if (!string.IsNullOrEmpty(item.Spieler2Spitzname))
+            {
+                objAusgabe.Spieler2Name = item.Spieler2Spitzname;
+            }
+            else
+            {
+                objAusgabe.Spieler2Name = item.Spieler2Vorname;
+            }
+
+            objAusgabe.Runden = item.Runden;
+            objAusgabe.Punkte = item.Punkte;
+
+            lstAusgabe.Add(objAusgabe);
+        }
+
+        return lstAusgabe;
+    }
+
+    public async Task<List<AusgabeMeisterschaft>> GetAusgabeMeisterschaftAsync(int iSpieltagID)
+    {
+        List<AusgabeMeisterschaft> lstAusgabe = new();
+
+        var lstM = await _localDbContext.VwSpielMeisterschafts
+            .Where(w => w.SpieltagId == iSpieltagID)
+            .Select(s => s)
+            .ToListAsync();
+
+        foreach (var item in lstM)
+        {
+            AusgabeMeisterschaft objAusgabe = new();
+            objAusgabe.SpieltagID = item.SpieltagId;
+            objAusgabe.Spieltag = item.Spieltag;
+            objAusgabe.Spieler1ID = item.SpielerId1;
+            if (!string.IsNullOrEmpty(item.Spieler1Spitzname))
+            {
+                objAusgabe.Spieler1Name = item.Spieler1Spitzname;
+            }
+            else
+            {
+                objAusgabe.Spieler1Name = item.Spieler1Vorname;
+            }
+
+            objAusgabe.Spieler2ID = item.SpielerId2;
+            if (!string.IsNullOrEmpty(item.Spieler2Spitzname))
+            {
+                objAusgabe.Spieler2Name = item.Spieler2Spitzname;
+            }
+            else
+            {
+                objAusgabe.Spieler2Name = item.Spieler2Vorname;
+            }
+
+            objAusgabe.HolzSpieler1 = item.HolzSpieler1;
+            objAusgabe.HolzSpieler2 = item.HolzSpieler2;
+            objAusgabe.HinRueckrunde = item.HinRückrunde;
+
+            lstAusgabe.Add(objAusgabe);
+        }
+
+        return lstAusgabe;
+    }
+
+    public async Task<List<AusgabeBlitztunier>> GetAusgabeBlitztunierAsync(int iSpieltagID)
+    {
+        List<AusgabeBlitztunier> lstAusgabe = new();
+
+        var lstBT = await _localDbContext.VwSpielBlitztuniers
+            .Where(w => w.SpieltagId == iSpieltagID)
+            .Select(s => s)
+            .ToListAsync();
+
+        foreach (var item in lstBT)
+        {
+            AusgabeBlitztunier objAusgabe = new();
+            objAusgabe.SpieltagID = item.SpieltagId;
+            objAusgabe.Spieltag = item.Spieltag;
+            objAusgabe.Spieler1ID = item.SpielerId1;
+            if (!string.IsNullOrEmpty(item.Spieler1Spitzname))
+            {
+                objAusgabe.Spieler1Name = item.Spieler1Spitzname;
+            }
+            else
+            {
+                objAusgabe.Spieler1Name = item.Spieler1Vorname;
+            }
+
+            objAusgabe.Spieler2ID = item.SpielerId2;
+            if (!string.IsNullOrEmpty(item.Spieler2Spitzname))
+            {
+                objAusgabe.Spieler2Name = item.Spieler2Spitzname;
+            }
+            else
+            {
+                objAusgabe.Spieler2Name = item.Spieler2Vorname;
+            }
+
+            objAusgabe.PunkteSpieler1 = item.PunkteSpieler1;
+            objAusgabe.PunkteSpieler2 = item.PunkteSpieler2;
+            objAusgabe.HinRueckrunde = item.HinRückrunde;
+
+            lstAusgabe.Add(objAusgabe);
+        }
+
+        return lstAusgabe;
+    }
+
+    public async Task<List<AusgabeKombimeisterschaft>> GetAusgabeKombimeisterschaftAsync(int iSpieltagID)
+    {
+        List<AusgabeKombimeisterschaft> lstAusgabe = new();
+
+        var lstKM = await _localDbContext.VwSpielKombimeisterschafts
+            .Where(w => w.SpieltagId == iSpieltagID)
+            .Select(s => s)
+            .ToListAsync();
+
+        foreach (var item in lstKM)
+        {
+            AusgabeKombimeisterschaft objAusgabe = new();
+            objAusgabe.SpieltagID = item.SpieltagId;
+            objAusgabe.Spieltag = item.Spieltag;
+            objAusgabe.Spieler1ID = item.SpielerId1;
+            if (!string.IsNullOrEmpty(item.Spieler1Spitzname))
+            {
+                objAusgabe.Spieler1Name = item.Spieler1Spitzname;
+            }
+            else
+            {
+                objAusgabe.Spieler1Name = item.Spieler1Vorname;
+            }
+
+            objAusgabe.Spieler2ID = item.SpielerId2;
+            if (!string.IsNullOrEmpty(item.Spieler2Spitzname))
+            {
+                objAusgabe.Spieler2Name = item.Spieler2Spitzname;
+            }
+            else
+            {
+                objAusgabe.Spieler2Name = item.Spieler2Vorname;
+            }
+
+            objAusgabe.Spieler1Punkte3bis8 = item.Spieler1Punkte3bis8;
+            objAusgabe.Spieler2Punkte3bis8 = item.Spieler2Punkte3bis8;
+            objAusgabe.Spieler1Punkte5Kugeln = item.Spieler1Punkte5Kugeln;
+            objAusgabe.Spieler2Punkte5Kugeln = item.Spieler2Punkte5Kugeln;
+            objAusgabe.HinRueckrunde = item.HinRückrunde;
+
+            lstAusgabe.Add(objAusgabe);
+        }
+
+        return lstAusgabe;
+    }
+
+    public async Task<List<NeunerRatten>> GetEingabe9erRattenAsync(int iSpieltagID)
+    {
+        List<NeunerRatten> lstEingabe = new();
+
+        var lstNR = await _localDbContext.Vw9erRattens
+            .Where(w => w.SpieltagId == iSpieltagID)
+            .Select(s => s)
+            .ToListAsync();
+
+        foreach (var item in lstNR)
+        {
+            NeunerRatten objEingabe = new();
+            objEingabe.ID = item._9erRattenId;
+            objEingabe.SpieltagID = item.SpieltagId;
+            objEingabe.SpielerID = item.SpielerId;
+            if (!string.IsNullOrEmpty(item.Spitzname))
+            {
+                objEingabe.Spielername = item.Spitzname;
+            }
+            else
+            {
+                objEingabe.Spielername = item.Vorname;
+            }
+
+            objEingabe.Neuner = item.Neuner;
+            objEingabe.Ratten = item.Ratten;
+
+            lstEingabe.Add(objEingabe);
+        }
+
+        return lstEingabe;
+    }
+
+    public async Task<List<SechsTageRennen>> GetEingabe6TageRennenAsync(int iSpieltagID)
+    {
+        List<SechsTageRennen> lstEingabe = new();
+
+        var lstNR = await _localDbContext.VwSpiel6TageRennens
+            .Where(w => w.SpieltagId == iSpieltagID)
+            .Select(s => s)
+            .ToListAsync();
+
+        foreach (var item in lstNR)
+        {
+            SechsTageRennen objEingabe = new();
+            objEingabe.ID = item._6tageRennenId;
+            objEingabe.SpieltagID = item.SpieltagId;
+            objEingabe.Spieler1ID = item.SpielerId1;
+            if (!string.IsNullOrEmpty(item.Spieler1Spitzname))
+            {
+                objEingabe.Spieler1Name = item.Spieler1Spitzname;
+            }
+            else
+            {
+                objEingabe.Spieler1Name = item.Spieler1Vorname;
+            }
+
+            objEingabe.Spieler2ID = item.SpielerId2;
+            if (!string.IsNullOrEmpty(item.Spieler2Spitzname))
+            {
+                objEingabe.Spieler2Name = item.Spieler2Spitzname;
+            }
+            else
+            {
+                objEingabe.Spieler2Name = item.Spieler2Vorname;
+            }
+
+            objEingabe.Runden = item.Runden;
+            objEingabe.Punkte = item.Punkte;
+
+            lstEingabe.Add(objEingabe);
+        }
+
+        return lstEingabe;
+    }
+
+    public async Task<List<Meisterschaft>> GetEingabeMeisterschaftAsync(int iSpieltagID)
+    {
+        List<Meisterschaft> lstEingabe = new();
+
+        var lstM = await _localDbContext.VwSpielMeisterschafts
+            .Where(w => w.SpieltagId == iSpieltagID)
+            .Select(s => s)
+            .ToListAsync();
+
+        foreach (var item in lstM)
+        {
+            Meisterschaft objEingabe = new();
+            objEingabe.ID = item.SpielMeisterschaftId;
+            objEingabe.SpieltagID = item.SpieltagId;
+            objEingabe.Spieler1ID = item.SpielerId1;
+            if (!string.IsNullOrEmpty(item.Spieler1Spitzname))
+            {
+                objEingabe.Spieler1Name = item.Spieler1Spitzname;
+            }
+            else
+            {
+                objEingabe.Spieler1Name = item.Spieler1Vorname;
+            }
+
+            objEingabe.Spieler2ID = item.SpielerId2;
+            if (!string.IsNullOrEmpty(item.Spieler2Spitzname))
+            {
+                objEingabe.Spieler2Name = item.Spieler2Spitzname;
+            }
+            else
+            {
+                objEingabe.Spieler2Name = item.Spieler2Vorname;
+            }
+
+            objEingabe.HolzSpieler1 = item.HolzSpieler1;
+            objEingabe.HolzSpieler2 = item.HolzSpieler2;
+            objEingabe.HinRueckrunde = item.HinRückrunde;
+
+            lstEingabe.Add(objEingabe);
+        }
+
+        return lstEingabe;
+    }
+
+    public async Task<List<Blitztunier>> GetEingabeBlitztunierAsync(int iSpieltagID)
+    {
+        List<Blitztunier> lstEingabe = new();
+
+        var lstBT = await _localDbContext.VwSpielBlitztuniers
+            .Where(w => w.SpieltagId == iSpieltagID)
+            .Select(s => s)
+            .ToListAsync();
+
+        foreach (var item in lstBT)
+        {
+            Blitztunier objEingabe = new();
+            objEingabe.ID = item.BlitztunierId;
+            objEingabe.SpieltagID = item.SpieltagId;
+            objEingabe.Spieler1ID = item.SpielerId1;
+            if (!string.IsNullOrEmpty(item.Spieler1Spitzname))
+            {
+                objEingabe.Spieler1Name = item.Spieler1Spitzname;
+            }
+            else
+            {
+                objEingabe.Spieler1Name = item.Spieler1Vorname;
+            }
+
+            objEingabe.Spieler2ID = item.SpielerId2;
+            if (!string.IsNullOrEmpty(item.Spieler2Spitzname))
+            {
+                objEingabe.Spieler2Name = item.Spieler2Spitzname;
+            }
+            else
+            {
+                objEingabe.Spieler2Name = item.Spieler2Vorname;
+            }
+
+            objEingabe.PunkteSpieler1 = item.PunkteSpieler1;
+            objEingabe.PunkteSpieler2 = item.PunkteSpieler2;
+            objEingabe.HinRueckrunde = item.HinRückrunde;
+
+            lstEingabe.Add(objEingabe);
+        }
+
+        return lstEingabe;
+    }
+
+    public async Task<List<Kombimeisterschaft>> GetEingabeKombimeisterschaftAsync(int iSpieltagID)
+    {
+        List<Kombimeisterschaft> lstEingabe = new();
+
+        var lstKM = await _localDbContext.VwSpielKombimeisterschafts
+            .Where(w => w.SpieltagId == iSpieltagID)
+            .Select(s => s)
+            .ToListAsync();
+
+        foreach (var item in lstKM)
+        {
+            Kombimeisterschaft objEingabe = new();
+            objEingabe.ID = item.KombimeisterschaftId;
+            objEingabe.SpieltagID = item.SpieltagId;
+            objEingabe.Spieler1ID = item.SpielerId1;
+            if (!string.IsNullOrEmpty(item.Spieler1Spitzname))
+            {
+                objEingabe.Spieler1Name = item.Spieler1Spitzname;
+            }
+            else
+            {
+                objEingabe.Spieler1Name = item.Spieler1Vorname;
+            }
+
+            objEingabe.Spieler2ID = item.SpielerId2;
+            if (!string.IsNullOrEmpty(item.Spieler2Spitzname))
+            {
+                objEingabe.Spieler2Name = item.Spieler2Spitzname;
+            }
+            else
+            {
+                objEingabe.Spieler2Name = item.Spieler2Vorname;
+            }
+
+            objEingabe.Spieler1Punkte3bis8 = item.Spieler1Punkte3bis8;
+            objEingabe.Spieler2Punkte3bis8 = item.Spieler2Punkte3bis8;
+            objEingabe.Spieler1Punkte5Kugeln = item.Spieler1Punkte5Kugeln;
+            objEingabe.Spieler2Punkte5Kugeln = item.Spieler2Punkte5Kugeln;
+            objEingabe.HinRueckrunde = item.HinRückrunde;
+
+            lstEingabe.Add(objEingabe);
+        }
+
+        return lstEingabe;
+    }
+
+    public async Task<List<Pokal>> GetEingabePokalAsync(int iSpieltagID)
+    {
+        List<Pokal> lstEingabe = new();
+
+        var lstPokal = await _localDbContext.VwSpielPokals
+            .Where(w => w.SpieltagId == iSpieltagID)
+            .Select(s => s)
+            .ToListAsync();
+
+        foreach (var item in lstPokal)
+        {
+            Pokal objEingabe = new();
+            objEingabe.ID = item.SpielPokalId;
+            objEingabe.SpieltagID = item.SpieltagId;
+            objEingabe.SpielerID = item.SpielerId;
+            if (!string.IsNullOrEmpty(item.Spitzname))
+            {
+                objEingabe.Spielername = item.Spitzname;
+            }
+            else
+            {
+                objEingabe.Spielername = item.Vorname;
+            }
+
+            objEingabe.Platzierung = item.Platzierung;
+
+            lstEingabe.Add(objEingabe);
+        }
+
+        return lstEingabe;
+    }
+
+    public async Task<List<Sargkegeln>> GetEingabeSargkegelnAsync(int iSpieltagID)
+    {
+        List<Sargkegeln> lstEingabe = new();
+
+        var lstSarg = await _localDbContext.VwSpielSargKegelns
+            .Where(w => w.SpieltagId == iSpieltagID)
+            .Select(s => s)
+            .ToListAsync();
+
+        foreach (var item in lstSarg)
+        {
+            Sargkegeln objEingabe = new();
+            objEingabe.ID = item.SpielSargKegelnId;
+            objEingabe.SpieltagID = item.SpieltagId;
+            objEingabe.SpielerID = item.SpielerId;
+            if (!string.IsNullOrEmpty(item.Spitzname))
+            {
+                objEingabe.Spielername = item.Spitzname;
+            }
+            else
+            {
+                objEingabe.Spielername = item.Vorname;
+            }
+
+            objEingabe.Platzierung = item.Platzierung;
+
+            lstEingabe.Add(objEingabe);
+        }
+
+        return lstEingabe;
+    }
+
+    public async Task SaveEingabeAsync(int iMeisterschaftsID, DateTime dtSpieltag, string sSpiel, object oEingabeliste,
+        List<int> oIDsToDelete = null)
+    {
+        int intSpieltagID = -1;
+
+        using (var transaction = await _localDbContext.Database.BeginTransactionAsync())
+        {
+            try
+            {
+                intSpieltagID = await SaveSpieltagAsync(iMeisterschaftsID, dtSpieltag);
+
+                switch (sSpiel)
+                {
+                    case "9er/Ratten":
+                        var lstEingabeNR = oEingabeliste as List<NeunerRatten>;
+                        foreach (var item in lstEingabeNR)
+                            await Save9erRattenAsync(intSpieltagID, item.SpielerID, item.Neuner, item.Ratten);
+
+                        if (oIDsToDelete != null && oIDsToDelete.Count > 0)
+                            foreach (var del in oIDsToDelete)
+                                await Delete9erRattenAsync(del);
+
+                        break;
+                    case "6-Tage-Rennen":
+                        var lstEingabe6TR = oEingabeliste as List<SechsTageRennen>;
+                        foreach (var item in lstEingabe6TR)
+                            await SaveSpiel6TageRennenAsync(intSpieltagID, item.Spieler1ID, item.Spieler2ID,
+                                item.Spielnr, item.Runden, item.Punkte);
+
+                        if (oIDsToDelete != null && oIDsToDelete.Count > 0)
+                            foreach (var del in oIDsToDelete)
+                                await DeleteSpiel6TageRennenAsync(del);
+
+                        break;
+                    case "Pokal":
+                        var lstEingabeP = oEingabeliste as List<Pokal>;
+                        foreach (var item in lstEingabeP)
+                            await SaveSpielPokalAsync(intSpieltagID, item.SpielerID, item.Platzierung);
+
+                        if (oIDsToDelete != null && oIDsToDelete.Count > 0)
+                            foreach (var del in oIDsToDelete)
+                                await DeleteSpielPokalAsync(del);
+
+                        break;
+                    case "Sargkegeln":
+                        var lstEingabeS = oEingabeliste as List<Sargkegeln>;
+                        foreach (var item in lstEingabeS)
+                            await SaveSpielSargKegelnAsync(intSpieltagID, item.SpielerID, item.Platzierung);
+
+                        if (oIDsToDelete != null && oIDsToDelete.Count > 0)
+                            foreach (var del in oIDsToDelete)
+                                await DeleteSpielSargKegelnAsync(del);
+
+                        break;
+                    case "Meisterschaft":
+                        var lstEingabeM = oEingabeliste as List<Meisterschaft>;
+                        foreach (var item in lstEingabeM)
+                            await SaveSpielMeisterschaftAsync(intSpieltagID, item.Spieler1ID, item.Spieler2ID,
+                                item.HinRueckrunde, item.HolzSpieler1, item.HolzSpieler2);
+
+                        if (oIDsToDelete != null && oIDsToDelete.Count > 0)
+                            foreach (var del in oIDsToDelete)
+                                await DeleteSpielMeisterschaftAsync(del);
+
+                        break;
+                    case "Blitztunier":
+                        var lstEingabeBT = oEingabeliste as List<Blitztunier>;
+                        foreach (var item in lstEingabeBT)
+                            await SaveSpielBlitztunierAsync(intSpieltagID, item.Spieler1ID, item.Spieler2ID,
+                                item.HinRueckrunde, item.PunkteSpieler1, item.PunkteSpieler2);
+
+                        if (oIDsToDelete != null && oIDsToDelete.Count > 0)
+                            foreach (var del in oIDsToDelete)
+                                await DeleteSpielBlitztunierAsync(del);
+
+                        break;
+                    case "Kombimeisterschaft":
+                        var lstEingabeKM = oEingabeliste as List<Kombimeisterschaft>;
+                        foreach (var item in lstEingabeKM)
+                            await SaveSpielKombimeisterschaftAsync(intSpieltagID, item.Spieler1ID, item.Spieler2ID,
+                                item.HinRueckrunde, item.Spieler1Punkte3bis8, item.Spieler1Punkte5Kugeln, item.Spieler2Punkte3bis8, item.Spieler2Punkte5Kugeln);
+
+                        if (oIDsToDelete != null && oIDsToDelete.Count > 0)
+                            foreach (var del in oIDsToDelete)
+                                await DeleteSpielKombimeisterschaftAsync(del);
+                        
+                        break;
+                }
+
+                await transaction.CommitAsync();
+            }
+            catch (Exception ex)
+            {
+                await transaction.RollbackAsync();
+                ViewManager.ShowErrorWindow("DBService", "SaveEingabeAsync", ex.ToString());
+            }
+        }
+    }
+
+    public async Task<Int32> SaveSpieltagAsync(Int32 iMeisterschaftsID, DateTime dtSpieltag)
+    {
+        Int32 intID = 0;
+        StringBuilder sb = new StringBuilder();
+        string strSQL = string.Empty;
+        Models.Local.TblDbchangeLog objLog = new();
+        Models.Web.TblDbchangeLog objLogWeb = new();
+        DateTime dtSpieltagSearch = dtSpieltag.Date;
+
+        var checkSpieltag = await _localDbContext.TblSpieltags
+            .Where(w => w.Spieltag == dtSpieltagSearch && w.MeisterschaftsId == iMeisterschaftsID)
+            .Select(s => s)
+            .SingleOrDefaultAsync();
+
+
+        if (checkSpieltag == null)
+        {
+            Models.Local.TblSpieltag objSpieltag = new();
+            objSpieltag.MeisterschaftsId = iMeisterschaftsID;
+            objSpieltag.Spieltag = dtSpieltag;
+            objSpieltag.InBearbeitung = true;
+
+            await _localDbContext.TblSpieltags.AddAsync(objSpieltag);
+            await _localDbContext.SaveChangesAsync();
+            intID = objSpieltag.Id;
+
+            sb.Append("insert into tblSpieltag(ID, MeisterschaftsID, Spieltag, InBearbeitung) ");
+            sb.Append("values(");
+            sb.Append(intID.ToString()).Append(", ");
+            sb.Append(iMeisterschaftsID.ToString()).Append(", ");
+            sb.Append("'").Append(dtSpieltag.ToString("yyyyMMdd")).Append("', ");
+            sb.Append("0)");
+            strSQL = sb.ToString();
+
+            objLog.Changetype = "insert";
+            objLog.Command = strSQL;
+            objLog.Tablename = "tblSpieltag";
+            objLog.Computername = Environment.MachineName;
+            objLog.Zeitstempel = DateTime.Now;
+            await _localDbContext.TblDbchangeLogs.AddAsync(objLog);
+            await _localDbContext.SaveChangesAsync();
+
+            objLogWeb.Changetype = "insert";
+            objLogWeb.Command = strSQL;
+            objLogWeb.Tablename = "tblSpieltag";
+            objLogWeb.Computername = Environment.MachineName;
+            objLogWeb.Zeitstempel = DateTime.Now;
+            await _webDbContext.TblDbchangeLogs.AddAsync(objLogWeb);
+            await _webDbContext.SaveChangesAsync();
+        }
+        else
+        {
+            //intID = ((tblSpieltag)checkSpieltag).ID;
+            intID = checkSpieltag.Id;
+
+            // checkSpieltag.InBearbeitung = true;
+            // await _localDbContext.SaveChangesAsync();
+            //
+            // sb.Append("update tblSpieltag ");
+            // sb.Append("set InBearbeitung = 1 ");
+            // sb.Append("where ID = ");
+            // sb.Append(intID.ToString());
+            // strSQL = sb.ToString();
+            //
+            // objLog.Changetype = "update";
+            // objLog.Command = strSQL;
+            // objLog.Tablename = "tblSpieltag";
+            // objLog.Computername = Environment.MachineName;
+            // objLog.Zeitstempel = DateTime.Now;
+            // await _localDbContext.TblDbchangeLogs.AddAsync(objLog);
+            // await _localDbContext.SaveChangesAsync();
+            //
+            // objLogWeb.Changetype = "update";
+            // objLogWeb.Command = strSQL;
+            // objLogWeb.Tablename = "tblSpieltag";
+            // objLogWeb.Computername = Environment.MachineName;
+            // objLogWeb.Zeitstempel = DateTime.Now;
+            // await _webDbContext.TblDbchangeLogs.AddAsync(objLogWeb);
+            // await _webDbContext.SaveChangesAsync();
+        }
+
+        return intID;
+    }
+
+    public async Task<int> GetSpieltagIDAsync(DateTime dtSpieltag)
+    {
+        var dtSpieltagSearch = dtSpieltag.Date;
+        var st = await _localDbContext.TblSpieltags
+            .Where(w => w.Spieltag == dtSpieltagSearch)
+            .Select(s => s.Id)
+            .SingleOrDefaultAsync();
+
+        return st;
+    }
+
+    public async Task Save9erRattenAsync(Int32 iSpieltagID, Int32 iSpielerID, Int32 iNeuner, Int32 iRatten)
+    {
+        StringBuilder sb = new StringBuilder();
+        string strSQL = string.Empty;
+        Models.Local.TblDbchangeLog objLog = new();
+        Models.Web.TblDbchangeLog objLogWeb = new();
+        DateTime dtLogTimestamp = DateTime.Now;
+
+        var nr = await _localDbContext.Tbl9erRattens
+            .Where(w => w.SpieltagId == iSpieltagID && w.SpielerId == iSpielerID)
+            .SingleOrDefaultAsync();
+
+        if (nr == null)
+        {
+            Models.Local.Tbl9erRatten objNR = new();
+            objNR.SpieltagId = iSpieltagID;
+            objNR.SpielerId = iSpielerID;
+            objNR.Neuner = iNeuner;
+            objNR.Ratten = iRatten;
+            await _localDbContext.Tbl9erRattens.AddAsync(objNR);
+            await _localDbContext.SaveChangesAsync();
+
+            sb.Append("insert into tbl9erRatten(ID, SpieltagID, SpielerID, Neuner, Ratten) ");
+            sb.Append("values (");
+            sb.Append(objNR.Id.ToString()).Append(", ");
+            sb.Append(iSpieltagID.ToString()).Append(", ");
+            sb.Append(iSpielerID.ToString()).Append(", ");
+            sb.Append(iNeuner.ToString()).Append(", ");
+            sb.Append(iRatten.ToString()).Append(")");
+            strSQL = sb.ToString();
+
+            objLog.Changetype = "insert";
+            objLog.Command = strSQL;
+            objLog.Tablename = "tbl9erRatten";
+            objLog.Computername = Environment.MachineName;
+            objLog.Zeitstempel = dtLogTimestamp;
+            await _localDbContext.TblDbchangeLogs.AddAsync(objLog);
+            await _localDbContext.SaveChangesAsync();
+
+            objLogWeb.Changetype = "insert";
+            objLogWeb.Command = strSQL;
+            objLogWeb.Tablename = "tbl9erRatten";
+            objLogWeb.Computername = Environment.MachineName;
+            objLogWeb.Zeitstempel = dtLogTimestamp;
+            await _webDbContext.TblDbchangeLogs.AddAsync(objLogWeb);
+            await _webDbContext.SaveChangesAsync();
+        }
+        else
+        {
+            if (nr.Neuner != iNeuner || nr.Ratten != iRatten)
+            {
+                nr.Neuner = iNeuner;
+                nr.Ratten = iRatten;
+                await _localDbContext.SaveChangesAsync();
+
+                sb.Append("update tbl9erRatten ");
+                sb.Append("set Neuner = " + iNeuner.ToString()).Append(", ");
+                sb.Append("Ratten = " + iRatten.ToString()).Append(" ");
+                sb.Append("where ID = " + nr.Id.ToString());
+                strSQL = sb.ToString();
+
+                objLog.Changetype = "update";
+                objLog.Command = strSQL;
+                objLog.Tablename = "tbl9erRatten";
+                objLog.Computername = Environment.MachineName;
+                objLog.Zeitstempel = DateTime.Now;
+                await _localDbContext.TblDbchangeLogs.AddAsync(objLog);
+                await _localDbContext.SaveChangesAsync();
+
+                objLogWeb.Changetype = "update";
+                objLogWeb.Command = strSQL;
+                objLogWeb.Tablename = "tbl9erRatten";
+                objLogWeb.Computername = Environment.MachineName;
+                objLogWeb.Zeitstempel = DateTime.Now;
+                await _webDbContext.TblDbchangeLogs.AddAsync(objLogWeb);
+                await _webDbContext.SaveChangesAsync();
+            }
+        }
+    }
+
+    public async Task SaveSpiel6TageRennenAsync(Int32 iSpieltagID, Int32 iSpielerID1, Int32 iSpielerID2,
+        Int32 iSpielnummer, Int32 iRunden, Int32 iPunkte)
+    {
+        Int32 int6TageRennenID = -1;
+        StringBuilder sb = new StringBuilder();
+        string strSQL = string.Empty;
+        Models.Local.TblDbchangeLog objLog = new();
+        Models.Web.TblDbchangeLog objLogWeb = new();
+        DateTime dtLogTimestamp = DateTime.Now;
+
+        var str = await _localDbContext.TblSpiel6TageRennens
+            .Where(w => w.SpieltagId == iSpieltagID && w.SpielerId1 == iSpielerID1 && w.SpielerId2 == iSpielerID2)
+            .SingleOrDefaultAsync();
+
+        if (str == null)
+        {
+            Models.Local.TblSpiel6TageRennen obj6TR = new();
+            obj6TR.SpieltagId = iSpieltagID;
+            obj6TR.SpielerId1 = iSpielerID1;
+            obj6TR.SpielerId2 = iSpielerID2;
+            obj6TR.Runden = iRunden;
+            obj6TR.Punkte = iPunkte;
+            obj6TR.Spielnummer = iSpielnummer;
+
+            await _localDbContext.TblSpiel6TageRennens.AddAsync(obj6TR);
+            await _localDbContext.SaveChangesAsync();
+            int6TageRennenID = obj6TR.Id;
+
+            sb.Append(
+                "insert into tblSpiel6TageRennen(ID, SpieltagID, SpielerID1, SpielerID2, Runden, Punkte, Spielnummer) ");
+            sb.Append("values (");
+            sb.Append(int6TageRennenID.ToString()).Append(", ");
+            sb.Append(iSpieltagID.ToString()).Append(", ");
+            sb.Append(iSpielerID1.ToString()).Append(", ");
+            sb.Append(iSpielerID2.ToString()).Append(", ");
+            sb.Append(iRunden.ToString()).Append(", ");
+            sb.Append(iPunkte.ToString()).Append(", ");
+            sb.Append(iSpielnummer.ToString() + ")");
+            strSQL = sb.ToString();
+
+            objLog.Changetype = "insert";
+            objLog.Command = strSQL;
+            objLog.Tablename = "tblSpiel6TageRennen";
+            objLog.Computername = Environment.MachineName;
+            objLog.Zeitstempel = dtLogTimestamp;
+            await _localDbContext.TblDbchangeLogs.AddAsync(objLog);
+            await _localDbContext.SaveChangesAsync();
+
+            objLogWeb.Changetype = "insert";
+            objLogWeb.Command = strSQL;
+            objLogWeb.Tablename = "tblSpiel6TageRennen";
+            objLogWeb.Computername = Environment.MachineName;
+            objLogWeb.Zeitstempel = dtLogTimestamp;
+            await _webDbContext.TblDbchangeLogs.AddAsync(objLogWeb);
+            await _webDbContext.SaveChangesAsync();
+        }
+        else
+        {
+            if (str.Runden != iRunden || str.Punkte != iPunkte)
+            {
+                str.Runden = iRunden;
+                str.Punkte = iPunkte;
+                await _localDbContext.SaveChangesAsync();
+
+                sb.Append("update tblSpiel6TageRennen ");
+                sb.Append("set Runden = " + iRunden.ToString()).Append(", ");
+                sb.Append("Punkte = " + iPunkte.ToString()).Append(", ");
+                sb.Append("Spielnummer = " + iSpielnummer.ToString()).Append(" ");
+                sb.Append("where ID = " + str.Id.ToString());
+                strSQL = sb.ToString();
+
+                objLog.Changetype = "update";
+                objLog.Command = strSQL;
+                objLog.Tablename = "tblSpiel6TageRennen";
+                objLog.Computername = Environment.MachineName;
+                objLog.Zeitstempel = dtLogTimestamp;
+                await _localDbContext.TblDbchangeLogs.AddAsync(objLog);
+                await _localDbContext.SaveChangesAsync();
+
+
+                objLogWeb.Changetype = "update";
+                objLogWeb.Command = strSQL;
+                objLogWeb.Tablename = "tblSpiel6TageRennen";
+                objLogWeb.Computername = Environment.MachineName;
+                objLogWeb.Zeitstempel = dtLogTimestamp;
+                await _webDbContext.TblDbchangeLogs.AddAsync(objLogWeb);
+                await _webDbContext.SaveChangesAsync();
+            }
+        }
+    }
+
+    public async Task SaveSpielMeisterschaftAsync(Int32 iSpieltagID, Int32 iSpielerID1, Int32 iSpielerID2,
+        Int32 iHinRueckrunde, Int32 iHolzSpieler1, Int32 iHolzSpieler2)
+    {
+        Int32 intSpielMeisterschaftsID = -1;
+        StringBuilder sb = new StringBuilder();
+        string strSQL = string.Empty;
+        Models.Local.TblDbchangeLog objLog = new();
+        Models.Web.TblDbchangeLog objLogWeb = new();
+        DateTime dtLogTimestamp = DateTime.Now;
+
+        var m = await _localDbContext.TblSpielMeisterschafts
+            .Where(w => w.SpieltagId == iSpieltagID && w.SpielerId1 == iSpielerID1 && w.SpielerId2 == iSpielerID2)
+            .SingleOrDefaultAsync();
+
+        if (m == null)
+        {
+            Models.Local.TblSpielMeisterschaft objM = new();
+            objM.SpieltagId = iSpieltagID;
+            objM.SpielerId1 = iSpielerID1;
+            objM.SpielerId2 = iSpielerID2;
+            objM.HolzSpieler1 = iHolzSpieler1;
+            objM.HolzSpieler2 = iHolzSpieler2;
+            objM.HinRückrunde = iHinRueckrunde;
+
+            await _localDbContext.TblSpielMeisterschafts.AddAsync(objM);
+            await _localDbContext.SaveChangesAsync();
+            intSpielMeisterschaftsID = objM.Id;
+
+            sb.Append(
+                "insert into tblSpielMeisterschaft(ID, SpieltagID, SpielerID1, SpielerID2, HolzSpieler1, HolzSpieler2, HinRückrunde) ");
+            sb.Append("values (");
+            sb.Append(intSpielMeisterschaftsID.ToString()).Append(", ");
+            sb.Append(iSpieltagID.ToString()).Append(", ");
+            sb.Append(iSpielerID1.ToString()).Append(", ");
+            sb.Append(iSpielerID2.ToString()).Append(", ");
+            sb.Append(iHolzSpieler1.ToString()).Append(", ");
+            sb.Append(iHolzSpieler2.ToString()).Append(", ");
+            sb.Append(iHinRueckrunde.ToString());
+            strSQL = sb.ToString();
+
+            objLog.Changetype = "insert";
+            objLog.Command = strSQL;
+            objLog.Tablename = "tblSpielMeisterschaft";
+            objLog.Computername = Environment.MachineName;
+            objLog.Zeitstempel = dtLogTimestamp;
+            await _localDbContext.TblDbchangeLogs.AddAsync(objLog);
+            await _localDbContext.SaveChangesAsync();
+
+            objLogWeb.Changetype = "insert";
+            objLogWeb.Command = strSQL;
+            objLogWeb.Tablename = "tblSpielMeisterschaft";
+            objLogWeb.Computername = Environment.MachineName;
+            objLogWeb.Zeitstempel = dtLogTimestamp;
+            await _webDbContext.TblDbchangeLogs.AddAsync(objLogWeb);
+            await _webDbContext.SaveChangesAsync();
+        }
+        else
+        {
+            if (m.HolzSpieler1 != iHolzSpieler1 || m.HolzSpieler2 != iHolzSpieler2)
+            {
+                m.HolzSpieler1 = iHolzSpieler1;
+                m.HolzSpieler2 = iHolzSpieler2;
+                m.HinRückrunde = iHinRueckrunde;
+
+                await _localDbContext.SaveChangesAsync();
+
+                sb.Append("update tblSpielMeisterschaft ");
+                sb.Append("set HolzSpieler1 = " + iHolzSpieler1.ToString()).Append(", ");
+                sb.Append("HolzSpieler2 = " + iHolzSpieler2.ToString()).Append(", ");
+                sb.Append("HinRückrunde = " + iHinRueckrunde.ToString()).Append(" ");
+                sb.Append("where ID = " + m.Id.ToString());
+                strSQL = sb.ToString();
+
+                objLog.Changetype = "update";
+                objLog.Command = strSQL;
+                objLog.Tablename = "tblSpielMeisterschaft";
+                objLog.Computername = Environment.MachineName;
+                objLog.Zeitstempel = dtLogTimestamp;
+                await _localDbContext.TblDbchangeLogs.AddAsync(objLog);
+                await _localDbContext.SaveChangesAsync();
+
+                objLogWeb.Changetype = "update";
+                objLogWeb.Command = strSQL;
+                objLogWeb.Tablename = "tblSpielMeisterschaft";
+                objLogWeb.Computername = Environment.MachineName;
+                objLogWeb.Zeitstempel = dtLogTimestamp;
+                await _webDbContext.TblDbchangeLogs.AddAsync(objLogWeb);
+                await _webDbContext.SaveChangesAsync();
+            }
+        }
+    }
+
+    public async Task SaveSpielBlitztunierAsync(Int32 iSpieltagID, Int32 iSpielerID1, Int32 iSpielerID2,
+        Int32 iHinRueckrunde, Int32 iPunkteSpieler1, Int32 iPunkteSpieler2)
+    {
+        Int32 intSpielBlitztunierID = -1;
+        StringBuilder sb = new StringBuilder();
+        string strSQL = string.Empty;
+        Models.Local.TblDbchangeLog objLog = new();
+        Models.Web.TblDbchangeLog objLogWeb = new();
+        DateTime dtLogTimestamp = DateTime.Now;
+
+        var bt = await _localDbContext.TblSpielBlitztuniers
+            .Where(w => w.SpieltagId == iSpieltagID && w.SpielerId1 == iSpielerID1 && w.SpielerId2 == iSpielerID2)
+            .SingleOrDefaultAsync();
+
+        if (bt == null)
+        {
+            Models.Local.TblSpielBlitztunier objBT = new();
+            objBT.SpieltagId = iSpieltagID;
+            objBT.SpielerId1 = iSpielerID1;
+            objBT.SpielerId2 = iSpielerID2;
+            objBT.PunkteSpieler1 = iPunkteSpieler1;
+            objBT.PunkteSpieler2 = iPunkteSpieler2;
+            objBT.HinRückrunde = iHinRueckrunde;
+
+            await _localDbContext.TblSpielBlitztuniers.AddAsync(objBT);
+            await _localDbContext.SaveChangesAsync();
+            intSpielBlitztunierID = objBT.Id;
+
+            sb.Append(
+                "insert into tblSpielBlitztunier(ID, SpieltagID, SpielerID1, SpielerID2, PunkteSpieler1, PunkteSpieler2, HinRückrunde) ");
+            sb.Append("values (");
+            sb.Append(intSpielBlitztunierID.ToString()).Append(", ");
+            sb.Append(iSpieltagID.ToString()).Append(", ");
+            sb.Append(iSpielerID1.ToString()).Append(", ");
+            sb.Append(iSpielerID2.ToString()).Append(", ");
+            sb.Append(iPunkteSpieler1.ToString()).Append(", ");
+            sb.Append(iPunkteSpieler2.ToString()).Append(", ");
+            sb.Append(iHinRueckrunde.ToString()).Append(")");
+            strSQL = sb.ToString();
+
+            objLog.Changetype = "insert";
+            objLog.Command = strSQL;
+            objLog.Tablename = "tblSpielBlitztunier";
+            objLog.Computername = Environment.MachineName;
+            objLog.Zeitstempel = dtLogTimestamp;
+            await _localDbContext.TblDbchangeLogs.AddAsync(objLog);
+            await _localDbContext.SaveChangesAsync();
+
+            objLogWeb.Changetype = "insert";
+            objLogWeb.Command = strSQL;
+            objLogWeb.Tablename = "tblSpielBlitztunier";
+            objLogWeb.Computername = Environment.MachineName;
+            objLogWeb.Zeitstempel = dtLogTimestamp;
+            await _webDbContext.TblDbchangeLogs.AddAsync(objLogWeb);
+            await _webDbContext.SaveChangesAsync();
+        }
+        else
+        {
+            if (bt.PunkteSpieler1 != iPunkteSpieler1 || bt.PunkteSpieler2 != iPunkteSpieler2)
+            {
+                bt.PunkteSpieler1 = iPunkteSpieler1;
+                bt.PunkteSpieler2 = iPunkteSpieler2;
+                bt.HinRückrunde = iHinRueckrunde;
+
+                await _localDbContext.SaveChangesAsync();
+
+                sb.Append("update tblSpielBlitztunier ");
+                sb.Append("set PunkteSpieler1 = " + iPunkteSpieler1.ToString()).Append(", ");
+                sb.Append("PunkteSpieler2 = " + iPunkteSpieler2.ToString()).Append(", ");
+                sb.Append("HinRückrunde = " + iHinRueckrunde.ToString()).Append(" ");
+                sb.Append("where ID = " + bt.Id.ToString());
+                strSQL = sb.ToString();
+
+                objLog.Changetype = "update";
+                objLog.Command = strSQL;
+                objLog.Tablename = "tblSpielBlitztunier";
+                objLog.Computername = Environment.MachineName;
+                objLog.Zeitstempel = dtLogTimestamp;
+                await _localDbContext.TblDbchangeLogs.AddAsync(objLog);
+                await _localDbContext.SaveChangesAsync();
+
+                objLogWeb.Changetype = "update";
+                objLogWeb.Command = strSQL;
+                objLogWeb.Tablename = "tblSpielBlitztunier";
+                objLogWeb.Computername = Environment.MachineName;
+                objLogWeb.Zeitstempel = dtLogTimestamp;
+                await _webDbContext.TblDbchangeLogs.AddAsync(objLogWeb);
+                await _webDbContext.SaveChangesAsync();
+            }
+        }
+    }
+
+    public async Task SaveSpielKombimeisterschaftAsync(Int32 iSpieltagID, Int32 iSpielerID1, Int32 iSpielerID2,
+        Int32 iHinRueckrunde, Int32 iSpieler13bis8,
+        Int32 iSpieler15Kugeln, Int32 iSpieler23bis8, Int32 iSpieler25Kugeln)
+    {
+        Int32 intSpielKombimeisterschaftsID = -1;
+        StringBuilder sb = new StringBuilder();
+        string strSQL = string.Empty;
+        Models.Local.TblDbchangeLog objLog = new();
+        Models.Web.TblDbchangeLog objLogWeb = new();
+        DateTime dtLogTimestamp = DateTime.Now;
+
+        var km = await _localDbContext.TblSpielKombimeisterschafts
+            .Where(w => w.SpieltagId == iSpieltagID && w.SpielerId1 == iSpielerID1 && w.SpielerId2 == iSpielerID2)
+            .SingleOrDefaultAsync();
+
+        if (km == null)
+        {
+            Models.Local.TblSpielKombimeisterschaft objKombi = new();
+            objKombi.SpieltagId = iSpieltagID;
+            objKombi.SpielerId1 = iSpielerID1;
+            objKombi.SpielerId2 = iSpielerID2;
+            objKombi.Spieler1Punkte3bis8 = iSpieler13bis8;
+            objKombi.Spieler1Punkte5Kugeln = iSpieler15Kugeln;
+            objKombi.Spieler2Punkte3bis8 = iSpieler23bis8;
+            objKombi.Spieler2Punkte5Kugeln = iSpieler25Kugeln;
+            objKombi.HinRückrunde = iHinRueckrunde;
+
+            await _localDbContext.TblSpielKombimeisterschafts.AddAsync(objKombi);
+            await _localDbContext.SaveChangesAsync();
+            intSpielKombimeisterschaftsID = objKombi.Id;
+
+            sb.Append(
+                "insert into tblSpielKombimeisterschaft(ID, SpieltagID, SpielerID1, SpielerID2, Spieler1Punkte3bis8, Spieler1Punkte5Kugeln, Spieler2Punkte3bis8, Spieler2Punkte5Kugeln, HinRückrunde) ");
+            sb.Append("values (");
+            sb.Append(intSpielKombimeisterschaftsID.ToString()).Append(", ");
+            sb.Append(iSpieltagID.ToString()).Append(", ");
+            sb.Append(iSpielerID1.ToString()).Append(", ");
+            sb.Append(iSpielerID2.ToString()).Append(", ");
+            sb.Append(iSpieler13bis8.ToString()).Append(", ");
+            sb.Append(iSpieler15Kugeln).Append(", ");
+            sb.Append(iSpieler23bis8).Append(", ");
+            sb.Append(iSpieler25Kugeln).Append(", ");
+            sb.Append(iHinRueckrunde.ToString()).Append(")");
+            strSQL = sb.ToString();
+
+            objLog.Changetype = "insert";
+            objLog.Command = strSQL;
+            objLog.Tablename = "tblSpielKombimeisterschaft";
+            objLog.Computername = Environment.MachineName;
+            objLog.Zeitstempel = dtLogTimestamp;
+            await _localDbContext.TblDbchangeLogs.AddAsync(objLog);
+            await _localDbContext.SaveChangesAsync();
+
+            objLogWeb.Changetype = "insert";
+            objLogWeb.Command = strSQL;
+            objLogWeb.Tablename = "tblSpielKombimeisterschaft";
+            objLogWeb.Computername = Environment.MachineName;
+            objLogWeb.Zeitstempel = dtLogTimestamp;
+            await _webDbContext.TblDbchangeLogs.AddAsync(objLogWeb);
+            await _webDbContext.SaveChangesAsync();
+        }
+        else
+        {
+            if (km.Spieler1Punkte3bis8 != iSpieler13bis8 || km.Spieler1Punkte5Kugeln != iSpieler15Kugeln ||
+                km.Spieler2Punkte3bis8 != iSpieler23bis8 || km.Spieler2Punkte5Kugeln != iSpieler25Kugeln ||
+                km.HinRückrunde != iHinRueckrunde)
+            {
+                km.Spieler1Punkte3bis8 = iSpieler13bis8;
+                km.Spieler1Punkte5Kugeln = iSpieler15Kugeln;
+                km.Spieler2Punkte3bis8 = iSpieler23bis8;
+                km.Spieler2Punkte5Kugeln = iSpieler25Kugeln;
+                km.HinRückrunde = iHinRueckrunde;
+                await _localDbContext.SaveChangesAsync();
+
+                sb.Append("update tblSpielKombimeisterschaft ");
+                sb.Append("set Spieler1Punkte3bis8 = " + iSpieler13bis8.ToString()).Append(", ");
+                sb.Append("Spieler1Punkte5Kugeln = " + iSpieler15Kugeln.ToString()).Append(", ");
+                sb.Append("Spieler2Punkte3bis8 = " + iSpieler23bis8.ToString()).Append(", ");
+                sb.Append("Spieler2Punkte5Kugeln = " + iSpieler25Kugeln.ToString()).Append(", ");
+                sb.Append("HinRückrunde = " + iHinRueckrunde.ToString()).Append(" ");
+                sb.Append("where ID = " + km.Id.ToString());
+                strSQL = sb.ToString();
+
+                objLog.Changetype = "update";
+                objLog.Command = strSQL;
+                objLog.Tablename = "tblSpielKombimeisterschaft";
+                objLog.Computername = Environment.MachineName;
+                objLog.Zeitstempel = dtLogTimestamp;
+                await _localDbContext.TblDbchangeLogs.AddAsync(objLog);
+                await _localDbContext.SaveChangesAsync();
+
+                objLogWeb.Changetype = "update";
+                objLogWeb.Command = strSQL;
+                objLogWeb.Tablename = "tblSpielKombimeisterschaft";
+                objLogWeb.Computername = Environment.MachineName;
+                objLogWeb.Zeitstempel = dtLogTimestamp;
+                await _webDbContext.TblDbchangeLogs.AddAsync(objLogWeb);
+                await _webDbContext.SaveChangesAsync();
+            }
+        }
+    }
+
+    public async Task SaveSpielPokalAsync(Int32 iSpieltagID, Int32 iSpielerID, Int32 iPlatzierung)
+    {
+        Int32 intSpielPokalID = -1;
+        StringBuilder sb = new StringBuilder();
+        string strSQL = string.Empty;
+        Models.Local.TblDbchangeLog objLog = new();
+        Models.Web.TblDbchangeLog objLogWeb = new();
+        DateTime dtLogTimestamp = DateTime.Now;
+
+        var p = await _localDbContext.TblSpielPokals
+            .Where(w => w.SpieltagId == iSpieltagID && w.SpielerId == iSpielerID)
+            .SingleOrDefaultAsync();
+
+        if (p == null)
+        {
+            Models.Local.TblSpielPokal objPokal = new();
+            objPokal.SpieltagId = iSpieltagID;
+            objPokal.SpielerId = iSpielerID;
+            objPokal.Platzierung = iPlatzierung;
+
+            await _localDbContext.TblSpielPokals.AddAsync(objPokal);
+            await _localDbContext.SaveChangesAsync();
+            intSpielPokalID = objPokal.Id;
+
+            sb.Append("insert into tblSpielPokal(ID, SpieltagID, SpielerID, Platzierung) ");
+            sb.Append("values (");
+            sb.Append(intSpielPokalID.ToString()).Append(", ");
+            sb.Append(iSpieltagID.ToString()).Append(", ");
+            sb.Append(iSpielerID.ToString()).Append(", ");
+            sb.Append(iPlatzierung.ToString()).Append(")");
+            strSQL = sb.ToString();
+
+            objLog.Changetype = "insert";
+            objLog.Command = strSQL;
+            objLog.Tablename = "tblSpielPokal";
+            objLog.Computername = Environment.MachineName;
+            objLog.Zeitstempel = dtLogTimestamp;
+            await _localDbContext.TblDbchangeLogs.AddAsync(objLog);
+            await _localDbContext.SaveChangesAsync();
+
+            objLogWeb.Changetype = "insert";
+            objLogWeb.Command = strSQL;
+            objLogWeb.Tablename = "tblSpielPokal";
+            objLogWeb.Computername = Environment.MachineName;
+            objLogWeb.Zeitstempel = dtLogTimestamp;
+            await _webDbContext.TblDbchangeLogs.AddAsync(objLogWeb);
+            await _webDbContext.SaveChangesAsync();
+        }
+        else
+        {
+            if (p.Platzierung != iPlatzierung)
+            {
+                p.Platzierung = iPlatzierung;
+                await _localDbContext.SaveChangesAsync();
+
+                sb.Append("update tblSpielPokal ");
+                sb.Append("set Platzierung = " + iPlatzierung.ToString()).Append(" ");
+                sb.Append("where ID = " + p.Id.ToString());
+                strSQL = sb.ToString();
+
+                objLog.Changetype = "update";
+                objLog.Command = strSQL;
+                objLog.Tablename = "tblSpielPokal";
+                objLog.Computername = Environment.MachineName;
+                objLog.Zeitstempel = dtLogTimestamp;
+                await _localDbContext.TblDbchangeLogs.AddAsync(objLog);
+                await _localDbContext.SaveChangesAsync();
+
+                objLogWeb.Changetype = "update";
+                objLogWeb.Command = strSQL;
+                objLogWeb.Tablename = "tblSpielPokal";
+                objLogWeb.Computername = Environment.MachineName;
+                objLogWeb.Zeitstempel = dtLogTimestamp;
+                await _webDbContext.TblDbchangeLogs.AddAsync(objLogWeb);
+                await _webDbContext.SaveChangesAsync();
+            }
+        }
+    }
+
+    public async Task SaveSpielSargKegelnAsync(Int32 iSpieltagID, Int32 iSpielerID, Int32 iPlatzierung)
+    {
+        Int32 intSpielSargkegelnID = -1;
+        StringBuilder sb = new StringBuilder();
+        string strSQL = string.Empty;
+        Models.Local.TblDbchangeLog objLog = new();
+        Models.Web.TblDbchangeLog objLogWeb = new();
+        DateTime dtLogTimestamp = DateTime.Now;
+
+        var sk = await _localDbContext.TblSpielSargKegelns
+            .Where(w => w.SpieltagId == iSpieltagID && w.SpielerId == iSpielerID)
+            .SingleOrDefaultAsync();
+
+        if (sk == null)
+        {
+            Models.Local.TblSpielSargKegeln objSarg = new();
+            objSarg.SpieltagId = iSpieltagID;
+            objSarg.SpielerId = iSpielerID;
+            objSarg.Platzierung = iPlatzierung;
+
+            _localDbContext.TblSpielSargKegelns.AddAsync(objSarg);
+            await _localDbContext.SaveChangesAsync();
+            intSpielSargkegelnID = objSarg.Id;
+
+            sb.Append("insert into tblSpielSargKegeln(ID, SpieltagID, SpielerID, Platzierung) ");
+            sb.Append("values (");
+            sb.Append(intSpielSargkegelnID.ToString()).Append(", ");
+            sb.Append(iSpieltagID.ToString()).Append(", ");
+            sb.Append(iSpielerID.ToString()).Append(", ");
+            sb.Append("0)");
+            strSQL = sb.ToString();
+
+            objLog.Changetype = "insert";
+            objLog.Command = strSQL;
+            objLog.Tablename = "tblSpielSargKegeln";
+            objLog.Computername = Environment.MachineName;
+            objLog.Zeitstempel = dtLogTimestamp;
+            await _localDbContext.TblDbchangeLogs.AddAsync(objLog);
+            await _localDbContext.SaveChangesAsync();
+
+            objLogWeb.Changetype = "insert";
+            objLogWeb.Command = strSQL;
+            objLogWeb.Tablename = "tblSpielSargKegeln";
+            objLogWeb.Computername = Environment.MachineName;
+            objLogWeb.Zeitstempel = dtLogTimestamp;
+            await _webDbContext.TblDbchangeLogs.AddAsync(objLogWeb);
+            await _webDbContext.SaveChangesAsync();
+        }
+        else
+        {
+            if (sk.Platzierung != iPlatzierung)
+            {
+                sk.Platzierung = iPlatzierung;
+                await _localDbContext.SaveChangesAsync();
+
+                sb.Append("update tblSpielSargKegeln ");
+                sb.Append("set Platzierung = " + iPlatzierung.ToString()).Append(" ");
+                sb.Append("where ID = " + sk.Id.ToString());
+                strSQL = sb.ToString();
+
+                objLog.Changetype = "update";
+                objLog.Command = strSQL;
+                objLog.Tablename = "tblSpielSargKegeln";
+                objLog.Computername = Environment.MachineName;
+                objLog.Zeitstempel = DateTime.Now;
+                await _localDbContext.TblDbchangeLogs.AddAsync(objLog);
+                await _localDbContext.SaveChangesAsync();
+
+                objLogWeb.Changetype = "update";
+                objLogWeb.Command = strSQL;
+                objLogWeb.Tablename = "tblSpielSargKegeln";
+                objLogWeb.Computername = Environment.MachineName;
+                objLogWeb.Zeitstempel = dtLogTimestamp;
+                await _webDbContext.TblDbchangeLogs.AddAsync(objLogWeb);
+                await _webDbContext.SaveChangesAsync();
+            }
+        }
+    }
+
+    #endregion
+
+    #region Mitgliederverwaltung
+
+    public async Task SaveMitgliedAsync(MitgliedDetails currentMitglied)
+    {
+        string strSQL = string.Empty;
+        StringBuilder sb = new StringBuilder();
+
+        try
+        {
+            Models.Local.TblMitglieder objMitglied = new();
+            Models.Local.TblDbchangeLog objLog = new();
+            Models.Web.TblDbchangeLog objLogWeb = new();
+            DateTime dtLogTimestamp = DateTime.Now;
+
+            switch (currentMitglied.ID)
+            {
+                case -1:
+                    objMitglied.Anrede = currentMitglied.Anrede;
+                    objMitglied.Vorname = currentMitglied.Vorname;
+                    objMitglied.Nachname = currentMitglied.Nachname;
+                    objMitglied.Spitzname = currentMitglied.Spitzname;
+                    objMitglied.Straße = currentMitglied.Straße;
+                    objMitglied.Plz = currentMitglied.PLZ;
+                    objMitglied.Ort = currentMitglied.Ort;
+                    objMitglied.TelefonPrivat = currentMitglied.TelefonPrivat;
+                    objMitglied.TelefonMobil = currentMitglied.TelefonMobil;
+                    objMitglied.Geburtsdatum = currentMitglied.Geburtsdatum;
+                    objMitglied.MitgliedSeit = currentMitglied.MitgliedSeit.Value;
+                    if (currentMitglied.PassivSeit.HasValue)
+                    {
+                        objMitglied.PassivSeit = currentMitglied.PassivSeit;
+                    }
+                    else
+                    {
+                        objMitglied.PassivSeit = null;
+                    }
+
+                    if (currentMitglied.AusgeschiedenAm.HasValue)
+                    {
+                        objMitglied.AusgeschiedenAm = currentMitglied.AusgeschiedenAm;
+                    }
+                    else
+                    {
+                        objMitglied.AusgeschiedenAm = null;
+                    }
+
+                    objMitglied.Email = currentMitglied.EMail;
+                    objMitglied.Ehemaliger = currentMitglied.Ehemaliger;
+                    objMitglied.Notizen = currentMitglied.Notizen;
+                    objMitglied.Bemerkungen = currentMitglied.Bemerkungen;
+
+                    await _localDbContext.TblMitglieders.AddAsync(objMitglied);
+                    await _localDbContext.SaveChangesAsync();
+
+                    sb.Append(
+                        "insert into tblMitglieder(Anrede, Vorname, Nachname, Spitzname, Straße, PLZ, Ort, TelefonPrivat, TelefonMobil, Geburtsdatum, MitgliedSeit, AusgeschiedenAm, PassivSeit, EMail, Ehemaliger, Notizen, Bemerkungen) ");
+                    sb.Append("values(");
+                    sb.Append("'").Append(currentMitglied.Anrede).Append("', ");
+                    sb.Append("'").Append(currentMitglied.Vorname).Append("', ");
+                    sb.Append("'").Append(currentMitglied.Nachname).Append("', ");
+                    sb.Append("'").Append(currentMitglied.Spitzname).Append("', ");
+                    sb.Append("'").Append(currentMitglied.Straße).Append("', ");
+                    sb.Append("'").Append(currentMitglied.PLZ).Append("', ");
+                    sb.Append("'").Append(currentMitglied.Ort).Append("', ");
+                    sb.Append("'").Append(currentMitglied.TelefonPrivat).Append("', ");
+                    sb.Append("'").Append(currentMitglied.TelefonMobil).Append("', ");
+                    sb.Append("'").Append(currentMitglied.Geburtsdatum.ToString("yyyyMMdd")).Append("', ");
+                    sb.Append("'").Append(currentMitglied.MitgliedSeit.Value.ToString("yyyyMMdd")).Append("', ");
+                    if (currentMitglied.PassivSeit.HasValue)
+                    {
+                        sb.Append("'").Append(((DateTime)currentMitglied.PassivSeit.Value).ToString("yyyyMMdd"))
+                            .Append("', ");
+                    }
+                    else
+                    {
+                        sb.Append("NULL, ");
+                    }
+
+                    if (currentMitglied.AusgeschiedenAm.HasValue)
+                    {
+                        sb.Append("'").Append((currentMitglied.AusgeschiedenAm.Value).ToString("yyyyMMdd"))
+                            .Append("', ");
+                    }
+                    else
+                    {
+                        sb.Append("NULL, ");
+                    }
+
+                    sb.Append("'").Append(currentMitglied.EMail).Append("', ");
+                    sb.Append(currentMitglied.Ehemaliger ? 1 : 0).Append(", ");
+                    sb.Append("'").Append(currentMitglied.Notizen).Append("', ");
+                    sb.Append("'").Append(currentMitglied.Bemerkungen).Append("' ");
+                    sb.Append(")");
+                    strSQL = sb.ToString();
+
+                    objLog.Changetype = "insert";
+                    objLog.Command = strSQL;
+                    objLog.Tablename = "tblMitglieder";
+                    objLog.Computername = Environment.MachineName;
+                    objLog.Zeitstempel = dtLogTimestamp;
+
+                    await _localDbContext.TblDbchangeLogs.AddAsync(objLog);
+                    await _localDbContext.SaveChangesAsync();
+
+                    //_webDbContext.SaveMitglied(iID, sAnrede, sVorname, sNachname, sSpitzname, sStrasse, sPLZ, sOrt, sTelefonPrivat, sTelefonMobil, dtGeburtsdatum, dtMitgliedSeit, dtPassivSeit, dtAusgeschiedenAm, sEMail, bEhemaliger, sNotizen, sBemerkungen);
+                    //m_objDBWeb.SaveDBLog(objLog.Changetype, objLog.Computername, objLog.Tablename, objLog.Command, objLog.Zeitstempel.Value);
+
+                    objLogWeb.Changetype = "insert";
+                    objLogWeb.Command = strSQL;
+                    objLogWeb.Tablename = "tblMitglieder";
+                    objLogWeb.Computername = Environment.MachineName;
+                    objLogWeb.Zeitstempel = dtLogTimestamp;
+
+                    await _webDbContext.TblDbchangeLogs.AddAsync(objLogWeb);
+                    await _webDbContext.SaveChangesAsync();
+
+                    break;
+                default:
+                    var objMitgliedSearch = await (_localDbContext.TblMitglieders
+                        .Select(m => m)).SingleOrDefaultAsync(m => m.Id == currentMitglied.ID);
+
+                    if (objMitgliedSearch != null)
+                    {
+                        objMitgliedSearch.Anrede = currentMitglied.Anrede;
+                        objMitgliedSearch.Vorname = currentMitglied.Vorname;
+                        objMitgliedSearch.Nachname = currentMitglied.Nachname;
+                        objMitgliedSearch.Spitzname = currentMitglied.Spitzname;
+                        objMitgliedSearch.Straße = currentMitglied.Straße;
+                        objMitgliedSearch.Plz = currentMitglied.PLZ;
+                        objMitgliedSearch.Ort = currentMitglied.Ort;
+                        objMitgliedSearch.TelefonPrivat = currentMitglied.TelefonPrivat;
+                        objMitgliedSearch.TelefonMobil = currentMitglied.TelefonMobil;
+                        objMitgliedSearch.Geburtsdatum = currentMitglied.Geburtsdatum;
+                        objMitgliedSearch.MitgliedSeit = currentMitglied.MitgliedSeit.Value;
+                        if (currentMitglied.PassivSeit.HasValue)
+                        {
+                            objMitgliedSearch.PassivSeit = currentMitglied.PassivSeit;
+                        }
+                        else
+                        {
+                            objMitgliedSearch.PassivSeit = null;
+                        }
+
+                        if (currentMitglied.AusgeschiedenAm.HasValue)
+                        {
+                            objMitgliedSearch.AusgeschiedenAm = currentMitglied.AusgeschiedenAm;
+                        }
+                        else
+                        {
+                            objMitgliedSearch.AusgeschiedenAm = null;
+                        }
+
+                        objMitgliedSearch.Email = currentMitglied.EMail;
+                        objMitgliedSearch.Ehemaliger = currentMitglied.Ehemaliger;
+                        objMitgliedSearch.Notizen = currentMitglied.Notizen;
+                        objMitgliedSearch.Bemerkungen = currentMitglied.Bemerkungen;
+                        await _localDbContext.SaveChangesAsync();
+
+                        sb.Append("update tblMitglieder ");
+                        sb.Append(" set Anrede = ");
+                        sb.Append("'").Append(currentMitglied.Anrede).Append("', ");
+                        sb.Append("Vorname = ");
+                        sb.Append("'").Append(currentMitglied.Vorname).Append("', ");
+                        sb.Append("Nachname = ");
+                        sb.Append("'").Append(currentMitglied.Nachname).Append("', ");
+                        sb.Append("Spitzname = ");
+                        sb.Append("'").Append(currentMitglied.Spitzname).Append("', ");
+                        sb.Append("Straße = ");
+                        sb.Append("'").Append(currentMitglied.Straße).Append("', ");
+                        sb.Append("PLZ = ");
+                        sb.Append("'").Append(currentMitglied.PLZ).Append("', ");
+                        sb.Append("Ort = ");
+                        sb.Append("'").Append(currentMitglied.Ort).Append("', ");
+                        sb.Append("TelefonPrivat = ");
+                        sb.Append("'").Append(currentMitglied.TelefonPrivat).Append("', ");
+                        sb.Append("TelefonMobil = ");
+                        sb.Append("'").Append(currentMitglied.TelefonMobil).Append("', ");
+                        sb.Append("Geburtsdatum = ");
+                        sb.Append("'").Append(currentMitglied.Geburtsdatum.ToString("yyyyMMdd")).Append("', ");
+                        sb.Append("MitgliedSeit = ");
+                        sb.Append("'").Append(currentMitglied.MitgliedSeit.Value.ToString("yyyyMMdd")).Append("', ");
+                        sb.Append("PassivSeit = ");
+                        if (currentMitglied.PassivSeit.HasValue)
+                        {
+                            sb.Append("'").Append((currentMitglied.PassivSeit.Value).ToString("yyyyMMdd"))
+                                .Append("', ");
+                        }
+                        else
+                        {
+                            sb.Append("NULL, ");
+                        }
+
+                        sb.Append("AusgeschiedenAm = ");
+                        if (currentMitglied.AusgeschiedenAm.HasValue)
+                        {
+                            sb.Append("'").Append((currentMitglied.AusgeschiedenAm.Value).ToString("yyyyMMdd"))
+                                .Append("', ");
+                        }
+                        else
+                        {
+                            sb.Append("NULL, ");
+                        }
+
+                        sb.Append("EMail = ");
+                        sb.Append("'").Append(currentMitglied.EMail).Append("', ");
+                        sb.Append("Ehemaliger = ");
+                        sb.Append(currentMitglied.Ehemaliger ? 1 : 0).Append(", ");
+                        sb.Append("Notizen = ");
+                        sb.Append("'").Append(currentMitglied.Notizen).Append("', ");
+                        sb.Append("Bemerkungen = ");
+                        sb.Append("'").Append(currentMitglied.Bemerkungen).Append("' ");
+                        sb.Append("where ID = ").Append(objMitgliedSearch.Id.ToString());
+                        strSQL = sb.ToString();
+
+                        objLog = new();
+                        objLog.Changetype = "update";
+                        objLog.Command = strSQL;
+                        objLog.Tablename = "tblMitglieder";
+                        objLog.Computername = Environment.MachineName;
+                        objLog.Zeitstempel = dtLogTimestamp;
+
+                        await _localDbContext.TblDbchangeLogs.AddAsync(objLog);
+                        await _localDbContext.SaveChangesAsync();
+
+                        //m_objDBWeb.SaveMitglied(iID, sAnrede, sVorname, sNachname, sSpitzname, sStrasse, sPLZ, sOrt, sTelefonPrivat, sTelefonMobil, dtGeburtsdatum, dtMitgliedSeit, dtPassivSeit, dtAusgeschiedenAm, sEMail, bEhemaliger, sNotizen, sBemerkungen);
+                        //m_objDBWeb.SaveDBLog(objLog.Changetype, objLog.Computername, objLog.Tablename, objLog.Command, objLog.Zeitstempel.Value);
+
+                        objLogWeb = new();
+                        objLogWeb.Changetype = "update";
+                        objLogWeb.Command = strSQL;
+                        objLogWeb.Tablename = "tblMitglieder";
+                        objLogWeb.Computername = Environment.MachineName;
+                        objLogWeb.Zeitstempel = dtLogTimestamp;
+
+                        await _webDbContext.TblDbchangeLogs.AddAsync(objLogWeb);
+                        await _webDbContext.SaveChangesAsync();
+                    }
+
+                    break;
+            }
+        }
+        catch (Exception ex)
+        {
+            //FrmError objForm = new FrmError("ClsDB", "SaveMitglied", ex.ToString());
+            //objForm.ShowDialog();
+            ViewManager.ShowErrorWindow("DBService", "SaveMitglied", ex.ToString());
+        }
+    }
+
+    public async Task<List<MitgliedDetails>> GetMitgliedDetailsAsync()
+    {
+        List<MitgliedDetails> lstMitglieder = new List<MitgliedDetails>();
+
+        try
+        {
+            // var items = from m in DBContext.tblMitglieder
+            //     select m;
+
+            var items = await _localDbContext.TblMitglieders.ToListAsync();
+            foreach (var objM in items)
+            {
+                MitgliedDetails objMitglied = new MitgliedDetails();
+
+                objMitglied.ID = objM.Id;
+                objMitglied.Anrede = objM.Anrede;
+                objMitglied.Vorname = objM.Vorname;
+                objMitglied.Nachname = objM.Nachname;
+                objMitglied.Spitzname = objM.Spitzname;
+                objMitglied.Straße = objM.Straße;
+                objMitglied.PLZ = objM.Plz;
+                objMitglied.Ort = objM.Ort;
+                objMitglied.Geburtsdatum = objM.Geburtsdatum.Value;
+                objMitglied.MitgliedSeit = objM.MitgliedSeit;
+                objMitglied.PassivSeit = objM.PassivSeit;
+                objMitglied.AusgeschiedenAm = objM.AusgeschiedenAm;
+                objMitglied.TelefonPrivat = objM.TelefonPrivat;
+                objMitglied.TelefonMobil = objM.TelefonMobil;
+                objMitglied.EMail = objM.Email;
+                objMitglied.Ehemaliger = objM.Ehemaliger;
+                objMitglied.Notizen = objM.Notizen;
+                objMitglied.Bemerkungen = objM.Bemerkungen;
+
+                lstMitglieder.Add(objMitglied);
+            }
+        }
+        catch (Exception ex)
+        {
+            //FrmError objForm = new FrmError("ClsDB", "GetMitgliedDetails", ex.ToString());
+            //objForm.ShowDialog();
+            ViewManager.ShowErrorWindow("DBService", "GetMitgliedDetails", ex.ToString());
+        }
+
+        return lstMitglieder;
+    }
+
+    public async Task<MitgliedDetails> GetMitgliedDetailsAsync(Int32 iID)
+    {
+        MitgliedDetails objMitglied = new();
+
+        try
+        {
+            // var item = from m in _localDbContext.TblMitglieders
+            //     where m.Id == iID
+            //     select m;
+
+            var item = await _localDbContext.TblMitglieders.Where(w => w.Id == iID).ToListAsync();
+
+            var objM = item.First();
+
+            objMitglied.ID = objM.Id;
+            objMitglied.Anrede = objM.Anrede;
+            objMitglied.Vorname = objM.Vorname;
+            objMitglied.Nachname = objM.Nachname;
+            objMitglied.Spitzname = objM.Spitzname;
+            objMitglied.Straße = objM.Straße;
+            objMitglied.PLZ = objM.Plz;
+            objMitglied.Ort = objM.Ort;
+            objMitglied.Geburtsdatum = objM.Geburtsdatum.Value;
+            objMitglied.MitgliedSeit = objM.MitgliedSeit;
+            objMitglied.PassivSeit = objM.PassivSeit;
+            objMitglied.AusgeschiedenAm = objM.AusgeschiedenAm;
+            objMitglied.TelefonPrivat = objM.TelefonPrivat;
+            objMitglied.TelefonMobil = objM.TelefonMobil;
+            objMitglied.EMail = objM.Email;
+            objMitglied.Ehemaliger = objM.Ehemaliger;
+            objMitglied.Notizen = objM.Notizen;
+            objMitglied.Bemerkungen = objM.Bemerkungen;
+
+            //-------------------
+
+            //Testdaten
+            // switch (iID)
+            // {
+            //     case 1:
+            //         objMitglied.ID = 1;
+            //         objMitglied.Anrede = "Herr";
+            //         objMitglied.Vorname = "Thorsten";
+            //         objMitglied.Nachname = "Schröer";
+            //         objMitglied.Spitzname = "Thor";
+            //         objMitglied.Straße = "Druckerkehre 3";
+            //         objMitglied.PLZ = "12355";
+            //         objMitglied.Ort = "Berlin";
+            //         objMitglied.Geburtsdatum = new DateTime(1972, 1, 9);
+            //         objMitglied.MitgliedSeit = new DateTime(2021, 8, 18);
+            //         objMitglied.PassivSeit = DateTime.Now;
+            //         objMitglied.AusgeschiedenAm = DateTime.Now;
+            //         objMitglied.TelefonPrivat = "Test";
+            //         objMitglied.TelefonMobil = "Test";
+            //         objMitglied.EMail = "Test";
+            //         objMitglied.Ehemaliger = false;
+            //         objMitglied.Notizen = "Notizen TS";
+            //         objMitglied.Bemerkungen = "Bemerkungen TS";
+            //         break;
+            //     case 2:
+            //         objMitglied.ID = 3;
+            //         objMitglied.Anrede = "Herr";
+            //         objMitglied.Vorname = "Wolfgang";
+            //         objMitglied.Nachname = "Schmidt";
+            //         objMitglied.Spitzname = "";
+            //         objMitglied.Straße = "Prierosser Straße 51";
+            //         objMitglied.PLZ = "12355";
+            //         objMitglied.Ort = "Berlin";
+            //         objMitglied.Geburtsdatum = new DateTime(1950, 11, 1);
+            //         objMitglied.MitgliedSeit = new DateTime(2021, 11, 25);
+            //         objMitglied.PassivSeit = null;
+            //         objMitglied.AusgeschiedenAm = null;
+            //         objMitglied.TelefonPrivat = "";
+            //         objMitglied.TelefonMobil = "";
+            //         objMitglied.EMail = "";
+            //         objMitglied.Ehemaliger = false;
+            //         objMitglied.Notizen = "Notizen WS";
+            //         objMitglied.Bemerkungen = "Bemerkungen WS";
+            //         break;
+            //     case 3:
+            //         objMitglied.ID = 3;
+            //         objMitglied.Anrede = "Herr";
+            //         objMitglied.Vorname = "Karl-Heinz";
+            //         objMitglied.Nachname = "Bohn";
+            //         objMitglied.Spitzname = "Kalle";
+            //         objMitglied.Straße = "Lorenzweg 3";
+            //         objMitglied.PLZ = "12099";
+            //         objMitglied.Ort = "Berlin";
+            //         objMitglied.Geburtsdatum = new DateTime(1966, 5, 28);
+            //         objMitglied.MitgliedSeit = new DateTime(1997, 7, 2);
+            //         objMitglied.PassivSeit = null;
+            //         objMitglied.AusgeschiedenAm = null;
+            //         objMitglied.TelefonPrivat = "";
+            //         objMitglied.TelefonMobil = "";
+            //         objMitglied.EMail = "";
+            //         objMitglied.Ehemaliger = false;
+            //         objMitglied.Notizen = "Notizen KHB";
+            //         objMitglied.Bemerkungen = "Bemerkungen KHB";
+            //         break;
+            // }
+        }
+        catch (Exception ex)
+        {
+            ViewManager.ShowErrorWindow("DBService", "GetMitgliedDetails", ex.ToString());
+        }
+
+        return objMitglied;
+    }
+
+    public async Task<List<Mitgliederliste>> GetMitgliederlisteAsync()
+    {
+        List<Mitgliederliste> lstMitglieder = new List<Mitgliederliste>();
+
+        try
+        {
+            var tv = await (_localDbContext.TblMitglieders.OrderBy(o => o.Nachname)
+                .Select(s => s)).ToListAsync();
+
+            foreach (var item in tv)
+            {
+                Mitgliederliste objItem = new Mitgliederliste();
+                objItem.Initial = item.Nachname.Substring(0, 1);
+                objItem.Anzeigename = item.Nachname + ", " + item.Vorname;
+                objItem.Nachname = item.Nachname;
+                objItem.Vorname = item.Vorname;
+                objItem.ID = item.Id;
+                lstMitglieder.Add(objItem);
+            }
+
+            //------------------
+
+            //Testdaten
+            // Mitgliederliste objItem = new Mitgliederliste();
+            // objItem.Initial = "S";
+            // objItem.Anzeigename = "Schröer, Thorsten";
+            // objItem.Nachname = "Schröer";
+            // objItem.Vorname = "Thorsten";
+            // objItem.ID = 1;
+            // lstMitglieder.Add(objItem);
+            //
+            // objItem = new Mitgliederliste();
+            // objItem.Initial = "S";
+            // objItem.Anzeigename = "Schmidt, Wolfgang";
+            // objItem.Nachname = "Schmidt";
+            // objItem.Vorname = "Wolfgang";
+            // objItem.ID = 2;
+            // lstMitglieder.Add(objItem);
+            //
+            // objItem = new Mitgliederliste();
+            // objItem.Initial = "B";
+            // objItem.Anzeigename = "Bohn, Karl-Heinz";
+            // objItem.Nachname = "Bohn";
+            // objItem.Vorname = "Karl-Heinz";
+            // objItem.ID = 3;
+            // lstMitglieder.Add(objItem);
+        }
+        catch (Exception ex)
+        {
+            ViewManager.ShowErrorWindow("DBService", "GetMitgliederliste", ex.ToString());
+        }
+
+        return lstMitglieder;
+    }
+
+    public async Task<List<MitgliedDetails>> GetMitlgiederlisteDruckAsync(bool bAktiv = true)
+    {
+        List<MitgliedDetails> lstMitglieder = new List<MitgliedDetails>();
+
+        try
+        {
+            if (bAktiv)
+            {
+                var items = await (_localDbContext.TblMitglieders
+                    .Where(w => w.PassivSeit == null && w.Ehemaliger == false)
+                    .OrderBy(o => o.Nachname).ThenBy(o => o.Vorname)
+                    .Select(s => s)).ToListAsync();
+
+                //var objM = item.First();
+                foreach (var objM in items)
+                {
+                    MitgliedDetails objMitglied = new MitgliedDetails();
+                    objMitglied.ID = objM.Id;
+                    objMitglied.Anrede = objM.Anrede;
+                    objMitglied.Vorname = objM.Vorname;
+                    objMitglied.Nachname = objM.Nachname;
+                    objMitglied.Spitzname = objM.Spitzname;
+                    objMitglied.Straße = objM.Straße;
+                    objMitglied.PLZ = objM.Plz;
+                    objMitglied.Ort = objM.Ort;
+                    objMitglied.Geburtsdatum = objM.Geburtsdatum.Value;
+                    objMitglied.MitgliedSeit = objM.MitgliedSeit;
+                    objMitglied.AusgeschiedenAm = objM.AusgeschiedenAm;
+                    objMitglied.TelefonPrivat = objM.TelefonPrivat;
+                    objMitglied.TelefonMobil = objM.TelefonMobil;
+                    objMitglied.EMail = objM.Email;
+                    objMitglied.Ehemaliger = objM.Ehemaliger;
+
+                    lstMitglieder.Add(objMitglied);
+                }
+            }
+            else
+            {
+                var items = await (_localDbContext.TblMitglieders
+                    .OrderBy(o => o.Nachname).ThenBy(o => o.Vorname)
+                    .Select(s => s)).ToListAsync();
+
+                //var objM = item.First();
+                foreach (var objM in items)
+                {
+                    MitgliedDetails objMitglied = new MitgliedDetails();
+                    objMitglied.ID = objM.Id;
+                    objMitglied.Anrede = objM.Anrede;
+                    objMitglied.Vorname = objM.Vorname;
+                    objMitglied.Nachname = objM.Nachname;
+                    objMitglied.Spitzname = objM.Spitzname;
+                    objMitglied.Straße = objM.Straße;
+                    objMitglied.PLZ = objM.Plz;
+                    objMitglied.Ort = objM.Ort;
+                    objMitglied.Geburtsdatum = objM.Geburtsdatum.Value;
+                    objMitglied.MitgliedSeit = objM.MitgliedSeit;
+                    objMitglied.AusgeschiedenAm = objM.AusgeschiedenAm;
+                    objMitglied.TelefonPrivat = objM.TelefonPrivat;
+                    objMitglied.TelefonMobil = objM.TelefonMobil;
+                    objMitglied.EMail = objM.Email;
+                    objMitglied.Ehemaliger = objM.Ehemaliger;
+
+                    lstMitglieder.Add(objMitglied);
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            //FrmError objForm = new FrmError("ClsDB", "GetMitlgiederlisteDruck", ex.ToString());
+            //objForm.ShowDialog();
+            ViewManager.ShowErrorWindow("DBService", "GetMitlgiederlisteDruck", ex.ToString());
+        }
+
+        return lstMitglieder;
+    }
+
+    public async Task<List<EmailListe>> GetEMaillisteAsync(bool bAktiv = false)
+    {
+        List<EmailListe> lstEMails = new List<EmailListe>();
+
+        try
+        {
+            if (bAktiv)
+            {
+                var lst = await (_localDbContext.TblMitglieders
+                    .Where(w => w.PassivSeit == null && w.Email != null)
+                    .Select(s => new { s.Vorname, s.Email })).ToListAsync();
+                //lstEMails = lst.ToList();
+
+                foreach (var item in lst)
+                {
+                    EmailListe objEMail = new EmailListe();
+                    objEMail.Vorname = item.Vorname;
+                    objEMail.EMail = item.Email;
+                    lstEMails.Add(objEMail);
+                }
+            }
+            else
+            {
+                var lst = await (_localDbContext.TblMitglieders
+                    .Where(w => w.Email != null)
+                    .Select(s => new { s.Vorname, s.Email })).ToListAsync();
+                //lstEMails = lst.ToList();
+
+                foreach (var item in lst)
+                {
+                    EmailListe objEMail = new EmailListe();
+                    objEMail.Vorname = item.Vorname;
+                    objEMail.EMail = item.Email;
+                    lstEMails.Add(objEMail);
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            //FrmError objForm = new FrmError("ClsDB", "GetEMailliste", ex.ToString());
+            //objForm.ShowDialog();
+            ViewManager.ShowErrorWindow("DBService", "GetEMailliste", ex.ToString());
+        }
+
+        return lstEMails;
+    }
+
     public async Task<List<StatistikSpielerErgebnisse>> GetStatistikSpielerErgebnisseAsync(Int32 iSpielerID)
     {
         List<StatistikSpielerErgebnisse> lstStat = new List<StatistikSpielerErgebnisse>();
@@ -3314,260 +4659,576 @@ public class DBService(LocalDbContext _localDbContext, WebDbContext _webDbContex
         return objList;
     }
 
+    #endregion
 
-    // public async Task SaveMitglied(Int32 iID, string sAnrede, string sVorname, string sNachname, string sSpitzname,
-    //     string sStrasse, string sPLZ, string sOrt, string sTelefonPrivat, string sTelefonMobil, DateTime dtGeburtsdatum,
-    //     DateTime dtMitgliedSeit, object dtPassivSeit, object dtAusgeschiedenAm, string sEMail, bool bEhemaliger,
-    //     string sNotizen, string sBemerkungen)
-    public async Task SaveMitgliedAsync(MitgliedDetails currentMitglied)
+    #region Meisterschaftsverwaltung
+
+    public async Task<List<Meisterschaftsdaten>> GetMeisterschaftenAsync()
     {
-        string strSQL = string.Empty;
-        StringBuilder sb = new StringBuilder();
+        List<Meisterschaftsdaten> lstMeisterschaft = new List<Meisterschaftsdaten>();
 
         try
         {
-            Models.Local.TblMitglieder objMitglied = new();
-            Models.Local.TblDbchangeLog objLog = new();
-            Models.Web.TblDbchangeLog objLogWeb = new();
-            DateTime dtLogTimestamp = DateTime.Now;
+            var mst = await _localDbContext.TblMeisterschaftens
+                .Join(_localDbContext.TblMeisterschaftstyps, mt => mt.MeisterschaftstypId, t => t.Id,
+                    (mt, t) => new
+                    {
+                        mt.Id, mt.Bezeichnung, mt.Beginn, mt.Ende, mt.MeisterschaftstypId, t.Meisterschaftstyp,
+                        mt.Aktiv,
+                        mt.Bemerkungen
+                    })
+                .OrderBy(o => o.Beginn)
+                .ToListAsync();
 
-            switch (currentMitglied.ID)
+            foreach (var item in mst)
             {
-                case -1:
-                    objMitglied.Anrede = currentMitglied.Anrede;
-                    objMitglied.Vorname = currentMitglied.Vorname;
-                    objMitglied.Nachname = currentMitglied.Nachname;
-                    objMitglied.Spitzname = currentMitglied.Spitzname;
-                    objMitglied.Straße = currentMitglied.Straße;
-                    objMitglied.Plz = currentMitglied.PLZ;
-                    objMitglied.Ort = currentMitglied.Ort;
-                    objMitglied.TelefonPrivat = currentMitglied.TelefonPrivat;
-                    objMitglied.TelefonMobil = currentMitglied.TelefonMobil;
-                    objMitglied.Geburtsdatum = currentMitglied.Geburtsdatum;
-                    objMitglied.MitgliedSeit = currentMitglied.MitgliedSeit.Value;
-                    if (currentMitglied.PassivSeit.HasValue)
-                    {
-                        objMitglied.PassivSeit = currentMitglied.PassivSeit;
-                    }
-                    else
-                    {
-                        objMitglied.PassivSeit = null;
-                    }
+                Meisterschaftsdaten objMeister = new Meisterschaftsdaten();
+                objMeister.ID = item.Id;
+                objMeister.Bezeichnung = item.Bezeichnung;
+                objMeister.Beginn = item.Beginn;
+                objMeister.Ende = item.Ende;
+                objMeister.MeisterschaftstypID = item.MeisterschaftstypId;
+                objMeister.Meisterschaftstyp = item.Meisterschaftstyp;
+                objMeister.Aktiv = item.Aktiv;
+                objMeister.Bemerkungen = item.Bemerkungen;
 
-                    if (currentMitglied.AusgeschiedenAm.HasValue)
-                    {
-                        objMitglied.AusgeschiedenAm = currentMitglied.AusgeschiedenAm;
-                    }
-                    else
-                    {
-                        objMitglied.AusgeschiedenAm = null;
-                    }
+                lstMeisterschaft.Add(objMeister);
+            }
 
-                    objMitglied.Email = currentMitglied.EMail;
-                    objMitglied.Ehemaliger = currentMitglied.Ehemaliger;
-                    objMitglied.Notizen = currentMitglied.Notizen;
-                    objMitglied.Bemerkungen = currentMitglied.Bemerkungen;
+            //--------------------
 
-                    await _localDbContext.TblMitglieders.AddAsync(objMitglied);
-                    await _localDbContext.SaveChangesAsync();
+            //Testdaten
+            // Meisterschaftsliste objMeister = new();
+            // objMeister.ID = 1;
+            // objMeister.Bezeichnung = "Testmeisterschaft 2023";
+            // objMeister.Beginn = new DateTime(2023, 1, 1);
+            // objMeister.Ende = new DateTime(2023, 12, 31);
+            // objMeister.MeisterschaftstypID = 3;
+            // objMeister.Meisterschaftstyp = "Kombimeisterschaft";
+            // objMeister.Aktiv = 0;
+            // objMeister.Bemerkungen = "";
+            // lstMeisterschaft.Add(objMeister);
+            //
+            // objMeister = new();
+            // objMeister.ID = 2;
+            // objMeister.Bezeichnung = "Jahreswechseltunier 2024";
+            // objMeister.Beginn = new DateTime(2024, 1, 3);
+            // objMeister.Ende = new DateTime(2024, 1, 3);
+            // objMeister.MeisterschaftstypID = 1;
+            // objMeister.Meisterschaftstyp = "Kurztunier";
+            // objMeister.Aktiv = 0;
+            // objMeister.Bemerkungen = "";
+            // lstMeisterschaft.Add(objMeister);
+            //
+            // objMeister = new();
+            // objMeister.ID = 2;
+            // objMeister.Bezeichnung = "Testmeisterschaft 2024";
+            // objMeister.Beginn = new DateTime(2024, 1, 4);
+            // objMeister.Ende = new DateTime(2024, 12, 31);
+            // objMeister.MeisterschaftstypID = 2;
+            // objMeister.Meisterschaftstyp = "Meisterschaft";
+            // objMeister.Aktiv = 1;
+            // objMeister.Bemerkungen = "";
+            // lstMeisterschaft.Add(objMeister);
+        }
+        catch (Exception ex)
+        {
+            ViewManager.ShowErrorWindow("DBService", "GetMeisterschaften", ex.ToString());
+        }
 
-                    sb.Append(
-                        "insert into tblMitglieder(Anrede, Vorname, Nachname, Spitzname, Straße, PLZ, Ort, TelefonPrivat, TelefonMobil, Geburtsdatum, MitgliedSeit, AusgeschiedenAm, PassivSeit, EMail, Ehemaliger, Notizen, Bemerkungen) ");
-                    sb.Append("values(");
-                    sb.Append("'").Append(currentMitglied.Anrede).Append("', ");
-                    sb.Append("'").Append(currentMitglied.Vorname).Append("', ");
-                    sb.Append("'").Append(currentMitglied.Nachname).Append("', ");
-                    sb.Append("'").Append(currentMitglied.Spitzname).Append("', ");
-                    sb.Append("'").Append(currentMitglied.Straße).Append("', ");
-                    sb.Append("'").Append(currentMitglied.PLZ).Append("', ");
-                    sb.Append("'").Append(currentMitglied.Ort).Append("', ");
-                    sb.Append("'").Append(currentMitglied.TelefonPrivat).Append("', ");
-                    sb.Append("'").Append(currentMitglied.TelefonMobil).Append("', ");
-                    sb.Append("'").Append(currentMitglied.Geburtsdatum.ToString("yyyyMMdd")).Append("', ");
-                    sb.Append("'").Append(currentMitglied.MitgliedSeit.Value.ToString("yyyyMMdd")).Append("', ");
-                    if (currentMitglied.PassivSeit.HasValue)
-                    {
-                        sb.Append("'").Append(((DateTime)currentMitglied.PassivSeit.Value).ToString("yyyyMMdd"))
-                            .Append("', ");
-                    }
-                    else
-                    {
-                        sb.Append("NULL, ");
-                    }
+        var lstMeisterschaftSort = lstMeisterschaft.OrderByDescending(o => o.ID).ToList();
+        return lstMeisterschaftSort;
+    }
 
-                    if (currentMitglied.AusgeschiedenAm.HasValue)
-                    {
-                        sb.Append("'").Append((currentMitglied.AusgeschiedenAm.Value).ToString("yyyyMMdd"))
-                            .Append("', ");
-                    }
-                    else
-                    {
-                        sb.Append("NULL, ");
-                    }
+    public async Task<List<Meisterschaftstyp>> GetMeisterschaftstypenAsync()
+    {
+        List<Meisterschaftstyp> lstTypen = new();
 
-                    sb.Append("'").Append(currentMitglied.EMail).Append("', ");
-                    sb.Append(currentMitglied.Ehemaliger ? 1 : 0).Append(", ");
-                    sb.Append("'").Append(currentMitglied.Notizen).Append("', ");
-                    sb.Append("'").Append(currentMitglied.Bemerkungen).Append("' ");
-                    sb.Append(")");
-                    strSQL = sb.ToString();
+        try
+        {
+            var mt = await _localDbContext.TblMeisterschaftstyps
+                .Select(s => s).ToListAsync();
 
-                    objLog.Changetype = "insert";
-                    objLog.Command = strSQL;
-                    objLog.Tablename = "tblMitglieder";
-                    objLog.Computername = Environment.MachineName;
-                    objLog.Zeitstempel = dtLogTimestamp;
+            foreach (var item in mt)
+            {
+                Meisterschaftstyp objTyp = new Meisterschaftstyp();
+                objTyp.ID = item.Id;
+                objTyp.Value = item.Meisterschaftstyp;
 
-                    await _localDbContext.TblDbchangeLogs.AddAsync(objLog);
-                    await _localDbContext.SaveChangesAsync();
+                lstTypen.Add(objTyp);
+            }
 
-                    //_webDbContext.SaveMitglied(iID, sAnrede, sVorname, sNachname, sSpitzname, sStrasse, sPLZ, sOrt, sTelefonPrivat, sTelefonMobil, dtGeburtsdatum, dtMitgliedSeit, dtPassivSeit, dtAusgeschiedenAm, sEMail, bEhemaliger, sNotizen, sBemerkungen);
-                    //m_objDBWeb.SaveDBLog(objLog.Changetype, objLog.Computername, objLog.Tablename, objLog.Command, objLog.Zeitstempel.Value);
+            //---------------
 
-                    objLogWeb.Changetype = "insert";
-                    objLogWeb.Command = strSQL;
-                    objLogWeb.Tablename = "tblMitglieder";
-                    objLogWeb.Computername = Environment.MachineName;
-                    objLogWeb.Zeitstempel = dtLogTimestamp;
+            //Testdaten
+            // Meisterschaftstyp objTyp = new();
+            // objTyp.ID = 1;
+            // objTyp.Value = "Kurztunier";
+            // lstTypen.Add(objTyp);
+            //
+            // objTyp = new();
+            // objTyp.ID = 2;
+            // objTyp.Value = "Meisterschaft";
+            // lstTypen.Add(objTyp);
+            //
+            // objTyp = new();
+            // objTyp.ID = 3;
+            // objTyp.Value = "Kombimeisterschaft";
+            // lstTypen.Add(objTyp);
+        }
+        catch (Exception ex)
+        {
+            ViewManager.ShowErrorWindow("DBService", "GetMeisterschaftstypenAsync", ex.ToString());
+        }
 
-                    await _webDbContext.TblDbchangeLogs.AddAsync(objLogWeb);
-                    await _webDbContext.SaveChangesAsync();
+        return lstTypen;
+    }
 
-                    break;
-                default:
-                    var objMitgliedSearch = await (_localDbContext.TblMitglieders
-                        .Select(m => m)).SingleOrDefaultAsync(m => m.Id == currentMitglied.ID);
+    public async Task<Int32> GetAktiveMeisterschaftsIDAsync()
+    {
+        Int32 intID = -1;
 
-                    if (objMitgliedSearch != null)
-                    {
-                        objMitgliedSearch.Anrede = currentMitglied.Anrede;
-                        objMitgliedSearch.Vorname = currentMitglied.Vorname;
-                        objMitgliedSearch.Nachname = currentMitglied.Nachname;
-                        objMitgliedSearch.Spitzname = currentMitglied.Spitzname;
-                        objMitgliedSearch.Straße = currentMitglied.Straße;
-                        objMitgliedSearch.Plz = currentMitglied.PLZ;
-                        objMitgliedSearch.Ort = currentMitglied.Ort;
-                        objMitgliedSearch.TelefonPrivat = currentMitglied.TelefonPrivat;
-                        objMitgliedSearch.TelefonMobil = currentMitglied.TelefonMobil;
-                        objMitgliedSearch.Geburtsdatum = currentMitglied.Geburtsdatum;
-                        objMitgliedSearch.MitgliedSeit = currentMitglied.MitgliedSeit.Value;
-                        if (currentMitglied.PassivSeit.HasValue)
-                        {
-                            objMitgliedSearch.PassivSeit = currentMitglied.PassivSeit;
-                        }
-                        else
-                        {
-                            objMitgliedSearch.PassivSeit = null;
-                        }
+        try
+        {
+            // var item = (from m in DBContext.tblMeisterschaften
+            //     orderby m.ID descending
+            //     where m.Aktiv == 1
+            //     select m).FirstOrDefault();
 
-                        if (currentMitglied.AusgeschiedenAm.HasValue)
-                        {
-                            objMitgliedSearch.AusgeschiedenAm = currentMitglied.AusgeschiedenAm;
-                        }
-                        else
-                        {
-                            objMitgliedSearch.AusgeschiedenAm = null;
-                        }
+            AktiveMeisterschaft aktiveMeisterschaft = new();
 
-                        objMitgliedSearch.Email = currentMitglied.EMail;
-                        objMitgliedSearch.Ehemaliger = currentMitglied.Ehemaliger;
-                        objMitgliedSearch.Notizen = currentMitglied.Notizen;
-                        objMitgliedSearch.Bemerkungen = currentMitglied.Bemerkungen;
-                        await _localDbContext.SaveChangesAsync();
+            var item = await _localDbContext.TblMeisterschaftens
+                .OrderByDescending(o => o.Id)
+                .FirstOrDefaultAsync(f => f.Aktiv == 1);
 
-                        sb.Append("update tblMitglieder ");
-                        sb.Append(" set Anrede = ");
-                        sb.Append("'").Append(currentMitglied.Anrede).Append("', ");
-                        sb.Append("Vorname = ");
-                        sb.Append("'").Append(currentMitglied.Vorname).Append("', ");
-                        sb.Append("Nachname = ");
-                        sb.Append("'").Append(currentMitglied.Nachname).Append("', ");
-                        sb.Append("Spitzname = ");
-                        sb.Append("'").Append(currentMitglied.Spitzname).Append("', ");
-                        sb.Append("Straße = ");
-                        sb.Append("'").Append(currentMitglied.Straße).Append("', ");
-                        sb.Append("PLZ = ");
-                        sb.Append("'").Append(currentMitglied.PLZ).Append("', ");
-                        sb.Append("Ort = ");
-                        sb.Append("'").Append(currentMitglied.Ort).Append("', ");
-                        sb.Append("TelefonPrivat = ");
-                        sb.Append("'").Append(currentMitglied.TelefonPrivat).Append("', ");
-                        sb.Append("TelefonMobil = ");
-                        sb.Append("'").Append(currentMitglied.TelefonMobil).Append("', ");
-                        sb.Append("Geburtsdatum = ");
-                        sb.Append("'").Append(currentMitglied.Geburtsdatum.ToString("yyyyMMdd")).Append("', ");
-                        sb.Append("MitgliedSeit = ");
-                        sb.Append("'").Append(currentMitglied.MitgliedSeit.Value.ToString("yyyyMMdd")).Append("', ");
-                        sb.Append("PassivSeit = ");
-                        if (currentMitglied.PassivSeit.HasValue)
-                        {
-                            sb.Append("'").Append((currentMitglied.PassivSeit.Value).ToString("yyyyMMdd"))
-                                .Append("', ");
-                        }
-                        else
-                        {
-                            sb.Append("NULL, ");
-                        }
+            if (item != null)
+            {
+                intID = item.Id;
 
-                        sb.Append("AusgeschiedenAm = ");
-                        if (currentMitglied.AusgeschiedenAm.HasValue)
-                        {
-                            sb.Append("'").Append((currentMitglied.AusgeschiedenAm.Value).ToString("yyyyMMdd"))
-                                .Append("', ");
-                        }
-                        else
-                        {
-                            sb.Append("NULL, ");
-                        }
+                aktiveMeisterschaft.ID = intID;
+                aktiveMeisterschaft.Bezeichnung = item.Bezeichnung;
+            }
+            else
+            {
+                // var itm = (from m in DBContext.tblMeisterschaften
+                //     orderby m.ID descending
+                //     select m).FirstOrDefault();
 
-                        sb.Append("EMail = ");
-                        sb.Append("'").Append(currentMitglied.EMail).Append("', ");
-                        sb.Append("Ehemaliger = ");
-                        sb.Append(currentMitglied.Ehemaliger ? 1 : 0).Append(", ");
-                        sb.Append("Notizen = ");
-                        sb.Append("'").Append(currentMitglied.Notizen).Append("', ");
-                        sb.Append("Bemerkungen = ");
-                        sb.Append("'").Append(currentMitglied.Bemerkungen).Append("' ");
-                        sb.Append("where ID = ").Append(objMitgliedSearch.Id.ToString());
-                        strSQL = sb.ToString();
+                var itm = await _localDbContext.TblMeisterschaftens
+                    .OrderByDescending(o => o.Id)
+                    .FirstOrDefaultAsync();
 
-                        objLog = new();
-                        objLog.Changetype = "update";
-                        objLog.Command = strSQL;
-                        objLog.Tablename = "tblMitglieder";
-                        objLog.Computername = Environment.MachineName;
-                        objLog.Zeitstempel = dtLogTimestamp;
+                intID = itm.Id;
+                itm.Aktiv = 1;
 
-                        await _localDbContext.TblDbchangeLogs.AddAsync(objLog);
-                        await _localDbContext.SaveChangesAsync();
+                aktiveMeisterschaft.ID = intID;
+                aktiveMeisterschaft.Bezeichnung = itm.Bezeichnung;
+                await _localDbContext.SaveChangesAsync();
+            }
 
-                        //m_objDBWeb.SaveMitglied(iID, sAnrede, sVorname, sNachname, sSpitzname, sStrasse, sPLZ, sOrt, sTelefonPrivat, sTelefonMobil, dtGeburtsdatum, dtMitgliedSeit, dtPassivSeit, dtAusgeschiedenAm, sEMail, bEhemaliger, sNotizen, sBemerkungen);
-                        //m_objDBWeb.SaveDBLog(objLog.Changetype, objLog.Computername, objLog.Tablename, objLog.Command, objLog.Zeitstempel.Value);
+            _commonService.AktiveMeisterschaft = aktiveMeisterschaft;
+        }
+        catch (Exception ex)
+        {
+            //FrmError objForm = new FrmError("ClsDB", "GetAktiveMeisterschaftsID", ex.ToString());
+            //objForm.ShowDialog();
+            ViewManager.ShowErrorWindow("DBService", "GetAktiveMeisterschaftsID", ex.ToString());
+        }
 
-                        objLogWeb = new();
-                        objLogWeb.Changetype = "update";
-                        objLogWeb.Command = strSQL;
-                        objLogWeb.Tablename = "tblMitglieder";
-                        objLogWeb.Computername = Environment.MachineName;
-                        objLogWeb.Zeitstempel = dtLogTimestamp;
+        return intID;
+    }
 
-                        await _webDbContext.TblDbchangeLogs.AddAsync(objLogWeb);
-                        await _webDbContext.SaveChangesAsync();
-                    }
+    public async Task<Int32> GetLetzteMeisterschaftsIDAsync()
+    {
+        Int32 intID = -1;
+        Int32 intAktiveID = await GetAktiveMeisterschaftsIDAsync();
 
-                    break;
+        try
+        {
+            // var item = from m in DBContext.tblMeisterschaften
+            //     orderby m.ID descending
+            //     where m.ID != intAktiveID
+            //     select m;
+
+            var item = await _localDbContext.TblMeisterschaftens
+                .OrderByDescending(o => o.Id)
+                .Where(w => w.Id != intAktiveID)
+                .ToListAsync();
+
+            item.FirstOrDefault();
+            if (item != null)
+            {
+                intID = item.ToList()[0].Id;
             }
         }
         catch (Exception ex)
         {
-            //FrmError objForm = new FrmError("ClsDB", "SaveMitglied", ex.ToString());
+            //FrmError objForm = new FrmError("ClsDB", "GetLetzteMeisterschaftsID", ex.ToString());
             //objForm.ShowDialog();
-            ViewManager.ShowErrorWindow("DBService", "SaveMitglied", ex.ToString());
+            ViewManager.ShowErrorWindow("DBService", "GetLetzteMeisterschaftsID", ex.ToString());
+        }
+
+        return intID;
+    }
+
+    public async Task<string> GetMeisterschaftsjahrAsync(Int32 iMeisterschaftsID)
+    {
+        string strJahr = string.Empty;
+
+        try
+        {
+            var mst = await _localDbContext.TblMeisterschaftens.FirstOrDefaultAsync(f => f.Id == iMeisterschaftsID);
+            if (mst != null)
+            {
+                strJahr = mst.Beginn.Year.ToString();
+                if (mst.Ende.HasValue)
+                {
+                    if (mst.Beginn.Year != mst.Ende.Value.Year)
+                    {
+                        strJahr += "/" + mst.Ende.Value.Year.ToString();
+                    }
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            //FrmError objForm = new FrmError("ClsDB", "GetMeisterschaftsjahr", ex.ToString());
+            //objForm.ShowDialog();
+            ViewManager.ShowErrorWindow("DBService", "GetMeisterschaftsjahr", ex.ToString());
+        }
+
+        return strJahr;
+    }
+
+    public async Task<string> GetMeisterschaftsbezeichnungAsync(Int32 iID)
+    {
+        string strBezeichnung = "";
+
+        try
+        {
+            if (iID == -1)
+            {
+                strBezeichnung = "Keine aktive Meisterschaft";
+            }
+            else
+            {
+                // var item = from m in DBContext.tblMeisterschaften
+                //     where m.ID == iID
+                //     select m;
+
+                var item = await _localDbContext.TblMeisterschaftens
+                    .Where(w => w.Id == iID)
+                    .ToListAsync();
+
+                item.FirstOrDefault();
+                if (item == null)
+                {
+                    strBezeichnung = "Keine aktive Meisterschaft";
+                }
+                else
+                {
+                    strBezeichnung = item.ToList()[0].Bezeichnung;
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            //FrmError objForm = new FrmError("ClsDB", "GetMeisterschaftsbezeichnung", ex.ToString());
+            //objForm.ShowDialog();
+            ViewManager.ShowErrorWindow("DBService", "GetMeisterschaftsbezeichnung", ex.ToString());
+        }
+
+        return strBezeichnung;
+    }
+
+    public async Task<List<AktiveSpieler>> GetAktiveMitgliederAsync()
+    {
+        List<AktiveSpieler> lstAktiveMitglieder = new();
+
+        try
+        {
+            var items = await (_localDbContext.TblMitglieders
+                .OrderBy(o => o.Nachname).ThenBy(t => t.Vorname)
+                .Where(w => w.PassivSeit == null)
+                .Select(s => s)).ToListAsync();
+
+            foreach (var objM in items)
+            {
+                AktiveSpieler objMitglied = new AktiveSpieler();
+
+                objMitglied.ID = objM.Id;
+                objMitglied.Vorname = objM.Vorname;
+                objMitglied.Nachname = objM.Nachname;
+                objMitglied.Spitzname = objM.Spitzname;
+                if (!string.IsNullOrEmpty(objM.Spitzname))
+                {
+                    objMitglied.Anzeigename = objM.Spitzname;
+                }
+                else
+                {
+                    objMitglied.Anzeigename = objM.Vorname;
+                }
+
+                lstAktiveMitglieder.Add(objMitglied);
+            }
+
+            //----------------------
+
+            //Testdaten
+            // AktiveSpieler objItem = new();
+            // objItem.Anzeigename = "Schröer, Thorsten";
+            // objItem.Nachname = "Schröer";
+            // objItem.Vorname = "Thorsten";
+            // objItem.Spitzname = "Thor";
+            // objItem.ID = 1;
+            // lstAktiveMitglieder.Add(objItem);
+            //
+            // objItem = new();
+            // objItem.Anzeigename = "Schmidt, Wolfgang";
+            // objItem.Nachname = "Schmidt";
+            // objItem.Vorname = "Wolfgang";
+            // objItem.ID = 2;
+            // lstAktiveMitglieder.Add(objItem);
+            //
+            // objItem = new();
+            // objItem.Anzeigename = "Bohn, Karl-Heinz";
+            // objItem.Nachname = "Bohn";
+            // objItem.Vorname = "Karl-Heinz";
+            // objItem.Spitzname = "Kalle";
+            // objItem.ID = 3;
+            // lstAktiveMitglieder.Add(objItem);
+        }
+        catch (Exception ex)
+        {
+            ViewManager.ShowErrorWindow("DBService", "GetAktiveMitgliederAsync", ex.ToString());
+        }
+
+        return lstAktiveMitglieder;
+    }
+
+    public async Task<List<AktiveSpieler>> GetAktiveMitgliederAsync(Int32 iMeisterschaftsID)
+    {
+        List<AktiveSpieler> lstAktiveMitglieder = new List<AktiveSpieler>();
+
+        try
+        {
+            var aktiveTeilnemer = await _localDbContext.TblTeilnehmers
+                .Where(w => w.MeisterschaftsId == iMeisterschaftsID)
+                .Select(s => s).ToListAsync();
+
+            var items = _localDbContext.TblMitglieders
+                .Where(w => w.PassivSeit == null) // Zuerst nur diesen Teil in SQL filtern
+                .AsEnumerable() // Danach wird die restliche Filterung in Speicher durchgeführt
+                .Where(w => aktiveTeilnemer.All(w2 => w2.SpielerId != w.Id))
+                .OrderBy(o => o.Nachname).ThenBy(t => t.Vorname)
+                .ToList();
+
+            foreach (var objM in items)
+            {
+                AktiveSpieler objMitglied = new AktiveSpieler();
+
+                objMitglied.ID = objM.Id;
+                objMitglied.Vorname = objM.Vorname;
+                objMitglied.Nachname = objM.Nachname;
+                objMitglied.Spitzname = objM.Spitzname;
+                if (!string.IsNullOrEmpty(objM.Spitzname))
+                {
+                    objMitglied.Anzeigename = objM.Spitzname;
+                }
+                else
+                {
+                    objMitglied.Anzeigename = objM.Vorname;
+                }
+
+                lstAktiveMitglieder.Add(objMitglied);
+            }
+
+            //----------------------
+
+            //Testdaten
+            // AktiveSpieler objItem = new();
+            // objItem.Anzeigename = "Schröer, Thorsten";
+            // objItem.Nachname = "Schröer";
+            // objItem.Vorname = "Thorsten";
+            // objItem.Spitzname = "Thor";
+            // objItem.ID = 1;
+            // lstAktiveMitglieder.Add(objItem);
+            //
+            // objItem = new();
+            // objItem.Anzeigename = "Schmidt, Wolfgang";
+            // objItem.Nachname = "Schmidt";
+            // objItem.Vorname = "Wolfgang";
+            // objItem.ID = 2;
+            // lstAktiveMitglieder.Add(objItem);
+            //
+            // objItem = new();
+            // objItem.Anzeigename = "Bohn, Karl-Heinz";
+            // objItem.Nachname = "Bohn";
+            // objItem.Vorname = "Karl-Heinz";
+            // objItem.Spitzname = "Kalle";
+            // objItem.ID = 3;
+            // lstAktiveMitglieder.Add(objItem);
+        }
+        catch (Exception ex)
+        {
+            ViewManager.ShowErrorWindow("DBService", "GetAktiveMitgliederAsync(MeisterschaftID)", ex.ToString());
+        }
+
+        return lstAktiveMitglieder;
+    }
+
+    public async Task<List<AktiveSpieler>> GetAktiveTeilnehmerAsync(Int32 iMeisterschaftsID)
+    {
+        List<AktiveSpieler> lstAktiveMitglieder = new();
+
+        try
+        {
+            var items = await (_localDbContext.TblTeilnehmers
+                .Join(_localDbContext.TblMitglieders, tln => tln.SpielerId, mgl => mgl.Id,
+                    (t, m) => new { t.MeisterschaftsId, m.Id, m.Vorname, m.Nachname, m.Spitzname })
+                .Where(w => w.MeisterschaftsId == iMeisterschaftsID)
+                .Select(s => s)).ToListAsync();
+
+            foreach (var objM in items)
+            {
+                AktiveSpieler objMitglied = new AktiveSpieler();
+
+                objMitglied.ID = objM.Id;
+                objMitglied.Vorname = objM.Vorname;
+                objMitglied.Nachname = objM.Nachname;
+                objMitglied.Spitzname = objM.Spitzname;
+                if (!string.IsNullOrEmpty(objM.Spitzname))
+                {
+                    objMitglied.Anzeigename = objM.Spitzname;
+                }
+                else
+                {
+                    objMitglied.Anzeigename = objM.Vorname;
+                }
+
+                lstAktiveMitglieder.Add(objMitglied);
+            }
+
+            //----------------------
+
+            //Testdaten
+            // AktiveSpieler objItem = new();
+            // objItem.Anzeigename = "Schröer, Thorsten";
+            // objItem.Nachname = "Schröer";
+            // objItem.Vorname = "Thorsten";
+            // objItem.Spitzname = "Thor";
+            // objItem.ID = 1;
+            // lstAktiveMitglieder.Add(objItem);
+            //
+            // objItem = new();
+            // objItem.Anzeigename = "Schmidt, Wolfgang";
+            // objItem.Nachname = "Schmidt";
+            // objItem.Vorname = "Wolfgang";
+            // objItem.ID = 2;
+            // lstAktiveMitglieder.Add(objItem);
+            //
+            // objItem = new();
+            // objItem.Anzeigename = "Bohn, Karl-Heinz";
+            // objItem.Nachname = "Bohn";
+            // objItem.Vorname = "Karl-Heinz";
+            // objItem.Spitzname = "Kalle";
+            // objItem.ID = 3;
+            // lstAktiveMitglieder.Add(objItem);
+        }
+        catch (Exception ex)
+        {
+            ViewManager.ShowErrorWindow("DBService", "GetAktiveTeilnehmerAsync", ex.ToString());
+        }
+
+        return lstAktiveMitglieder;
+    }
+
+    public async Task SaveTeilnehmerAsync(Int32 iMeisterschaftsID, Int32 iTeilnehmerID)
+    {
+        StringBuilder sb = new StringBuilder();
+        string strSQL = string.Empty;
+
+        Models.Local.TblTeilnehmer objTeilnehmer = new();
+        objTeilnehmer.MeisterschaftsId = iMeisterschaftsID;
+        objTeilnehmer.SpielerId = iTeilnehmerID;
+
+        await _localDbContext.TblTeilnehmers.AddAsync(objTeilnehmer);
+        await _localDbContext.SaveChangesAsync();
+
+        sb.Append("insert into tblTeilnehmer(MeisterschaftsID, SpielerID) ");
+        sb.Append("values(");
+        sb.Append(iMeisterschaftsID.ToString()).Append(", ");
+        sb.Append(iTeilnehmerID.ToString());
+        sb.Append(")");
+        strSQL = sb.ToString();
+
+        Models.Local.TblDbchangeLog objLog = new();
+        objLog.Changetype = "insert";
+        objLog.Command = strSQL;
+        objLog.Tablename = "tblTeilnehmer";
+        objLog.Computername = Environment.MachineName;
+        objLog.Zeitstempel = DateTime.Now;
+        await _localDbContext.TblDbchangeLogs.AddAsync(objLog);
+        await _localDbContext.SaveChangesAsync();
+
+        // m_objDBWeb.SaveTeilnehmer(iMeisterschaftsID, iTeilnehmerID);
+        // m_objDBWeb.SaveDBLog(objLog.Changetype, objLog.Computername, objLog.Tablename, objLog.Command,
+        //     objLog.Zeitstempel.Value);
+
+        Models.Web.TblDbchangeLog objLogWeb = new();
+        objLogWeb.Changetype = "insert";
+        objLogWeb.Command = strSQL;
+        objLogWeb.Tablename = "tblTeilnehmer";
+        objLogWeb.Computername = Environment.MachineName;
+        objLogWeb.Zeitstempel = DateTime.Now;
+        await _webDbContext.TblDbchangeLogs.AddAsync(objLogWeb);
+        await _webDbContext.SaveChangesAsync();
+    }
+
+    public async Task DeleteTeilnehmerAsync(Int32 iMeisterschaftsID, Int32 iTeilnehmerID)
+    {
+        StringBuilder sb = new StringBuilder();
+        string strSQL = string.Empty;
+
+        var t = await _localDbContext.TblTeilnehmers
+            .Where(w => w.MeisterschaftsId == iMeisterschaftsID && w.SpielerId == iTeilnehmerID)
+            .Select(s => s).FirstOrDefaultAsync();
+
+        if (t != null)
+        {
+            _localDbContext.TblTeilnehmers.Remove(t);
+            await _localDbContext.SaveChangesAsync();
+
+            sb.Append("delete from tblTeilnehmer ");
+            sb.Append("where ");
+            sb.Append("MeisterschaftsID = ").Append(iMeisterschaftsID.ToString()).Append(" and ");
+            sb.Append("SpielerID = ").Append(iTeilnehmerID.ToString());
+            strSQL = sb.ToString();
+
+            Models.Local.TblDbchangeLog objLog = new();
+            objLog.Changetype = "delete";
+            objLog.Command = strSQL;
+            objLog.Tablename = "tblTeilnehmer";
+            objLog.Computername = Environment.MachineName;
+            objLog.Zeitstempel = DateTime.Now;
+            await _localDbContext.TblDbchangeLogs.AddAsync(objLog);
+            await _localDbContext.SaveChangesAsync();
+
+            // m_objDBWeb.DeleteTeilnehmer(iMeisterschaftsID, iTeilnehmerID);
+            // m_objDBWeb.SaveDBLog(objLog.Changetype, objLog.Computername, objLog.Tablename, objLog.Command,
+            //     objLog.Zeitstempel.Value);
+
+            Models.Web.TblDbchangeLog objLogWeb = new();
+            objLogWeb.Changetype = "delete";
+            objLogWeb.Command = strSQL;
+            objLogWeb.Tablename = "tblTeilnehmer";
+            objLogWeb.Computername = Environment.MachineName;
+            objLogWeb.Zeitstempel = DateTime.Now;
+            await _webDbContext.TblDbchangeLogs.AddAsync(objLogWeb);
+            await _webDbContext.SaveChangesAsync();
         }
     }
 
-    // public Int32 SaveMeisterschaftsdaten(Int32 iID, string sBezeichnung, DateTime dtBeginn, object dtEnde, Int32 iTypID,
-    //     Int32 iAktiv)
     public async Task<Int32> SaveMeisterschaftsdatenAsync(Meisterschaftsdaten currentMeisterschaft)
     {
         Int32 intID = -1;
@@ -3618,7 +5279,7 @@ public class DBService(LocalDbContext _localDbContext, WebDbContext _webDbContex
                     aktiveMeisterschaft.ID = intID;
                     aktiveMeisterschaft.Bezeichnung = currentMeisterschaft.Bezeichnung;
                     _commonService.AktiveMeisterschaft = aktiveMeisterschaft;
-                    await SaveSettingsLocal("AktiveMeisterschaft", intID.ToString());
+                    await SaveSettingsLocalAsync("AktiveMeisterschaft", intID.ToString());
 
                     sb.Append(
                         "insert into tblMeisterschaften(ID, Bezeichnung, Beginn, Ende, MeisterschaftstypID, Aktiv) ");
@@ -3653,7 +5314,7 @@ public class DBService(LocalDbContext _localDbContext, WebDbContext _webDbContex
                     // Models.Web.TblMeisterschaften objWebMeister =
                     //     _mapper.Map<Models.Web.TblMeisterschaften>(objMeisterNeu);
                     // await _webDbContext.TblMeisterschaftens.AddAsync(objWebMeister);
-                    
+
                     Models.Web.TblMeisterschaften objMeisterWebNeu = new();
                     objMeisterWebNeu.Id = intID;
                     objMeisterWebNeu.Bezeichnung = currentMeisterschaft.Bezeichnung;
@@ -3666,11 +5327,11 @@ public class DBService(LocalDbContext _localDbContext, WebDbContext _webDbContex
                     {
                         objMeisterWebNeu.Ende = null;
                     }
-                    
+
                     objMeisterWebNeu.MeisterschaftstypId = currentMeisterschaft.MeisterschaftstypID;
                     objMeisterWebNeu.Aktiv = 1;
                     await _webDbContext.TblMeisterschaftens.AddAsync(objMeisterWebNeu);
-                    
+
                     objLogWeb.Changetype = "insert";
                     objLogWeb.Command = strSQL;
                     objLogWeb.Tablename = "tblMeisterschaften";
@@ -3764,7 +5425,7 @@ public class DBService(LocalDbContext _localDbContext, WebDbContext _webDbContex
                         aktiveMeisterschaft.Bezeichnung = currentMeisterschaft.Bezeichnung;
                         _commonService.AktiveMeisterschaft = aktiveMeisterschaft;
 
-                        await SaveSettingsLocal("AktiveMeisterschaft", intID.ToString());
+                        await SaveSettingsLocalAsync("AktiveMeisterschaft", intID.ToString());
                     }
 
 
@@ -3781,1491 +5442,5 @@ public class DBService(LocalDbContext _localDbContext, WebDbContext _webDbContex
         return intID;
     }
 
-    private DataTable CreateDataTable<T>(IEnumerable<T> entities)
-    {
-        var dt = new DataTable();
-
-        //creating columns
-        foreach (var prop in typeof(T).GetProperties())
-        {
-            dt.Columns.Add(prop.Name, prop.PropertyType);
-        }
-
-        //creating rows
-        foreach (var entity in entities)
-        {
-            var values = GetObjectValues(entity);
-            dt.Rows.Add(values);
-        }
-
-
-        return dt;
-    }
-
-    private object[] GetObjectValues<T>(T entity)
-    {
-        var values = new List<object>();
-        foreach (var prop in typeof(T).GetProperties())
-        {
-            values.Add(prop.GetValue(entity));
-        }
-
-        return values.ToArray();
-    }
-
-    private bool tablesAreTheSame(DataTable table1, DataTable table2)
-    {
-        // DataTable dt;
-        // dt = getDifferentRecords(table1, table2);
-        //
-        // if (dt.Rows.Count == 0)
-        //     return true;
-        // else
-        return false;
-    }
-
-    //private List<TblDbchangeLog> getDifferentRecords(DataTable FirstDataTable, DataTable SecondDataTable)
-    private async Task<List<Models.Web.TblDbchangeLog>> getDifferentRecordsAsync()
-    {
-        var localDBChanges = await _localDbContext.TblDbchangeLogs.Where(w => w.Tablename != "init").ToListAsync();
-        var webDBChanges = await _webDbContext.TblDbchangeLogs.Where(w => w.Tablename != "init").ToListAsync();
-
-        // var differences = localDBChanges
-        //     .Where(e => !webDBChanges.Any(e2 => e2.Zeitstempel == e.Zeitstempel))
-        //     .ToList();
-        var differences = webDBChanges
-            .Where(w => !localDBChanges.Any(w2 => w2.Tablename == "init" && w2.Zeitstempel == w.Zeitstempel))
-            .ToList();
-
-        return differences;
-    }
-
-    public async Task<bool> ExistsSettingsWebAsync()
-    {
-        bool bolExists = false;
-
-        var settings = await _webDbContext.TblSettings
-            .Select(s => s)
-            .ToListAsync();
-
-        if (settings.Count > 0)
-            bolExists = true;
-
-        return bolExists;
-    }
-
-    public async Task SaveSettingsLocal(string sParametername, string sParametervalue)
-    {
-        StringBuilder sb = new StringBuilder();
-        Models.Local.TblDbchangeLog objLog = new();
-        Models.Web.TblDbchangeLog objLogWeb = new();
-        DateTime dtLogTimestamp = DateTime.Now;
-
-        var settings = await _localDbContext.TblSettings
-            .Where(w => w.Parametername == sParametername)
-            .Select(s => s)
-            .FirstOrDefaultAsync();
-
-        if (settings == null)
-        {
-            Models.Local.TblSetting objSetting = new();
-            objSetting.Parametername = sParametername;
-            objSetting.Parameterwert = sParametervalue;
-            objSetting.Computername = Environment.MachineName;
-            await _localDbContext.TblSettings.AddAsync(objSetting);
-            await _localDbContext.SaveChangesAsync();
-
-            sb.Append("insert into tblSettings(Parametername, Parameterwert, Computername) ");
-            sb.Append("values(");
-            sb.Append("'").Append(sParametername).Append("', ");
-            sb.Append("'").Append(sParametervalue).Append("', ");
-            sb.Append("'").Append(Environment.MachineName).Append("')");
-
-            objLog.Changetype = "insert";
-            objLog.Command = sb.ToString();
-            objLog.Tablename = "tblSettings";
-            objLog.Computername = Environment.MachineName;
-            objLog.Zeitstempel = dtLogTimestamp;
-
-            await _localDbContext.TblDbchangeLogs.AddAsync(objLog);
-            await _localDbContext.SaveChangesAsync();
-
-            objLogWeb.Changetype = "insert";
-            objLogWeb.Command = sb.ToString();
-            ;
-            objLogWeb.Tablename = "tblSettings";
-            objLogWeb.Computername = Environment.MachineName;
-            objLogWeb.Zeitstempel = dtLogTimestamp;
-
-            await _webDbContext.TblDbchangeLogs.AddAsync(objLogWeb);
-            await _webDbContext.SaveChangesAsync();
-        }
-        else
-        {
-            settings.Parametername = sParametername;
-            await _localDbContext.SaveChangesAsync();
-
-            sb.Append("update tblSettings set Parametername = ");
-            sb.Append("'").Append(sParametername).Append("', ");
-            sb.Append("Parameterwert = ");
-            sb.Append("'").Append(sParametervalue).Append("', ");
-            sb.Append("Computername = ");
-            sb.Append("'").Append(Environment.MachineName).Append("' ");
-            sb.Append("where Parametername = '").Append(sParametername).Append("'");
-
-            objLog.Changetype = "update";
-            objLog.Command = sb.ToString();
-            objLog.Tablename = "tblSettings";
-            objLog.Computername = Environment.MachineName;
-            objLog.Zeitstempel = dtLogTimestamp;
-
-            await _localDbContext.TblDbchangeLogs.AddAsync(objLog);
-            await _localDbContext.SaveChangesAsync();
-
-            objLogWeb.Changetype = "update";
-            objLogWeb.Command = sb.ToString();
-            ;
-            objLogWeb.Tablename = "tblSettings";
-            objLogWeb.Computername = Environment.MachineName;
-            objLogWeb.Zeitstempel = dtLogTimestamp;
-
-            await _webDbContext.TblDbchangeLogs.AddAsync(objLogWeb);
-            await _webDbContext.SaveChangesAsync();
-        }
-
-        await SaveSettingsWebAsync();
-    }
-
-    public async Task SaveSettingsWebAsync()
-    {
-        var settings = await _localDbContext.TblSettings
-            .Select(s => s)
-            .ToListAsync();
-
-        foreach (var item in settings)
-        {
-            switch (item.Parametername)
-            {
-                case "AktiveMeisterschaft":
-                    var meisterschaftAktiv = await _webDbContext.TblMeisterschaftens
-                        .Where(w => w.Aktiv == 1)
-                        .ToListAsync();
-
-                    foreach (var ma in meisterschaftAktiv)
-                    {
-                        ma.Aktiv = 0;
-                    }
-
-                    int intID = Convert.ToInt32(item.Parameterwert);
-                    var objMeisterSearch = await _webDbContext.TblMeisterschaftens
-                        .Select(m => m).SingleOrDefaultAsync(m => m.Id == intID);
-                    if (objMeisterSearch != null)
-                        objMeisterSearch!.Aktiv = 1;
-
-                    var setting = await _webDbContext.TblSettings
-                        .Select(s => s)
-                        .SingleOrDefaultAsync(s => s.Parametername == "AktiveMeisterschaft");
-                    setting!.Parameterwert = intID.ToString();
-
-                    await _webDbContext.SaveChangesAsync();
-
-                    break;
-            }
-        }
-    }
-
-    public async Task LoadSettingsWebAsync()
-    {
-        var settings = await _webDbContext.TblSettings
-            .Select(s => s)
-            .ToListAsync();
-
-        foreach (var item in settings)
-        {
-            switch (item.Parametername)
-            {
-                case "AktiveMeisterschaft":
-                    var meisterschaftAktiv = await _localDbContext.TblMeisterschaftens
-                        .Where(w => w.Aktiv == 1)
-                        .ToListAsync();
-
-                    foreach (var ma in meisterschaftAktiv)
-                    {
-                        ma.Aktiv = 0;
-                    }
-
-                    int intID = Convert.ToInt32(item.Parameterwert);
-                    var objMeisterSearch = await _localDbContext.TblMeisterschaftens
-                        .Select(m => m).SingleOrDefaultAsync(m => m.Id == intID);
-                    if (objMeisterSearch != null)
-                    {
-                        objMeisterSearch!.Aktiv = 1;
-                        await _localDbContext.SaveChangesAsync();
-
-                        AktiveMeisterschaft aktiveMeisterschaft = new();
-                        aktiveMeisterschaft.ID = intID;
-                        aktiveMeisterschaft.Bezeichnung = objMeisterSearch.Bezeichnung;
-                        _commonService.AktiveMeisterschaft = aktiveMeisterschaft;
-                    }
-
-                    break;
-            }
-        }
-    }
-
-    public async Task UpdateLocalDBAsync()
-    {
-        List<Models.Web.TblDbchangeLog> lstDiff = await getDifferentRecordsAsync();
-        List<Models.Web.TblDbchangeLog> lstDiffOrdered = lstDiff.OrderBy(o => o.Zeitstempel).ToList();
-        string strSQL = string.Empty;
-
-        foreach (var row in lstDiffOrdered)
-        {
-            //if (row.Tablename == "tblSettings") continue;
-
-            if (strSQL != "init")
-            {
-                using (var transaction = await _localDbContext.Database.BeginTransactionAsync())
-                {
-                    try
-                    {
-                        await IdentityInsertAsync(row.Tablename);
-                        strSQL = row.Command;
-                        int intRowsAffected = await _localDbContext.Database.ExecuteSqlRawAsync(strSQL);
-                        await IdentityInsertAsync(row.Tablename, "OFF");
-
-                        Models.Local.TblDbchangeLog objLog = new Models.Local.TblDbchangeLog();
-                        objLog.Computername = row.Computername;
-                        objLog.Tablename = row.Tablename;
-                        objLog.Changetype = row.Changetype;
-                        objLog.Command = row.Command;
-                        objLog.Zeitstempel = row.Zeitstempel;
-                        await _localDbContext.TblDbchangeLogs.AddAsync(objLog);
-                        await _localDbContext.SaveChangesAsync();
-
-                        transaction.Commit();
-                    }
-                    catch (Exception ex)
-                    {
-                        transaction.Rollback();
-                        ViewManager.ShowErrorWindow("DBService", "UpdateLocalDBAsync",
-                            strSQL + Environment.NewLine + Environment.NewLine + ex.ToString());
-                    }
-                }
-            }
-        }
-    }
-
-    private async Task IdentityInsertAsync(string sTablename, string sOnOff = "ON")
-    {
-        string strSQLIdentity;
-
-        switch (sTablename)
-        {
-            case "tblMeisterschaften":
-                strSQLIdentity = "SET IDENTITY_INSERT " + sTablename + " " + sOnOff;
-                await _localDbContext.Database.ExecuteSqlRawAsync(strSQLIdentity);
-                break;
-            case "tbl9erRatten":
-                strSQLIdentity = "SET IDENTITY_INSERT " + sTablename + " " + sOnOff;
-                await _localDbContext.Database.ExecuteSqlRawAsync(strSQLIdentity);
-                break;
-            case "tblSpieltag":
-                strSQLIdentity = "SET IDENTITY_INSERT " + sTablename + " " + sOnOff;
-                await _localDbContext.Database.ExecuteSqlRawAsync(strSQLIdentity);
-                break;
-            case "tblSpiel6TageRennen":
-                strSQLIdentity = "SET IDENTITY_INSERT " + sTablename + " " + sOnOff;
-                await _localDbContext.Database.ExecuteSqlRawAsync(strSQLIdentity);
-                break;
-            case "tblSpielBlitztunier":
-                strSQLIdentity = "SET IDENTITY_INSERT " + sTablename + " " + sOnOff;
-                await _localDbContext.Database.ExecuteSqlRawAsync(strSQLIdentity);
-                break;
-            case "tblSpielKombimeisterschaft":
-                strSQLIdentity = "SET IDENTITY_INSERT " + sTablename + " " + sOnOff;
-                await _localDbContext.Database.ExecuteSqlRawAsync(strSQLIdentity);
-                break;
-            case "tblSpielMeisterschaft":
-                strSQLIdentity = "SET IDENTITY_INSERT " + sTablename + " " + sOnOff;
-                await _localDbContext.Database.ExecuteSqlRawAsync(strSQLIdentity);
-                break;
-            case "tblSpielPokal":
-                strSQLIdentity = "SET IDENTITY_INSERT " + sTablename + " " + sOnOff;
-                await _localDbContext.Database.ExecuteSqlRawAsync(strSQLIdentity);
-                break;
-            case "tblSpielSargKegeln":
-                strSQLIdentity = "SET IDENTITY_INSERT " + sTablename + " " + sOnOff;
-                await _localDbContext.Database.ExecuteSqlRawAsync(strSQLIdentity);
-                break;
-        }
-    }
-
-    public async Task SaveTeilnehmerAsync(Int32 iMeisterschaftsID, Int32 iTeilnehmerID)
-    {
-        StringBuilder sb = new StringBuilder();
-        string strSQL = string.Empty;
-
-        Models.Local.TblTeilnehmer objTeilnehmer = new();
-        objTeilnehmer.MeisterschaftsId = iMeisterschaftsID;
-        objTeilnehmer.SpielerId = iTeilnehmerID;
-
-        await _localDbContext.TblTeilnehmers.AddAsync(objTeilnehmer);
-        await _localDbContext.SaveChangesAsync();
-
-        sb.Append("insert into tblTeilnehmer(MeisterschaftsID, SpielerID) ");
-        sb.Append("values(");
-        sb.Append(iMeisterschaftsID.ToString()).Append(", ");
-        sb.Append(iTeilnehmerID.ToString());
-        sb.Append(")");
-        strSQL = sb.ToString();
-
-        Models.Local.TblDbchangeLog objLog = new();
-        objLog.Changetype = "insert";
-        objLog.Command = strSQL;
-        objLog.Tablename = "tblTeilnehmer";
-        objLog.Computername = Environment.MachineName;
-        objLog.Zeitstempel = DateTime.Now;
-        await _localDbContext.TblDbchangeLogs.AddAsync(objLog);
-        await _localDbContext.SaveChangesAsync();
-
-        // m_objDBWeb.SaveTeilnehmer(iMeisterschaftsID, iTeilnehmerID);
-        // m_objDBWeb.SaveDBLog(objLog.Changetype, objLog.Computername, objLog.Tablename, objLog.Command,
-        //     objLog.Zeitstempel.Value);
-
-        Models.Web.TblDbchangeLog objLogWeb = new();
-        objLogWeb.Changetype = "insert";
-        objLogWeb.Command = strSQL;
-        objLogWeb.Tablename = "tblTeilnehmer";
-        objLogWeb.Computername = Environment.MachineName;
-        objLogWeb.Zeitstempel = DateTime.Now;
-        await _webDbContext.TblDbchangeLogs.AddAsync(objLogWeb);
-        await _webDbContext.SaveChangesAsync();
-    }
-
-    public async Task DeleteTeilnehmerAsync(Int32 iMeisterschaftsID, Int32 iTeilnehmerID)
-    {
-        StringBuilder sb = new StringBuilder();
-        string strSQL = string.Empty;
-
-        var t = await _localDbContext.TblTeilnehmers
-            .Where(w => w.MeisterschaftsId == iMeisterschaftsID && w.SpielerId == iTeilnehmerID)
-            .Select(s => s).FirstOrDefaultAsync();
-
-        if (t != null)
-        {
-            _localDbContext.TblTeilnehmers.Remove(t);
-            await _localDbContext.SaveChangesAsync();
-
-            sb.Append("delete from tblTeilnehmer ");
-            sb.Append("where ");
-            sb.Append("MeisterschaftsID = ").Append(iMeisterschaftsID.ToString()).Append(" and ");
-            sb.Append("SpielerID = ").Append(iTeilnehmerID.ToString());
-            strSQL = sb.ToString();
-
-            Models.Local.TblDbchangeLog objLog = new();
-            objLog.Changetype = "delete";
-            objLog.Command = strSQL;
-            objLog.Tablename = "tblTeilnehmer";
-            objLog.Computername = Environment.MachineName;
-            objLog.Zeitstempel = DateTime.Now;
-            await _localDbContext.TblDbchangeLogs.AddAsync(objLog);
-            await _localDbContext.SaveChangesAsync();
-
-            // m_objDBWeb.DeleteTeilnehmer(iMeisterschaftsID, iTeilnehmerID);
-            // m_objDBWeb.SaveDBLog(objLog.Changetype, objLog.Computername, objLog.Tablename, objLog.Command,
-            //     objLog.Zeitstempel.Value);
-
-            Models.Web.TblDbchangeLog objLogWeb = new();
-            objLogWeb.Changetype = "delete";
-            objLogWeb.Command = strSQL;
-            objLogWeb.Tablename = "tblTeilnehmer";
-            objLogWeb.Computername = Environment.MachineName;
-            objLogWeb.Zeitstempel = DateTime.Now;
-            await _webDbContext.TblDbchangeLogs.AddAsync(objLogWeb);
-            await _webDbContext.SaveChangesAsync();
-        }
-    }
-
-    public async Task SaveEingabeAsync(int iMeisterschaftsID, DateTime dtSpieltag, string sSpiel, object oEingabeliste)
-    {
-        int intSpieltagID = -1;
-
-        using (var transaction = await _localDbContext.Database.BeginTransactionAsync())
-        {
-            try
-            {
-                intSpieltagID = await SaveSpieltagAsync(iMeisterschaftsID, dtSpieltag);
-                
-                switch (sSpiel)
-                {
-                    case "9er/Ratten":
-                        var lstEingabe = oEingabeliste as List<NeunerRatten>;
-                        foreach (var item in lstEingabe)
-                        {
-                            await Save9erRattenAsync(intSpieltagID, item.SpielerID, item.Neuner, item.Ratten);
-                        }
-                        break;
-                    case "6-Tage-Rennen":
-                        break;
-                    case "Pokal":
-                        break;
-                    case "Sargkegeln":
-                        break;
-                    case "Meisterschaft":
-                        break;
-                    case "Blitztunier":
-                        break;
-                    case "Kombimeisterschaft":
-                        break;
-                }
-            }
-            catch (Exception ex)
-            {
-                transaction.Rollback();
-                ViewManager.ShowErrorWindow("DBService", "SaveEingabeAsync", ex.ToString());
-            }
-        }
-    }
-
-    public void SpieltagBeenden(Int32 iSpieltagID)
-    {
-        // StringBuilder sb = new StringBuilder();
-        // string strSQL = string.Empty;
-        //
-        // using (KEPAVerwaltungEntities DBContext = new KEPAVerwaltungEntities())
-        // {
-        //     var objSpieltag = (DBContext.tblSpieltag
-        //         .Where(w => w.ID == iSpieltagID)
-        //         .Select(s => s)).First();
-        //
-        //     objSpieltag.InBearbeitung = false;
-        //     DBContext.SaveChanges();
-        //
-        //     sb.Append("update tblSpieltag ");
-        //     sb.Append("set InBearbeitung = 0 ");
-        //     sb.Append("where ID = " + iSpieltagID.ToString());
-        //     strSQL = sb.ToString();
-        //
-        //     tblDBChangeLog objLog = new tblDBChangeLog();
-        //     objLog.Changetype = "update";
-        //     objLog.Command = strSQL;
-        //     objLog.Tablename = "tblSpieltag";
-        //     objLog.Computername = Environment.MachineName;
-        //     objLog.Zeitstempel = DateTime.Now;
-        //     DBContext.tblDBChangeLog.Add(objLog);
-        //     DBContext.SaveChanges();
-        //
-        //     m_objDBWeb.SpieltagBeenden(iSpieltagID);
-        //     m_objDBWeb.SaveDBLog(objLog.Changetype, objLog.Computername, objLog.Tablename, objLog.Command, objLog.Zeitstempel.Value);
-        // }
-    }
-
-    public async Task<Int32> SaveSpieltagAsync(Int32 iMeisterschaftsID, DateTime dtSpieltag)
-    {
-        Int32 intID = 0;
-        StringBuilder sb = new StringBuilder();
-        string strSQL = string.Empty;
-        Models.Local.TblDbchangeLog objLog = new ();
-        Models.Web.TblDbchangeLog objLogWeb = new ();
-        
-        var checkSpieltag = await _localDbContext.TblSpieltags
-            .Where(w => w.Spieltag == dtSpieltag && w.MeisterschaftsId == iMeisterschaftsID)
-            .Select(s => s)
-            .SingleOrDefaultAsync();
-
-
-        if (checkSpieltag == null)
-        {
-            Models.Local.TblSpieltag objSpieltag = new ();
-            objSpieltag.MeisterschaftsId = iMeisterschaftsID;
-            objSpieltag.Spieltag = dtSpieltag;
-            objSpieltag.InBearbeitung = true;
-
-            await _localDbContext.TblSpieltags.AddAsync(objSpieltag);
-            await _localDbContext.SaveChangesAsync();
-            intID = objSpieltag.Id;
-
-            sb.Append("insert into tblSpieltag(ID, MeisterschaftsID, Spieltag, InBearbeitung) ");
-            sb.Append("values(");
-            sb.Append(intID.ToString()).Append(", ");
-            sb.Append(iMeisterschaftsID.ToString()).Append(", ");
-            sb.Append("'").Append(dtSpieltag.ToString("yyyyMMdd")).Append("', ");
-            sb.Append("1)");
-            strSQL = sb.ToString();
-
-            objLog.Changetype = "insert";
-            objLog.Command = strSQL;
-            objLog.Tablename = "tblSpieltag";
-            objLog.Computername = Environment.MachineName;
-            objLog.Zeitstempel = DateTime.Now;
-            await _localDbContext.TblDbchangeLogs.AddAsync(objLog);
-            await _localDbContext.SaveChangesAsync();
-            
-            objLogWeb.Changetype = "insert";
-            objLogWeb.Command = strSQL;
-            objLogWeb.Tablename = "tblSpieltag";
-            objLogWeb.Computername = Environment.MachineName;
-            objLogWeb.Zeitstempel = DateTime.Now;
-            await _webDbContext.TblDbchangeLogs.AddAsync(objLogWeb);
-            await _webDbContext.SaveChangesAsync();
-        }
-        else
-        {
-            //intID = ((tblSpieltag)checkSpieltag).ID;
-            intID = checkSpieltag.Id;
-
-            checkSpieltag.InBearbeitung = true;
-            await _localDbContext.SaveChangesAsync();
-
-            sb.Append("update tblSpieltag ");
-            sb.Append("set InBearbeitung = 1 ");
-            sb.Append("where ID = ");
-            sb.Append(intID.ToString());
-            strSQL = sb.ToString();
-
-            objLog.Changetype = "update";
-            objLog.Command = strSQL;
-            objLog.Tablename = "tblSpieltag";
-            objLog.Computername = Environment.MachineName;
-            objLog.Zeitstempel = DateTime.Now;
-            await _localDbContext.TblDbchangeLogs.AddAsync(objLog);
-            await _localDbContext.SaveChangesAsync();
-
-            objLogWeb.Changetype = "update";
-            objLogWeb.Command = strSQL;
-            objLogWeb.Tablename = "tblSpieltag";
-            objLogWeb.Computername = Environment.MachineName;
-            objLogWeb.Zeitstempel = DateTime.Now;
-            await _webDbContext.TblDbchangeLogs.AddAsync(objLogWeb);
-            await _webDbContext.SaveChangesAsync();
-        }
-
-        return intID;
-    }
-
-    public async Task Save9erRattenAsync(Int32 iSpieltagID, Int32 iSpielerID, Int32 iNeuner, Int32 iRatten)
-    {
-        StringBuilder sb = new StringBuilder();
-        string strSQL = string.Empty;
-        Models.Local.TblDbchangeLog objLog = new ();
-        Models.Web.TblDbchangeLog objLogWeb = new ();
-        
-        var nr = await _localDbContext.Tbl9erRattens
-            .Where(w => w.SpieltagId == iSpieltagID && w.SpielerId == iSpielerID)
-            .SingleOrDefaultAsync();
-
-        if (nr == null)
-        {
-            Models.Local.Tbl9erRatten objNR = new ();
-            objNR.SpieltagId = iSpieltagID;
-            objNR.SpielerId = iSpielerID;
-            objNR.Neuner = iNeuner;
-            objNR.Ratten = iRatten;
-            await _localDbContext.Tbl9erRattens.AddAsync(objNR);
-            await _localDbContext.SaveChangesAsync();
-            
-            sb.Append("insert into tbl9erRatten(ID, SpieltagID, SpielerID, Neuner, Ratten) ");
-            sb.Append("values (");
-            sb.Append(objNR.Id.ToString()).Append(", ");
-            sb.Append(iSpieltagID.ToString()).Append(", ");
-            sb.Append(iSpielerID.ToString()).Append(", ");
-            sb.Append(iNeuner.ToString()).Append(", ");
-            sb.Append(iRatten.ToString()).Append(")");
-            strSQL = sb.ToString();
-            
-            objLog.Changetype = "insert";
-            objLog.Command = strSQL;
-            objLog.Tablename = "tbl9erRatten";
-            objLog.Computername = Environment.MachineName;
-            objLog.Zeitstempel = DateTime.Now;
-            await _localDbContext.TblDbchangeLogs.AddAsync(objLog);
-            await _localDbContext.SaveChangesAsync();
-            
-            objLogWeb.Changetype = "insert";
-            objLogWeb.Command = strSQL;
-            objLogWeb.Tablename = "tbl9erRatten";
-            objLogWeb.Computername = Environment.MachineName;
-            objLogWeb.Zeitstempel = DateTime.Now;
-            await _webDbContext.TblDbchangeLogs.AddAsync(objLogWeb);
-            await _webDbContext.SaveChangesAsync();
-        }
-        else
-        {
-            nr.Neuner = iNeuner;
-            nr.Ratten = iRatten;
-            await _localDbContext.SaveChangesAsync();
-            
-            sb.Append("update tbl9erRatten ");
-            sb.Append("set Neuner = " + iNeuner.ToString()).Append(", ");
-            sb.Append("Ratten = " + iRatten.ToString()).Append(" ");
-            sb.Append("where ID = " + nr.Id.ToString());
-            strSQL = sb.ToString();
-            
-            objLog.Changetype = "update";
-            objLog.Command = strSQL;
-            objLog.Tablename = "tbl9erRatten";
-            objLog.Computername = Environment.MachineName;
-            objLog.Zeitstempel = DateTime.Now;
-            await _localDbContext.TblDbchangeLogs.AddAsync(objLog);
-            await _localDbContext.SaveChangesAsync();
-            
-            objLogWeb.Changetype = "update";
-            objLogWeb.Command = strSQL;
-            objLogWeb.Tablename = "tbl9erRatten";
-            objLogWeb.Computername = Environment.MachineName;
-            objLogWeb.Zeitstempel = DateTime.Now;
-            await _webDbContext.TblDbchangeLogs.AddAsync(objLogWeb);
-            await _webDbContext.SaveChangesAsync();
-        }
-    }
-    
-    public void Save9erRattenAlt(Int32 iSpieltagID, Int32 iSpielerID)
-    {
-        // Int32 int9erRattenID = -1;
-        // StringBuilder sb = new StringBuilder();
-        // string strSQL = string.Empty;
-        //
-        // using (KEPAVerwaltungEntities DBContext = new KEPAVerwaltungEntities())
-        // {
-        //     tbl9erRatten objNR = new tbl9erRatten();
-        //     objNR.SpieltagID = iSpieltagID;
-        //     objNR.SpielerID = iSpielerID;
-        //     objNR.Neuner = 0;
-        //     objNR.Ratten = 0;
-        //
-        //     DBContext.tbl9erRatten.Add(objNR);
-        //     DBContext.SaveChanges();
-        //     int9erRattenID = objNR.ID;
-        //
-        //     //tblMapSpieltag2Spiele objMAP = new tblMapSpieltag2Spiele();
-        //     //objMAP.SpieltagID = iSpieltagID;
-        //     //objMAP.C9erRattenID = int9erRattenID;
-        //
-        //     //DBContext.tblMapSpieltag2Spiele.Add(objMAP);
-        //     //DBContext.SaveChanges();
-        //
-        //     //var objMap = (DBContext.tblMapSpieltag2Spiele
-        //     //                    .Where(w => w.SpieltagID == iSpieltagID)
-        //     //                    .Select(s => s)).First();
-        //
-        //     //objMap.C9erRattenID = int9erRattenID;
-        //     //DBContext.SaveChanges();
-        //
-        //     sb.Append("insert into tbl9erRatten(ID, SpieltagID, SpielerID, Neuner, Ratten) ");
-        //     sb.Append("values (");
-        //     sb.Append(int9erRattenID.ToString()).Append(", ");
-        //     sb.Append(iSpieltagID.ToString()).Append(", ");
-        //     sb.Append(iSpielerID.ToString());
-        //     sb.Append(", 0, 0)");
-        //     strSQL = sb.ToString();
-        //
-        //     tblDBChangeLog objLog = new tblDBChangeLog();
-        //     objLog.Changetype = "insert";
-        //     objLog.Command = strSQL;
-        //     objLog.Tablename = "tbl9erRatten";
-        //     objLog.Computername = Environment.MachineName;
-        //     objLog.Zeitstempel = DateTime.Now;
-        //     DBContext.tblDBChangeLog.Add(objLog);
-        //     DBContext.SaveChanges();
-        //
-        //     m_objDBWeb.Save9erRatten(int9erRattenID, iSpieltagID, iSpielerID);
-        //     m_objDBWeb.SaveDBLog(objLog.Changetype, objLog.Computername, objLog.Tablename, objLog.Command, objLog.Zeitstempel.Value);
-        //
-        //     //sb.Clear();
-        //     //sb.Append("update tblMapSpieltag2Spiele");
-        //     //sb.Append("set [9erRattenID] = ");
-        //     //sb.Append(int9erRattenID.ToString()).Append(" ");
-        //     //sb.Append("where SpieltagID = " + iSpieltagID.ToString());
-        //     //strSQL = sb.ToString();
-        //
-        //     //objLog = new tblDBChangeLog();
-        //     //objLog.Changetype = "update";
-        //     //objLog.Command = strSQL;
-        //     //objLog.Tablename = "tblMapSpieltag2Spiele";
-        //     //objLog.Computername = Environment.MachineName;
-        //     //objLog.Zeitstempel = DateTime.Now;
-        //     //DBContext.tblDBChangeLog.Add(objLog);
-        //     //DBContext.SaveChanges();
-        //
-        //     //m_objDBWeb.SaveDBLog(objLog.Changetype, objLog.Computername, objLog.Tablename, objLog.Command, objLog.Zeitstempel.Value);
-        // }
-    }
-
-    public void Delete9erRatten(Int32 iID)
-    {
-        // StringBuilder sb = new StringBuilder();
-        // string strSQL = string.Empty;
-        //
-        // using (KEPAVerwaltungEntities DBContext = new KEPAVerwaltungEntities())
-        // {
-        //     var objNR = (DBContext.tbl9erRatten
-        //         .Where(w => w.ID == iID)
-        //         .Select(s => s)).SingleOrDefault();
-        //
-        //     DBContext.tbl9erRatten.Remove(objNR);
-        //     DBContext.SaveChanges();
-        //
-        //     sb.Append("delete from tbl9erRatten ");
-        //     sb.Append("where ID = " + iID.ToString());
-        //     strSQL = sb.ToString();
-        //
-        //     tblDBChangeLog objLog = new tblDBChangeLog();
-        //     objLog.Changetype = "delete";
-        //     objLog.Command = strSQL;
-        //     objLog.Tablename = "tbl9erRatten";
-        //     objLog.Computername = Environment.MachineName;
-        //     objLog.Zeitstempel = DateTime.Now;
-        //     DBContext.tblDBChangeLog.Add(objLog);
-        //     DBContext.SaveChanges();
-        //
-        //     m_objDBWeb.Delete9erRatten(iID);
-        //     m_objDBWeb.SaveDBLog(objLog.Changetype, objLog.Computername, objLog.Tablename, objLog.Command, objLog.Zeitstempel.Value);
-        // }
-    }
-
-    public void DeleteSpiel6TageRennen(Int32 iID)
-    {
-        // StringBuilder sb = new StringBuilder();
-        // string strSQL = string.Empty;
-        //
-        // using (KEPAVerwaltungEntities DBContext = new KEPAVerwaltungEntities())
-        // {
-        //     var obj6TR = (DBContext.tblSpiel6TageRennen
-        //         .Where(w => w.ID == iID)
-        //         .Select(s => s)).SingleOrDefault();
-        //
-        //     DBContext.tblSpiel6TageRennen.Remove(obj6TR);
-        //     DBContext.SaveChanges();
-        //
-        //     sb.Append("delete from tblSpiel6TageRennen ");
-        //     sb.Append("where ID = " + iID.ToString());
-        //     strSQL = sb.ToString();
-        //
-        //     tblDBChangeLog objLog = new tblDBChangeLog();
-        //     objLog.Changetype = "delete";
-        //     objLog.Command = strSQL;
-        //     objLog.Tablename = "tblSpiel6TageRennen";
-        //     objLog.Computername = Environment.MachineName;
-        //     objLog.Zeitstempel = DateTime.Now;
-        //     DBContext.tblDBChangeLog.Add(objLog);
-        //     DBContext.SaveChanges();
-        //
-        //     m_objDBWeb.DeleteSpiel6TageRennen(iID);
-        //     m_objDBWeb.SaveDBLog(objLog.Changetype, objLog.Computername, objLog.Tablename, objLog.Command, objLog.Zeitstempel.Value);
-        // }
-    }
-
-    public void DeleteSpielBlitztunier(Int32 iID)
-    {
-        // StringBuilder sb = new StringBuilder();
-        // string strSQL = string.Empty;
-        //
-        // using (KEPAVerwaltungEntities DBContext = new KEPAVerwaltungEntities())
-        // {
-        //     var objBlitz = (DBContext.tblSpielBlitztunier
-        //         .Where(w => w.ID == iID)
-        //         .Select(s => s)).SingleOrDefault();
-        //
-        //     DBContext.tblSpielBlitztunier.Remove(objBlitz);
-        //     DBContext.SaveChanges();
-        //
-        //     sb.Append("delete from tblSpielBlitztunier ");
-        //     sb.Append("where ID = " + iID.ToString());
-        //     strSQL = sb.ToString();
-        //
-        //     tblDBChangeLog objLog = new tblDBChangeLog();
-        //     objLog.Changetype = "delete";
-        //     objLog.Command = strSQL;
-        //     objLog.Tablename = "tblSpielBlitztunier";
-        //     objLog.Computername = Environment.MachineName;
-        //     objLog.Zeitstempel = DateTime.Now;
-        //     DBContext.tblDBChangeLog.Add(objLog);
-        //     DBContext.SaveChanges();
-        //
-        //     m_objDBWeb.DeleteSpielBlitztunier(iID);
-        //     m_objDBWeb.SaveDBLog(objLog.Changetype, objLog.Computername, objLog.Tablename, objLog.Command, objLog.Zeitstempel.Value);
-        // }
-    }
-
-    public void DeleteSpielKombimeisterschaft(Int32 iID)
-    {
-        // StringBuilder sb = new StringBuilder();
-        // string strSQL = string.Empty;
-        //
-        // using (KEPAVerwaltungEntities DBContext = new KEPAVerwaltungEntities())
-        // {
-        //     var objKombi = (DBContext.tblSpielKombimeisterschaft
-        //         .Where(w => w.ID == iID)
-        //         .Select(s => s)).SingleOrDefault();
-        //
-        //     DBContext.tblSpielKombimeisterschaft.Remove(objKombi);
-        //     DBContext.SaveChanges();
-        //
-        //     sb.Append("delete from tblSpielKombimeisterschaft ");
-        //     sb.Append("where ID = " + iID.ToString());
-        //     strSQL = sb.ToString();
-        //
-        //     tblDBChangeLog objLog = new tblDBChangeLog();
-        //     objLog.Changetype = "delete";
-        //     objLog.Command = strSQL;
-        //     objLog.Tablename = "tblSpielKombimeisterschaft";
-        //     objLog.Computername = Environment.MachineName;
-        //     objLog.Zeitstempel = DateTime.Now;
-        //     DBContext.tblDBChangeLog.Add(objLog);
-        //     DBContext.SaveChanges();
-        //
-        //     m_objDBWeb.DeleteSpielKombimeisterschaft(iID);
-        //     m_objDBWeb.SaveDBLog(objLog.Changetype, objLog.Computername, objLog.Tablename, objLog.Command, objLog.Zeitstempel.Value);
-        // }
-    }
-
-    public void DeleteSpielMeisterschaft(Int32 iID)
-    {
-        // StringBuilder sb = new StringBuilder();
-        // string strSQL = string.Empty;
-        //
-        // using (KEPAVerwaltungEntities DBContext = new KEPAVerwaltungEntities())
-        // {
-        //     var objMeisterschaft = (DBContext.tblSpielMeisterschaft
-        //         .Where(w => w.ID == iID)
-        //         .Select(s => s)).SingleOrDefault();
-        //
-        //     DBContext.tblSpielMeisterschaft.Remove(objMeisterschaft);
-        //     DBContext.SaveChanges();
-        //
-        //     sb.Append("delete from tblSpielMeisterschaft ");
-        //     sb.Append("where ID = " + iID.ToString());
-        //     strSQL = sb.ToString();
-        //
-        //     tblDBChangeLog objLog = new tblDBChangeLog();
-        //     objLog.Changetype = "delete";
-        //     objLog.Command = strSQL;
-        //     objLog.Tablename = "tblSpielMeisterschaft";
-        //     objLog.Computername = Environment.MachineName;
-        //     objLog.Zeitstempel = DateTime.Now;
-        //     DBContext.tblDBChangeLog.Add(objLog);
-        //     DBContext.SaveChanges();
-        //
-        //     m_objDBWeb.DeleteSpielMeisterschaft(iID);
-        //     m_objDBWeb.SaveDBLog(objLog.Changetype, objLog.Computername, objLog.Tablename, objLog.Command, objLog.Zeitstempel.Value);
-        // }
-    }
-
-    public void DeleteSpielPokal(Int32 iID)
-    {
-        // StringBuilder sb = new StringBuilder();
-        // string strSQL = string.Empty;
-        //
-        // using (KEPAVerwaltungEntities DBContext = new KEPAVerwaltungEntities())
-        // {
-        //     var objPokal = (DBContext.tblSpielPokal
-        //         .Where(w => w.ID == iID)
-        //         .Select(s => s)).SingleOrDefault();
-        //
-        //     DBContext.tblSpielPokal.Remove(objPokal);
-        //     DBContext.SaveChanges();
-        //
-        //     sb.Append("delete from tblSpielPokal ");
-        //     sb.Append("where ID = " + iID.ToString());
-        //     strSQL = sb.ToString();
-        //
-        //     tblDBChangeLog objLog = new tblDBChangeLog();
-        //     objLog.Changetype = "delete";
-        //     objLog.Command = strSQL;
-        //     objLog.Tablename = "tblSpielPokal";
-        //     objLog.Computername = Environment.MachineName;
-        //     objLog.Zeitstempel = DateTime.Now;
-        //     DBContext.tblDBChangeLog.Add(objLog);
-        //     DBContext.SaveChanges();
-        //
-        //     m_objDBWeb.DeleteSpielPokal(iID);
-        //     m_objDBWeb.SaveDBLog(objLog.Changetype, objLog.Computername, objLog.Tablename, objLog.Command, objLog.Zeitstempel.Value);
-        // }
-    }
-
-    public void DeleteSpielSargKegeln(Int32 iID)
-    {
-        // StringBuilder sb = new StringBuilder();
-        // string strSQL = string.Empty;
-        //
-        // using (KEPAVerwaltungEntities DBContext = new KEPAVerwaltungEntities())
-        // {
-        //     var objSarg = (DBContext.tblSpielSargKegeln
-        //         .Where(w => w.ID == iID)
-        //         .Select(s => s)).SingleOrDefault();
-        //
-        //     DBContext.tblSpielSargKegeln.Remove(objSarg);
-        //     DBContext.SaveChanges();
-        //
-        //     sb.Append("delete from tblSpielSargKegeln ");
-        //     sb.Append("where ID = " + iID.ToString());
-        //     strSQL = sb.ToString();
-        //
-        //     tblDBChangeLog objLog = new tblDBChangeLog();
-        //     objLog.Changetype = "delete";
-        //     objLog.Command = strSQL;
-        //     objLog.Tablename = "tblSpielSargKegeln";
-        //     objLog.Computername = Environment.MachineName;
-        //     objLog.Zeitstempel = DateTime.Now;
-        //     DBContext.tblDBChangeLog.Add(objLog);
-        //     DBContext.SaveChanges();
-        //
-        //     m_objDBWeb.DeleteSpielSargKegeln(iID);
-        //     m_objDBWeb.SaveDBLog(objLog.Changetype, objLog.Computername, objLog.Tablename, objLog.Command, objLog.Zeitstempel.Value);
-        // }
-    }
-
-    public Int32 GetSpieltagInBearbeitung(ref DateTime dSpieltag)
-    {
-        Int32 intID = -1;
-
-        // using (KEPAVerwaltungEntities DBContext = new KEPAVerwaltungEntities())
-        // {
-        //     var objSpieltag = (DBContext.tblSpieltag
-        //                         .Where(w => w.InBearbeitung == true)
-        //                         .Select(s => s)).SingleOrDefault();
-        //
-        //     if (objSpieltag != null)
-        //     {
-        //         intID = objSpieltag.ID;
-        //         dSpieltag = objSpieltag.Spieltag;
-        //     }
-        // }
-
-        return intID;
-    }
-
-    public void Save9erRattenEingabe(Int32 iNRID, Int32 i9er, Int32 iRatten)
-    {
-        // string strSQL = string.Empty;
-        // StringBuilder sb = new StringBuilder();
-        //
-        // using (KEPAVerwaltungEntities DBContext = new KEPAVerwaltungEntities())
-        // {
-        //     var objNR = (DBContext.tbl9erRatten
-        //                 .Select(m => m)).SingleOrDefault(m => m.ID == iNRID);
-        //
-        //     if (objNR.Neuner != i9er || objNR.Ratten != iRatten)
-        //     {
-        //         objNR.Neuner = i9er;
-        //         objNR.Ratten = iRatten;
-        //         DBContext.SaveChanges();
-        //
-        //         sb.Append("update tbl9erRatten ");
-        //         sb.Append("set Neuner = " + i9er.ToString()).Append(", ");
-        //         sb.Append("Ratten = " + iRatten.ToString()).Append(" ");
-        //         sb.Append("where ID = " + iNRID.ToString());
-        //         strSQL = sb.ToString();
-        //
-        //         tblDBChangeLog objLog = new tblDBChangeLog();
-        //         objLog.Changetype = "update";
-        //         objLog.Command = strSQL;
-        //         objLog.Tablename = "tbl9erRatten";
-        //         objLog.Computername = Environment.MachineName;
-        //         objLog.Zeitstempel = DateTime.Now;
-        //         DBContext.tblDBChangeLog.Add(objLog);
-        //         DBContext.SaveChanges();
-        //
-        //         m_objDBWeb.Save9erRattenEingabe(iNRID, i9er, iRatten);
-        //         m_objDBWeb.SaveDBLog(objLog.Changetype, objLog.Computername, objLog.Tablename, objLog.Command, objLog.Zeitstempel.Value);
-        //     }
-        // }
-    }
-
-    public void SaveSpiel6TageRennenEingabe(Int32 iSpiel6TageRennenID, Int32 iRunden, Int32 iPunkte, Int32 iSpielnummer)
-    {
-        // string strSQL = string.Empty;
-        // StringBuilder sb = new StringBuilder();
-        //
-        // using (KEPAVerwaltungEntities DBContext = new KEPAVerwaltungEntities())
-        // {
-        //     var obj6TageRennen = (DBContext.tblSpiel6TageRennen
-        //                 .Select(m => m)).SingleOrDefault(m => m.ID == iSpiel6TageRennenID);
-        //
-        //     if (obj6TageRennen.Runden != iRunden || obj6TageRennen.Punkte != iPunkte)
-        //     {
-        //         obj6TageRennen.Runden = iRunden;
-        //         obj6TageRennen.Punkte = iPunkte;
-        //         DBContext.SaveChanges();
-        //
-        //         sb.Append("update tblSpiel6TageRennen ");
-        //         sb.Append("set Runden = " + iRunden.ToString()).Append(", ");
-        //         sb.Append("Punkte = " + iPunkte.ToString()).Append(", ");
-        //         sb.Append("Spielnummer = " + iSpielnummer.ToString()).Append(" ");
-        //         sb.Append("where ID = " + iSpiel6TageRennenID.ToString());
-        //         strSQL = sb.ToString();
-        //
-        //         tblDBChangeLog objLog = new tblDBChangeLog();
-        //         objLog.Changetype = "update";
-        //         objLog.Command = strSQL;
-        //         objLog.Tablename = "tblSpiel6TageRennen";
-        //         objLog.Computername = Environment.MachineName;
-        //         objLog.Zeitstempel = DateTime.Now;
-        //         DBContext.tblDBChangeLog.Add(objLog);
-        //         DBContext.SaveChanges();
-        //
-        //         m_objDBWeb.SaveSpiel6TageRennenEingabe(iSpiel6TageRennenID, iRunden, iPunkte, iSpielnummer);
-        //         m_objDBWeb.SaveDBLog(objLog.Changetype, objLog.Computername, objLog.Tablename, objLog.Command, objLog.Zeitstempel.Value);
-        //     }
-        // }
-    }
-
-    public void SaveSpielBlitztunierEingabe(Int32 iSpielBlitztunierID, Int32 iPunkteSpieler1, Int32 iPunkteSpieler2,
-        Int32 iHinRückrunde)
-    {
-        // string strSQL = string.Empty;
-        // StringBuilder sb = new StringBuilder();
-        //
-        // using (KEPAVerwaltungEntities DBContext = new KEPAVerwaltungEntities())
-        // {
-        //     var objBlitz = (DBContext.tblSpielBlitztunier
-        //                 .Select(m => m)).SingleOrDefault(m => m.ID == iSpielBlitztunierID);
-        //
-        //     if (objBlitz.PunkteSpieler1 != iPunkteSpieler1 || objBlitz.PunkteSpieler2 != iPunkteSpieler2)
-        //     {
-        //         objBlitz.PunkteSpieler1 = iPunkteSpieler1;
-        //         objBlitz.PunkteSpieler2 = iPunkteSpieler2;
-        //         objBlitz.HinRückrunde = iHinRückrunde;
-        //
-        //         DBContext.SaveChanges();
-        //
-        //         sb.Append("update tblSpielBlitztunier ");
-        //         sb.Append("set PunkteSpieler1 = " + iPunkteSpieler1.ToString()).Append(", ");
-        //         sb.Append("PunkteSpieler2 = " + iPunkteSpieler2.ToString()).Append(", ");
-        //         sb.Append("HinRückrunde = " + iHinRückrunde.ToString()).Append(" ");
-        //         sb.Append("where ID = " + iSpielBlitztunierID.ToString());
-        //         strSQL = sb.ToString();
-        //
-        //         tblDBChangeLog objLog = new tblDBChangeLog();
-        //         objLog.Changetype = "update";
-        //         objLog.Command = strSQL;
-        //         objLog.Tablename = "tblSpielBlitztunier";
-        //         objLog.Computername = Environment.MachineName;
-        //         objLog.Zeitstempel = DateTime.Now;
-        //         DBContext.tblDBChangeLog.Add(objLog);
-        //         DBContext.SaveChanges();
-        //
-        //         m_objDBWeb.SaveSpielBlitztunierEingabe(iSpielBlitztunierID, iPunkteSpieler1, iPunkteSpieler2, iHinRückrunde);
-        //         m_objDBWeb.SaveDBLog(objLog.Changetype, objLog.Computername, objLog.Tablename, objLog.Command, objLog.Zeitstempel.Value);
-        //     }
-        // }
-    }
-
-    public void SaveSpielMeisterschaftEingabe(Int32 iSpielMeisterschaftID, Int32 iHolzSpieler1, Int32 iHolzSpieler2,
-        Int32 iHinRückrunde)
-    {
-        // string strSQL = string.Empty;
-        // StringBuilder sb = new StringBuilder();
-        //
-        // using (KEPAVerwaltungEntities DBContext = new KEPAVerwaltungEntities())
-        // {
-        //     var objMeisterschaft = (DBContext.tblSpielMeisterschaft
-        //                 .Select(m => m)).SingleOrDefault(m => m.ID == iSpielMeisterschaftID);
-        //
-        //     if (objMeisterschaft.HolzSpieler1 != iHolzSpieler1 || objMeisterschaft.HolzSpieler2 != iHolzSpieler2)
-        //     {
-        //         objMeisterschaft.HolzSpieler1 = iHolzSpieler1;
-        //         objMeisterschaft.HolzSpieler2 = iHolzSpieler2;
-        //         objMeisterschaft.HinRückrunde = iHinRückrunde;
-        //
-        //         DBContext.SaveChanges();
-        //
-        //         sb.Append("update tblSpielMeisterschaft ");
-        //         sb.Append("set HolzSpieler1 = " + iHolzSpieler1.ToString()).Append(", ");
-        //         sb.Append("HolzSpieler2 = " + iHolzSpieler2.ToString()).Append(", ");
-        //         sb.Append("HinRückrunde = " + iHinRückrunde.ToString()).Append(" ");
-        //         sb.Append("where ID = " + iSpielMeisterschaftID.ToString());
-        //         strSQL = sb.ToString();
-        //
-        //         tblDBChangeLog objLog = new tblDBChangeLog();
-        //         objLog.Changetype = "update";
-        //         objLog.Command = strSQL;
-        //         objLog.Tablename = "tblSpielMeisterschaft";
-        //         objLog.Computername = Environment.MachineName;
-        //         objLog.Zeitstempel = DateTime.Now;
-        //         DBContext.tblDBChangeLog.Add(objLog);
-        //         DBContext.SaveChanges();
-        //
-        //         m_objDBWeb.SaveSpieMeisterschaftEingabe(iSpielMeisterschaftID, iHolzSpieler1, iHolzSpieler2, iHinRückrunde);
-        //         m_objDBWeb.SaveDBLog(objLog.Changetype, objLog.Computername, objLog.Tablename, objLog.Command, objLog.Zeitstempel.Value);
-        //     }
-        // }
-    }
-
-    public void SaveSpielKombimeisterschaftEingabe(Int32 iSpielKombimeisterschaftID, Int32 iSpieler13bis8,
-        Int32 iSpieler15Kugeln, Int32 iSpieler23bis8, Int32 iSpieler25Kugeln, Int32 iHinRückrunde)
-    {
-        // string strSQL = string.Empty;
-        // StringBuilder sb = new StringBuilder();
-        //
-        // using (KEPAVerwaltungEntities DBContext = new KEPAVerwaltungEntities())
-        // {
-        //     var objKombi = (DBContext.tblSpielKombimeisterschaft
-        //                 .Select(m => m)).SingleOrDefault(m => m.ID == iSpielKombimeisterschaftID);
-        //
-        //     if (objKombi.Spieler1Punkte3bis8 != iSpieler13bis8 || objKombi.Spieler1Punkte5Kugeln != iSpieler15Kugeln || objKombi.Spieler2Punkte3bis8 != iSpieler23bis8 || objKombi.Spieler2Punkte5Kugeln != iSpieler25Kugeln || objKombi.HinRückrunde != iHinRückrunde)
-        //     {
-        //         objKombi.Spieler1Punkte3bis8 = iSpieler13bis8;
-        //         objKombi.Spieler1Punkte5Kugeln = iSpieler15Kugeln;
-        //         objKombi.Spieler2Punkte3bis8 = iSpieler23bis8;
-        //         objKombi.Spieler2Punkte5Kugeln = iSpieler25Kugeln;
-        //         objKombi.HinRückrunde = iHinRückrunde;
-        //         DBContext.SaveChanges();
-        //
-        //         sb.Append("update tblSpielKombimeisterschaft ");
-        //         sb.Append("set Spieler1Punkte3bis8 = " + iSpieler13bis8.ToString()).Append(", ");
-        //         sb.Append("Spieler1Punkte5Kugeln = " + iSpieler15Kugeln.ToString()).Append(", ");
-        //         sb.Append("Spieler2Punkte3bis8 = " + iSpieler23bis8.ToString()).Append(", ");
-        //         sb.Append("Spieler2Punkte5Kugeln = " + iSpieler25Kugeln.ToString()).Append(", ");
-        //         sb.Append("HinRückrunde = " + iHinRückrunde.ToString()).Append(" ");
-        //         sb.Append("where ID = " + iSpielKombimeisterschaftID.ToString());
-        //         strSQL = sb.ToString();
-        //
-        //         tblDBChangeLog objLog = new tblDBChangeLog();
-        //         objLog.Changetype = "update";
-        //         objLog.Command = strSQL;
-        //         objLog.Tablename = "tblSpielKombimeisterschaft";
-        //         objLog.Computername = Environment.MachineName;
-        //         objLog.Zeitstempel = DateTime.Now;
-        //         DBContext.tblDBChangeLog.Add(objLog);
-        //         DBContext.SaveChanges();
-        //
-        //         m_objDBWeb.SaveSpielKombimeisterschaftEingabe(iSpielKombimeisterschaftID, iSpieler13bis8, iSpieler15Kugeln, iSpieler23bis8, iSpieler25Kugeln, iHinRückrunde);
-        //         m_objDBWeb.SaveDBLog(objLog.Changetype, objLog.Computername, objLog.Tablename, objLog.Command, objLog.Zeitstempel.Value);
-        //     }
-        // }
-    }
-
-    public void SaveSpielPokalEingabe(Int32 iSpielPokalID, Int32 iPlatzierung)
-    {
-        // string strSQL = string.Empty;
-        // StringBuilder sb = new StringBuilder();
-        //
-        // using (KEPAVerwaltungEntities DBContext = new KEPAVerwaltungEntities())
-        // {
-        //     var objPokal = (DBContext.tblSpielPokal
-        //                 .Select(m => m)).SingleOrDefault(m => m.ID == iSpielPokalID);
-        //
-        //     if (objPokal.Platzierung != iPlatzierung)
-        //     {
-        //         objPokal.Platzierung = iPlatzierung;
-        //         DBContext.SaveChanges();
-        //
-        //         sb.Append("update tblSpielPokal ");
-        //         sb.Append("set Platzierung = " + iPlatzierung.ToString()).Append(" ");
-        //         sb.Append("where ID = " + iSpielPokalID.ToString());
-        //         strSQL = sb.ToString();
-        //
-        //         tblDBChangeLog objLog = new tblDBChangeLog();
-        //         objLog.Changetype = "update";
-        //         objLog.Command = strSQL;
-        //         objLog.Tablename = "tblSpielPokal";
-        //         objLog.Computername = Environment.MachineName;
-        //         objLog.Zeitstempel = DateTime.Now;
-        //         DBContext.tblDBChangeLog.Add(objLog);
-        //         DBContext.SaveChanges();
-        //
-        //         m_objDBWeb.SaveSpielPokalEingabe(iSpielPokalID, iPlatzierung);
-        //         m_objDBWeb.SaveDBLog(objLog.Changetype, objLog.Computername, objLog.Tablename, objLog.Command, objLog.Zeitstempel.Value);
-        //     }
-        // }
-    }
-
-    public void SaveSpielSargKegelnEingabe(Int32 iSpielSargKegelnID, Int32 iPlatzierung)
-    {
-        // string strSQL = string.Empty;
-        // StringBuilder sb = new StringBuilder();
-        //
-        // using (KEPAVerwaltungEntities DBContext = new KEPAVerwaltungEntities())
-        // {
-        //     var objSargKegeln = (DBContext.tblSpielSargKegeln
-        //                 .Select(m => m)).SingleOrDefault(m => m.ID == iSpielSargKegelnID);
-        //
-        //     if (objSargKegeln.Platzierung != iPlatzierung)
-        //     {
-        //         objSargKegeln.Platzierung = iPlatzierung;
-        //         DBContext.SaveChanges();
-        //
-        //         sb.Append("update tblSpielSargKegeln ");
-        //         sb.Append("set Platzierung = " + iPlatzierung.ToString()).Append(" ");
-        //         sb.Append("where ID = " + iSpielSargKegelnID.ToString());
-        //         strSQL = sb.ToString();
-        //
-        //         tblDBChangeLog objLog = new tblDBChangeLog();
-        //         objLog.Changetype = "update";
-        //         objLog.Command = strSQL;
-        //         objLog.Tablename = "tblSpielSargKegeln";
-        //         objLog.Computername = Environment.MachineName;
-        //         objLog.Zeitstempel = DateTime.Now;
-        //         DBContext.tblDBChangeLog.Add(objLog);
-        //         DBContext.SaveChanges();
-        //
-        //         m_objDBWeb.SaveSpielPokalEingabe(iSpielSargKegelnID, iPlatzierung);
-        //         m_objDBWeb.SaveDBLog(objLog.Changetype, objLog.Computername, objLog.Tablename, objLog.Command, objLog.Zeitstempel.Value);
-        //     }
-        // }
-    }
-
-    public void SaveSpiel6TageRennen(Int32 iSpieltagID, Int32 iSpielerID1, Int32 iSpielerID2, Int32 iSpielnummer)
-    {
-        // Int32 int6TageRennenID = -1;
-        // StringBuilder sb = new StringBuilder();
-        // string strSQL = string.Empty;
-        //
-        // using (KEPAVerwaltungEntities DBContext = new KEPAVerwaltungEntities())
-        // {
-        //     tblSpiel6TageRennen obj6TR = new tblSpiel6TageRennen();
-        //     obj6TR.SpieltagID = iSpieltagID;
-        //     obj6TR.SpielerID1 = iSpielerID1;
-        //     obj6TR.SpielerID2 = iSpielerID2;
-        //     obj6TR.Runden = 0;
-        //     obj6TR.Punkte = 0;
-        //     obj6TR.Spielnummer = iSpielnummer;
-        //
-        //     DBContext.tblSpiel6TageRennen.Add(obj6TR);
-        //     DBContext.SaveChanges();
-        //     int6TageRennenID = obj6TR.ID;
-        //
-        //     sb.Append("insert into tblSpiel6TageRennen(ID, SpieltagID, SpielerID1, SpielerID2, Runden, Punkte, Spielnummer) ");
-        //     sb.Append("values (");
-        //     sb.Append(int6TageRennenID.ToString()).Append(", ");
-        //     sb.Append(iSpieltagID.ToString()).Append(", ");
-        //     sb.Append(iSpielerID1.ToString()).Append(", ");
-        //     sb.Append(iSpielerID2.ToString()).Append(", ");
-        //     sb.Append("0, 0, ");
-        //     sb.Append(iSpielnummer.ToString() + ")");
-        //     strSQL = sb.ToString();
-        //
-        //     tblDBChangeLog objLog = new tblDBChangeLog();
-        //     objLog.Changetype = "insert";
-        //     objLog.Command = strSQL;
-        //     objLog.Tablename = "tblSpiel6TageRennen";
-        //     objLog.Computername = Environment.MachineName;
-        //     objLog.Zeitstempel = DateTime.Now;
-        //     DBContext.tblDBChangeLog.Add(objLog);
-        //     DBContext.SaveChanges();
-        //
-        //     m_objDBWeb.SaveSpiel6TageRennen(int6TageRennenID, iSpieltagID, iSpielerID1, iSpielerID2, iSpielnummer);
-        //     m_objDBWeb.SaveDBLog(objLog.Changetype, objLog.Computername, objLog.Tablename, objLog.Command, objLog.Zeitstempel.Value);
-        // }
-    }
-
-    public void SaveSpielBlitztunier(Int32 iSpieltagID, Int32 iSpielerID1, Int32 iSpielerID2, Int32 iHinRueckrunde)
-    {
-        // Int32 intBlitztunierID = -1;
-        // StringBuilder sb = new StringBuilder();
-        // string strSQL = string.Empty;
-        //
-        // using (KEPAVerwaltungEntities DBContext = new KEPAVerwaltungEntities())
-        // {
-        //     tblSpielBlitztunier objBlitz = new tblSpielBlitztunier();
-        //     objBlitz.SpieltagID = iSpieltagID;
-        //     objBlitz.SpielerID1 = iSpielerID1;
-        //     objBlitz.SpielerID2 = iSpielerID2;
-        //     objBlitz.PunkteSpieler1 = 0;
-        //     objBlitz.PunkteSpieler2 = 0;
-        //     objBlitz.HinRückrunde = iHinRueckrunde;
-        //
-        //     DBContext.tblSpielBlitztunier.Add(objBlitz);
-        //     DBContext.SaveChanges();
-        //     intBlitztunierID = objBlitz.ID;
-        //
-        //     sb.Append("insert into tblSpielBlitztunier(ID, SpieltagID, SpielerID1, SpielerID2, PunkteSpieler1, PunkteSpieler2, HinRückrunde) ");
-        //     sb.Append("values (");
-        //     sb.Append(intBlitztunierID.ToString()).Append(", ");
-        //     sb.Append(iSpieltagID.ToString()).Append(", ");
-        //     sb.Append(iSpielerID1.ToString()).Append(", ");
-        //     sb.Append(iSpielerID2.ToString()).Append(", ");
-        //     sb.Append("0").Append(", ");
-        //     sb.Append("0").Append(", ");
-        //     sb.Append("0");
-        //     strSQL = sb.ToString();
-        //
-        //     tblDBChangeLog objLog = new tblDBChangeLog();
-        //     objLog.Changetype = "insert";
-        //     objLog.Command = strSQL;
-        //     objLog.Tablename = "tblSpielBlitztunier";
-        //     objLog.Computername = Environment.MachineName;
-        //     objLog.Zeitstempel = DateTime.Now;
-        //     DBContext.tblDBChangeLog.Add(objLog);
-        //     DBContext.SaveChanges();
-        //
-        //     m_objDBWeb.SaveSpielBlitztunier(intBlitztunierID, iSpieltagID, iSpielerID1, iSpielerID2, iHinRueckrunde);
-        //     m_objDBWeb.SaveDBLog(objLog.Changetype, objLog.Computername, objLog.Tablename, objLog.Command, objLog.Zeitstempel.Value);
-        // }
-    }
-
-    public void SaveSpielKombimeisterschaft(Int32 iSpieltagID, Int32 iSpielerID1, Int32 iSpielerID2,
-        Int32 iHinRueckrunde)
-    {
-        // Int32 intKombimeisterschaftID = -1;
-        // StringBuilder sb = new StringBuilder();
-        // string strSQL = string.Empty;
-        //
-        // using (KEPAVerwaltungEntities DBContext = new KEPAVerwaltungEntities())
-        // {
-        //     tblSpielKombimeisterschaft objKombi = new tblSpielKombimeisterschaft();
-        //     objKombi.SpieltagID = iSpieltagID;
-        //     objKombi.SpielerID1 = iSpielerID1;
-        //     objKombi.SpielerID2 = iSpielerID2;
-        //     objKombi.Spieler1Punkte3bis8 = 0;
-        //     objKombi.Spieler1Punkte5Kugeln = 0;
-        //     objKombi.Spieler2Punkte3bis8 = 0;
-        //     objKombi.Spieler2Punkte5Kugeln = 0;
-        //     objKombi.HinRückrunde = iHinRueckrunde;
-        //
-        //     DBContext.tblSpielKombimeisterschaft.Add(objKombi);
-        //     DBContext.SaveChanges();
-        //     intKombimeisterschaftID = objKombi.ID;
-        //
-        //     sb.Append("insert into tblSpielKombimeisterschaft(ID, SpieltagID, SpielerID1, SpielerID2, Spieler1Punkte3bis8, Spieler1Punkte5Kugeln, Spieler2Punkte3bis8, Spieler2Punkte5Kugeln, HinRückrunde) ");
-        //     sb.Append("values (");
-        //     sb.Append(intKombimeisterschaftID.ToString()).Append(", ");
-        //     sb.Append(iSpieltagID.ToString()).Append(", ");
-        //     sb.Append(iSpielerID1.ToString()).Append(", ");
-        //     sb.Append(iSpielerID2.ToString()).Append(", ");
-        //     sb.Append("0").Append(", ");
-        //     sb.Append("0").Append(", ");
-        //     sb.Append("0").Append(", ");
-        //     sb.Append("0").Append(", ");
-        //     sb.Append(iHinRueckrunde.ToString()).Append(")");
-        //     strSQL = sb.ToString();
-        //
-        //     tblDBChangeLog objLog = new tblDBChangeLog();
-        //     objLog.Changetype = "insert";
-        //     objLog.Command = strSQL;
-        //     objLog.Tablename = "tblSpielKombimeisterschaft";
-        //     objLog.Computername = Environment.MachineName;
-        //     objLog.Zeitstempel = DateTime.Now;
-        //     DBContext.tblDBChangeLog.Add(objLog);
-        //     DBContext.SaveChanges();
-        //
-        //     m_objDBWeb.SaveSpielKombimeisterschaft(intKombimeisterschaftID, iSpieltagID, iSpielerID1, iSpielerID2, iHinRueckrunde);
-        //     m_objDBWeb.SaveDBLog(objLog.Changetype, objLog.Computername, objLog.Tablename, objLog.Command, objLog.Zeitstempel.Value);
-        // }
-    }
-
-    public void SaveSpielMeisterschaft(Int32 iSpieltagID, Int32 iSpielerID1, Int32 iSpielerID2, Int32 iHinRueckrunde)
-    {
-        // Int32 intSpielMeisterschaftID = -1;
-        // StringBuilder sb = new StringBuilder();
-        // string strSQL = string.Empty;
-        //
-        // using (KEPAVerwaltungEntities DBContext = new KEPAVerwaltungEntities())
-        // {
-        //     tblSpielMeisterschaft objMeisterschaft = new tblSpielMeisterschaft();
-        //     objMeisterschaft.SpieltagID = iSpieltagID;
-        //     objMeisterschaft.SpielerID1 = iSpielerID1;
-        //     objMeisterschaft.SpielerID2 = iSpielerID2;
-        //     objMeisterschaft.HolzSpieler1 = 0;
-        //     objMeisterschaft.HolzSpieler2 = 0;
-        //     objMeisterschaft.HinRückrunde = iHinRueckrunde;
-        //
-        //     DBContext.tblSpielMeisterschaft.Add(objMeisterschaft);
-        //     DBContext.SaveChanges();
-        //     intSpielMeisterschaftID = objMeisterschaft.ID;
-        //
-        //     sb.Append("insert into tblSpielMeisterschaft(ID, SpieltagID, SpielerID1, SpielerID2, HolzSpieler1, HolzSpieler2, HinRückrunde) ");
-        //     sb.Append("values (");
-        //     sb.Append(intSpielMeisterschaftID.ToString()).Append(", ");
-        //     sb.Append(iSpieltagID.ToString()).Append(", ");
-        //     sb.Append(iSpielerID1.ToString()).Append(", ");
-        //     sb.Append(iSpielerID2.ToString()).Append(", ");
-        //     sb.Append("0").Append(", ");
-        //     sb.Append("0").Append(", ");
-        //     sb.Append("0");
-        //     strSQL = sb.ToString();
-        //
-        //     tblDBChangeLog objLog = new tblDBChangeLog();
-        //     objLog.Changetype = "insert";
-        //     objLog.Command = strSQL;
-        //     objLog.Tablename = "tblSpielMeisterschaft";
-        //     objLog.Computername = Environment.MachineName;
-        //     objLog.Zeitstempel = DateTime.Now;
-        //     DBContext.tblDBChangeLog.Add(objLog);
-        //     DBContext.SaveChanges();
-        //
-        //     m_objDBWeb.SaveSpielMeisterschaft(intSpielMeisterschaftID, iSpieltagID, iSpielerID1, iSpielerID2, iHinRueckrunde);
-        //     m_objDBWeb.SaveDBLog(objLog.Changetype, objLog.Computername, objLog.Tablename, objLog.Command, objLog.Zeitstempel.Value);
-        // }
-    }
-
-    public void SaveSpielPokal(Int32 iSpieltagID, Int32 iSpielerID)
-    {
-        // Int32 intSpielPokalID = -1;
-        // StringBuilder sb = new StringBuilder();
-        // string strSQL = string.Empty;
-        //
-        // using (KEPAVerwaltungEntities DBContext = new KEPAVerwaltungEntities())
-        // {
-        //     tblSpielPokal objPokal = new tblSpielPokal();
-        //     objPokal.SpieltagID = iSpieltagID;
-        //     objPokal.SpielerID = iSpielerID;
-        //     objPokal.Platzierung = 0;
-        //
-        //     DBContext.tblSpielPokal.Add(objPokal);
-        //     DBContext.SaveChanges();
-        //     intSpielPokalID = objPokal.ID;
-        //
-        //     sb.Append("insert into tblSpielPokal(ID, SpieltagID, SpielerID, Platzierung) ");
-        //     sb.Append("values (");
-        //     sb.Append(intSpielPokalID.ToString()).Append(", ");
-        //     sb.Append(iSpieltagID.ToString()).Append(", ");
-        //     sb.Append(iSpielerID.ToString()).Append(", ");
-        //     sb.Append("0)");
-        //     strSQL = sb.ToString();
-        //
-        //     tblDBChangeLog objLog = new tblDBChangeLog();
-        //     objLog.Changetype = "insert";
-        //     objLog.Command = strSQL;
-        //     objLog.Tablename = "tblSpielPokal";
-        //     objLog.Computername = Environment.MachineName;
-        //     objLog.Zeitstempel = DateTime.Now;
-        //     DBContext.tblDBChangeLog.Add(objLog);
-        //     DBContext.SaveChanges();
-        //
-        //     m_objDBWeb.SaveSpielPokal(intSpielPokalID, iSpieltagID, iSpielerID);
-        //     m_objDBWeb.SaveDBLog(objLog.Changetype, objLog.Computername, objLog.Tablename, objLog.Command, objLog.Zeitstempel.Value);
-        // }
-    }
-
-    public void SaveSpielSargKegeln(Int32 iSpieltagID, Int32 iSpielerID)
-    {
-        // Int32 intSpielPokalID = -1;
-        // StringBuilder sb = new StringBuilder();
-        // string strSQL = string.Empty;
-        //
-        // using (KEPAVerwaltungEntities DBContext = new KEPAVerwaltungEntities())
-        // {
-        //     tblSpielSargKegeln objSarg = new tblSpielSargKegeln();
-        //     objSarg.SpieltagID = iSpieltagID;
-        //     objSarg.SpielerID = iSpielerID;
-        //     objSarg.Platzierung = 0;
-        //
-        //     DBContext.tblSpielSargKegeln.Add(objSarg);
-        //     DBContext.SaveChanges();
-        //     intSpielPokalID = objSarg.ID;
-        //
-        //     sb.Append("insert into tblSpielSargKegeln(ID, SpieltagID, SpielerID, Platzierung) ");
-        //     sb.Append("values (");
-        //     sb.Append(intSpielPokalID.ToString()).Append(", ");
-        //     sb.Append(iSpieltagID.ToString()).Append(", ");
-        //     sb.Append(iSpielerID.ToString()).Append(", ");
-        //     sb.Append("0)");
-        //     strSQL = sb.ToString();
-        //
-        //     tblDBChangeLog objLog = new tblDBChangeLog();
-        //     objLog.Changetype = "insert";
-        //     objLog.Command = strSQL;
-        //     objLog.Tablename = "tblSpielSargKegeln";
-        //     objLog.Computername = Environment.MachineName;
-        //     objLog.Zeitstempel = DateTime.Now;
-        //     DBContext.tblDBChangeLog.Add(objLog);
-        //     DBContext.SaveChanges();
-        //
-        //     m_objDBWeb.SaveSpielSargKegeln(intSpielPokalID, iSpieltagID, iSpielerID);
-        //     m_objDBWeb.SaveDBLog(objLog.Changetype, objLog.Computername, objLog.Tablename, objLog.Command, objLog.Zeitstempel.Value);
-        // }
-    }
+    #endregion
 }

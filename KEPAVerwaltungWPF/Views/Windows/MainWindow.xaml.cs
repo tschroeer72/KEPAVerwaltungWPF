@@ -175,6 +175,8 @@ public partial class MainWindow : MetroWindow
                 break;
         }
         EnableDisableZoom(MainViewModel.ZoomActive);
+        
+        ViewManager.ShowPageOnMainView<HomeView>();
     }
 
     private void MainWindow_OnPreviewKeyDown(object sender, KeyEventArgs e)
