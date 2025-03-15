@@ -3,15 +3,15 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes" 
-             xmlns:mw="http://metro.mahapps.com/winfx/xaml/controls" 
+             xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes"
+             xmlns:mw="http://metro.mahapps.com/winfx/xaml/controls"
              xmlns:local="clr-namespace:KEPAVerwaltungWPF.Views.Pages"
              xmlns:vm="clr-namespace:KEPAVerwaltungWPF.ViewModels"
-             xmlns:i="http://schemas.microsoft.com/xaml/behaviors" 
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
              mc:Ignorable="d"
              d:DesignHeight="800" d:DesignWidth="1400"
              d:DataContext="{d:DesignInstance Type=vm:ErgebniseingabeViewModel}">
-    
+
     <UserControl.Resources>
         <DataTemplate x:Key="DragVisualTemplate">
             <Border Background="LightBlue" Padding="5" CornerRadius="4" Opacity="0.8">
@@ -19,19 +19,19 @@
             </Border>
         </DataTemplate>
     </UserControl.Resources>
-    
+
     <i:Interaction.Triggers>
         <i:EventTrigger EventName="Loaded">
-            <i:InvokeCommandAction Command="{Binding GetInitialDataCommand}"/>
+            <i:InvokeCommandAction Command="{Binding GetInitialDataCommand}" />
         </i:EventTrigger>
     </i:Interaction.Triggers>
-    
+
     <AdornerDecorator>
         <Grid Background="{DynamicResource BackgroundBrush}">
             <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
 
             <!-- Titelzeile -->
@@ -42,16 +42,16 @@
                     </TextBlock>
                 </Grid>
             </Grid>
-            
+
             <!-- Eingabe -->
             <Grid Grid.Row="1" Margin=" 10 10">
                 <StackPanel Orientation="Horizontal">
-                    <md:Card HorizontalAlignment="Left" 
+                    <md:Card HorizontalAlignment="Left"
                              VerticalAlignment="Top"
                              Background="{DynamicResource BackgroundBrush}"
                              md:ElevationAssist.Elevation="Dp3">
                         <StackPanel Margin="10 10">
-                            <Calendar md:ElevationAssist.Elevation="Dp0" 
+                            <Calendar md:ElevationAssist.Elevation="Dp0"
                                       Margin="0 0 0 10"
                                       Background="{DynamicResource BackgroundBrush}"
                                       SelectionMode="SingleDate"
@@ -59,12 +59,12 @@
                                       Style="{StaticResource MaterialDesignCalendarPortraitForeground}">
                                 <i:Interaction.Triggers>
                                     <i:EventTrigger EventName="SelectedDatesChanged">
-                                        <i:InvokeCommandAction Command="{Binding CalSelectedDatesChangedCommand}"/>
+                                        <i:InvokeCommandAction Command="{Binding CalSelectedDatesChangedCommand}" />
                                     </i:EventTrigger>
                                 </i:Interaction.Triggers>
                             </Calendar>
                             <ComboBox x:Name="CboSpielauswahl"
-                                      md:HintAssist.Hint="Spielauswahl" 
+                                      md:HintAssist.Hint="Spielauswahl"
                                       MinWidth="150"
                                       MinHeight="40"
                                       IsEnabled="{Binding CboSpielauswahlEnabled}"
@@ -73,10 +73,10 @@
                                       ItemContainerStyle="{StaticResource ComboBoxItemValueStyle}"
                                       SelectionChanged="CboSpielauswahl_OnSelectionChanged">
                             </ComboBox>
-                            
+
                             <ComboBox x:Name="CboSpielnummer"
                                       Visibility="Collapsed"
-                                      md:HintAssist.Hint="Spielnummer" 
+                                      md:HintAssist.Hint="Spielnummer"
                                       MinWidth="150"
                                       MinHeight="40"
                                       Margin="0 10"
@@ -86,8 +86,8 @@
                             </ComboBox>
                         </StackPanel>
                     </md:Card>
-                    
-                    <md:Card HorizontalAlignment="Stretch" 
+
+                    <md:Card HorizontalAlignment="Stretch"
                              VerticalAlignment="Top"
                              Margin="20 0"
                              MinHeight="410"
@@ -97,23 +97,23 @@
                              Background="{DynamicResource BackgroundBrush}"
                              md:ElevationAssist.Elevation="Dp3">
                         <StackPanel VerticalAlignment="Top"
-                                    HorizontalAlignment="Left" 
-                                    Margin=" 10 10" 
+                                    HorizontalAlignment="Left"
+                                    Margin=" 10 10"
                                     MinWidth="500">
                             <StackPanel Orientation="Horizontal">
                                 <Label Content="Ergebniseingabe"
                                        Margin="0 0 0 5"
-                                       Style="{StaticResource CardHeaderStyle}"/>
+                                       Style="{StaticResource CardHeaderStyle}" />
                                 <Label Content="{Binding SelectedSpiel}"
                                        Margin="20 0 0 5"
                                        Foreground="{DynamicResource PrimaryAccentBrush}"
-                                       Style="{StaticResource CardHeaderStyle}"/>
+                                       Style="{StaticResource CardHeaderStyle}" />
                             </StackPanel>
                             <StackPanel Orientation="Horizontal">
                                 <StackPanel MinWidth="200">
                                     <Label Content="Aktive Spieler"
                                            Margin="0 0 0 5"
-                                           Style="{StaticResource CardHeaderStyle}"/>
+                                           Style="{StaticResource CardHeaderStyle}" />
                                     <ScrollViewer HorizontalScrollBarVisibility="Auto"
                                                   VerticalScrollBarVisibility="Auto">
                                         <DataGrid x:Name="dgAktiveMitglieder"
@@ -126,20 +126,26 @@
                                                   DragOver="DataGrid_DragOver"
                                                   PreviewMouseLeftButtonDown="DataGrid_PreviewMouseLeftButtonDown">
                                             <DataGrid.Columns>
-                                                <DataGridTextColumn Header="ID" Binding="{Binding ID}" Visibility="Hidden" Width="*"/>
-                                                <DataGridTextColumn Header="Anzeigename" Binding="{Binding Anzeigename}" MinWidth="200" Width="Auto"/>
-                                                <DataGridTextColumn Header="Vorname" Binding="{Binding Vorname}" MinWidth="100" Width="Auto"/>
-                                                <DataGridTextColumn Header="Nachname" Binding="{Binding Nachname}" MinWidth="100" Width="Auto"/>
-                                                <DataGridTextColumn Header="Spitzname" Binding="{Binding Spitzname}" MinWidth="100" Width="Auto"/>
+                                                <DataGridTextColumn Header="ID" Binding="{Binding ID}"
+                                                                    Visibility="Hidden" Width="*" />
+                                                <DataGridTextColumn Header="Anzeigename"
+                                                                    Binding="{Binding Anzeigename}" MinWidth="200"
+                                                                    Width="Auto" />
+                                                <DataGridTextColumn Header="Vorname" Binding="{Binding Vorname}"
+                                                                    MinWidth="100" Width="Auto" />
+                                                <DataGridTextColumn Header="Nachname" Binding="{Binding Nachname}"
+                                                                    MinWidth="100" Width="Auto" />
+                                                <DataGridTextColumn Header="Spitzname" Binding="{Binding Spitzname}"
+                                                                    MinWidth="100" Width="Auto" />
                                             </DataGrid.Columns>
                                         </DataGrid>
                                     </ScrollViewer>
                                 </StackPanel>
-                            
+
                                 <StackPanel MinWidth="200" Margin="20 0">
                                     <Label Content="Eingabe"
                                            Margin="0 0 0 5"
-                                           Style="{StaticResource CardHeaderStyle}"/>
+                                           Style="{StaticResource CardHeaderStyle}" />
                                     <ComboBox x:Name="CboHinRueckrunde"
                                               Margin="0 0 0 20"
                                               Visibility="Collapsed"
@@ -147,13 +153,14 @@
                                               SelectedItem="{Binding SelectedHinRueckrunde, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
                                         <i:Interaction.Triggers>
                                             <i:EventTrigger EventName="SelectionChanged">
-                                                <i:InvokeCommandAction Command="{Binding CboHinRueckrundeSelectionChangedCommand}" />
+                                                <i:InvokeCommandAction
+                                                    Command="{Binding CboHinRueckrundeSelectionChangedCommand}" />
                                             </i:EventTrigger>
                                         </i:Interaction.Triggers>
                                     </ComboBox>
                                     <ScrollViewer HorizontalScrollBarVisibility="Auto"
                                                   VerticalScrollBarVisibility="Auto">
-                                        <DataGrid x:Name="dgEingabe" 
+                                        <DataGrid x:Name="dgEingabe"
                                                   AutoGenerateColumns="False"
                                                   IsReadOnly="False"
                                                   SelectionMode="Single"
@@ -170,10 +177,10 @@
                                     </ScrollViewer>
                                 </StackPanel>
                             </StackPanel>
-                               
+
                             <StackPanel VerticalAlignment="Bottom"
                                         HorizontalAlignment="Left"
-                                        Orientation="Horizontal" 
+                                        Orientation="Horizontal"
                                         Margin="0 10">
                                 <Button Margin="8,4,8,8"
                                         HorizontalAlignment="Left"
@@ -185,7 +192,7 @@
                         </StackPanel>
                     </md:Card>
                 </StackPanel>
-                
+
                 <!--ProgressRing-->
                 <mw:ProgressRing
                     IsActive="True"
@@ -196,10 +203,10 @@
                     Height="100" Width="100">
                 </mw:ProgressRing>
             </Grid>
-            
+
             <!-- Ausgabe -->
             <Grid Grid.Row="2" Margin=" 20 0">
-                <md:Card HorizontalAlignment="Stretch" 
+                <md:Card HorizontalAlignment="Stretch"
                          VerticalAlignment="Top"
                          MinHeight="200"
                          Background="{DynamicResource BackgroundBrush}"
@@ -210,7 +217,7 @@
                                Style="{StaticResource CardHeaderStyle}">
                         </Label>
                         <mw:MetroAnimatedTabControl Background="{DynamicResource BackgroundBrush}">
-                            <mw:MetroTabItem Header="9er / Ratten"  
+                            <mw:MetroTabItem Header="9er / Ratten"
                                              HeaderTemplate="{StaticResource TabButtonTemplate}"
                                              VerticalContentAlignment="Top">
                                 <Grid Margin="10 10">
@@ -218,74 +225,125 @@
                                                   VerticalScrollBarVisibility="Auto">
                                         <DataGrid x:Name="dgNeunerRatten"
                                                   ItemsSource="{Binding EingabeKontrolle9erRatten}">
-                                                <DataGrid.Columns>
-                                                    <DataGridTextColumn Header="Spieltag" Binding="{Binding Spieltag, StringFormat=\{0:dd.MM.yyyy\}}" MinWidth="100" Width="Auto"/>
-                                                    <DataGridTextColumn Header="Spielername" Binding="{Binding Spielername}" MinWidth="200" Width="Auto"/>
-                                                    <DataGridTextColumn Header="Neuner" Binding="{Binding Neuner}" MinWidth="100"  Width="Auto"/>
-                                                    <DataGridTextColumn Header="Ratten" Binding="{Binding Ratten}"  MinWidth="100" Width="Auto"/>
-                                                </DataGrid.Columns>
-                                            </DataGrid>
+                                            <DataGrid.Columns>
+                                                <DataGridTextColumn Header="Spieltag"
+                                                                    Binding="{Binding Spieltag, StringFormat=\{0:dd.MM.yyyy\}}"
+                                                                    MinWidth="100" Width="Auto" />
+                                                <DataGridTextColumn Header="Spielername"
+                                                                    Binding="{Binding Spielername}" MinWidth="200"
+                                                                    Width="Auto" />
+                                                <DataGridTextColumn Header="Neuner" Binding="{Binding Neuner}"
+                                                                    MinWidth="100" Width="Auto" />
+                                                <DataGridTextColumn Header="Ratten" Binding="{Binding Ratten}"
+                                                                    MinWidth="100" Width="Auto" />
+                                            </DataGrid.Columns>
+                                        </DataGrid>
                                     </ScrollViewer>
                                 </Grid>
                             </mw:MetroTabItem>
-                            
-                            <mw:MetroTabItem Header="6-Tage-Rennen"  HeaderTemplate="{StaticResource TabButtonTemplate}"
+
+                            <mw:MetroTabItem Header="6-Tage-Rennen" HeaderTemplate="{StaticResource TabButtonTemplate}"
                                              VerticalContentAlignment="Top">
                                 <Grid Margin="10 10">
+                                    <ScrollViewer HorizontalScrollBarVisibility="Auto"
+                                                  VerticalScrollBarVisibility="Auto">
                                         <DataGrid x:Name="dg6TageRennen"
                                                   ItemsSource="{Binding EingabeKontrolle6TageRennen}">
                                             <DataGrid.Columns>
-                                                <DataGridTextColumn Header="Spieltag" Binding="{Binding Spieltag, StringFormat=\{0:dd.MM.yyyy\}}" MinWidth="100" Width="*"/>
-                                                <DataGridTextColumn Header="Spieler1Name" Binding="{Binding Spieler1Name}" MinWidth="200" Width="*"/>
-                                                <DataGridTextColumn Header="Spieler2Name" Binding="{Binding Spieler2Name}" MinWidth="200" Width="*"/>
-                                                <DataGridTextColumn Header="Runden" Binding="{Binding Runden}" MinWidth="200"  Width="*"/>
-                                                <DataGridTextColumn Header="Punkte" Binding="{Binding Punkte}" MinWidth="200"  Width="*"/>
-                                                <DataGridTextColumn Header="Platz" Binding="{Binding Platz}" MinWidth="200"  Width="*"/>
+                                                <DataGridTextColumn Header="Spieltag"
+                                                                    Binding="{Binding Spieltag, StringFormat=\{0:dd.MM.yyyy\}}"
+                                                                    MinWidth="100" Width="*" />
+                                                <DataGridTextColumn Header="Spieler1Name"
+                                                                    Binding="{Binding Spieler1Name}" MinWidth="200"
+                                                                    Width="*" />
+                                                <DataGridTextColumn Header="Spieler2Name"
+                                                                    Binding="{Binding Spieler2Name}" MinWidth="200"
+                                                                    Width="*" />
+                                                <DataGridTextColumn Header="Runden" Binding="{Binding Runden}"
+                                                                    MinWidth="200" Width="*" />
+                                                <DataGridTextColumn Header="Punkte" Binding="{Binding Punkte}"
+                                                                    MinWidth="200" Width="*" />
+                                                <DataGridTextColumn Header="Platz" Binding="{Binding Platz}"
+                                                                    MinWidth="200" Width="*" />
                                             </DataGrid.Columns>
                                         </DataGrid>
-                                    </Grid>
+                                    </ScrollViewer>
+                                </Grid>
                             </mw:MetroTabItem>
-                            
-                            <mw:MetroTabItem Header="Pokal"  HeaderTemplate="{StaticResource TabButtonTemplate}"
+
+                            <mw:MetroTabItem Header="Pokal" HeaderTemplate="{StaticResource TabButtonTemplate}"
                                              VerticalContentAlignment="Top">
                                 <Grid Margin="10 10">
+                                    <ScrollViewer HorizontalScrollBarVisibility="Auto"
+                                                  VerticalScrollBarVisibility="Auto">
                                         <DataGrid x:Name="dgPokal"
                                                   ItemsSource="{Binding EingabeKontrollePokal}">
                                             <DataGrid.Columns>
-                                                <DataGridTextColumn Header="Spieltag" Binding="{Binding Spieltag, StringFormat=\{0:dd.MM.yyyy\}}" MinWidth="100" Width="Auto"/>
-                                                <DataGridTextColumn Header="Spielername" Binding="{Binding Spielername}" MinWidth="200" Width="Auto"/>
-                                                <DataGridTextColumn Header="Platzierung" Binding="{Binding Platzierung}"  MinWidth="100" Width="Auto"/>
+                                                <DataGridTextColumn Header="Spieltag"
+                                                                    Binding="{Binding Spieltag, StringFormat=\{0:dd.MM.yyyy\}}"
+                                                                    MinWidth="100" Width="Auto" />
+                                                <DataGridTextColumn Header="Spielername"
+                                                                    Binding="{Binding Spielername}" MinWidth="200"
+                                                                    Width="Auto" />
+                                                <DataGridTextColumn Header="Platzierung"
+                                                                    Binding="{Binding Platzierung}" MinWidth="100"
+                                                                    Width="Auto" />
                                             </DataGrid.Columns>
                                         </DataGrid>
-                                    </Grid>
+                                    </ScrollViewer>
+                                </Grid>
                             </mw:MetroTabItem>
-                            
-                            <mw:MetroTabItem Header="Kombimeisterschaft"  HeaderTemplate="{StaticResource TabButtonTemplate}"
+
+                            <mw:MetroTabItem Header="Kombimeisterschaft"
+                                             HeaderTemplate="{StaticResource TabButtonTemplate}"
                                              VerticalContentAlignment="Top">
                                 <Grid Margin="10 10">
+                                    <ScrollViewer HorizontalScrollBarVisibility="Auto"
+                                                  VerticalScrollBarVisibility="Auto">
                                         <DataGrid x:Name="dgKombimeisterschaft"
                                                   ItemsSource="{Binding EingabeKontrolleKombimeisterschaft}">
                                             <DataGrid.Columns>
-                                                <DataGridTextColumn Header="Spieltag" Binding="{Binding Spieltag, StringFormat=\{0:dd.MM.yyyy\}}" MinWidth="100" Width="*"/>
-                                                <DataGridTextColumn Header="Spieler1Name" Binding="{Binding Spieler1Name}" MinWidth="200" Width="*"/>
-                                                <DataGridTextColumn Header="Spieler2Name" Binding="{Binding Spieler2Name}" MinWidth="200" Width="*"/>
-                                                <DataGridTextColumn Header="Spieler1Punkte3bis8" Binding="{Binding Spieler1Punkte3bis8}" MinWidth="200"  Width="*"/>
-                                                <DataGridTextColumn Header="Spieler1Punkte5Kugeln" Binding="{Binding Spieler1Punkte5Kugeln}" MinWidth="200"  Width="*"/>
-                                                <DataGridTextColumn Header="Spieler2Punkte3bis8" Binding="{Binding Spieler2Punkte3bis8}" MinWidth="200"  Width="*"/>
-                                                <DataGridTextColumn Header="Spieler2Punkte5Kugeln" Binding="{Binding Spieler2Punkte5Kugeln}" MinWidth="200"  Width="*"/>
+                                                <DataGridTextColumn Header="Spieltag"
+                                                                    Binding="{Binding Spieltag, StringFormat=\{0:dd.MM.yyyy\}}"
+                                                                    MinWidth="100" Width="*" />
+                                                <DataGridTextColumn Header="Spieler1Name"
+                                                                    Binding="{Binding Spieler1Name}" MinWidth="200"
+                                                                    Width="*" />
+                                                <DataGridTextColumn Header="Spieler2Name"
+                                                                    Binding="{Binding Spieler2Name}" MinWidth="200"
+                                                                    Width="*" />
+                                                <DataGridTextColumn Header="Spieler1Punkte3bis8"
+                                                                    Binding="{Binding Spieler1Punkte3bis8}"
+                                                                    MinWidth="200" Width="*" />
+                                                <DataGridTextColumn Header="Spieler1Punkte5Kugeln"
+                                                                    Binding="{Binding Spieler1Punkte5Kugeln}"
+                                                                    MinWidth="200" Width="*" />
+                                                <DataGridTextColumn Header="Spieler2Punkte3bis8"
+                                                                    Binding="{Binding Spieler2Punkte3bis8}"
+                                                                    MinWidth="200" Width="*" />
+                                                <DataGridTextColumn Header="Spieler2Punkte5Kugeln"
+                                                                    Binding="{Binding Spieler2Punkte5Kugeln}"
+                                                                    MinWidth="200" Width="*" />
                                                 <DataGridTemplateColumn Header="HinRueckrunde">
                                                     <DataGridTemplateColumn.CellTemplate>
                                                         <DataTemplate>
                                                             <TextBlock>
                                                                 <TextBlock.Style>
                                                                     <Style TargetType="TextBlock">
-                                                                        <Setter Property="Text" Value="{Binding HinRueckrunde}" />
+                                                                        <Setter Property="Text"
+                                                                            Value="{Binding HinRueckrunde}" />
                                                                         <Style.Triggers>
-                                                                            <DataTrigger Binding="{Binding HinRueckrunde}" Value="0">
-                                                                                <Setter Property="Text" Value="Hinrunde" />
+                                                                            <DataTrigger
+                                                                                Binding="{Binding HinRueckrunde}"
+                                                                                Value="0">
+                                                                                <Setter Property="Text"
+                                                                                    Value="Hinrunde" />
                                                                             </DataTrigger>
-                                                                            <DataTrigger Binding="{Binding HinRueckrunde}" Value="1">
-                                                                                <Setter Property="Text" Value="Rückrunde" />
+                                                                            <DataTrigger
+                                                                                Binding="{Binding HinRueckrunde}"
+                                                                                Value="1">
+                                                                                <Setter Property="Text"
+                                                                                    Value="Rückrunde" />
                                                                             </DataTrigger>
                                                                         </Style.Triggers>
                                                                     </Style>
@@ -296,47 +354,76 @@
                                                 </DataGridTemplateColumn>
                                             </DataGrid.Columns>
                                         </DataGrid>
-                                    </Grid>
+                                    </ScrollViewer>
+                                </Grid>
                             </mw:MetroTabItem>
-                            
-                            <mw:MetroTabItem Header="Sargkegeln"  HeaderTemplate="{StaticResource TabButtonTemplate}"
+
+                            <mw:MetroTabItem Header="Sargkegeln" HeaderTemplate="{StaticResource TabButtonTemplate}"
                                              VerticalContentAlignment="Top">
                                 <Grid Margin="10 10">
+                                    <ScrollViewer HorizontalScrollBarVisibility="Auto"
+                                                  VerticalScrollBarVisibility="Auto">
                                         <DataGrid x:Name="dgSargkegeln"
                                                   ItemsSource="{Binding EingabeKontrolleSargkegeln}">
                                             <DataGrid.Columns>
-                                                <DataGridTextColumn Header="Spieltag" Binding="{Binding Spieltag, StringFormat=\{0:dd.MM.yyyy\}}" MinWidth="100" Width="Auto"/>
-                                                <DataGridTextColumn Header="Spielername" Binding="{Binding Spielername}" MinWidth="200" Width="Auto"/>
-                                                <DataGridTextColumn Header="Platzierung" Binding="{Binding Platzierung}"  MinWidth="100" Width="Auto"/>
+                                                <DataGridTextColumn Header="Spieltag"
+                                                                    Binding="{Binding Spieltag, StringFormat=\{0:dd.MM.yyyy\}}"
+                                                                    MinWidth="100" Width="Auto" />
+                                                <DataGridTextColumn Header="Spielername"
+                                                                    Binding="{Binding Spielername}" MinWidth="200"
+                                                                    Width="Auto" />
+                                                <DataGridTextColumn Header="Platzierung"
+                                                                    Binding="{Binding Platzierung}" MinWidth="100"
+                                                                    Width="Auto" />
                                             </DataGrid.Columns>
                                         </DataGrid>
-                                    </Grid>
+                                    </ScrollViewer>
+                                </Grid>
                             </mw:MetroTabItem>
-                            
-                            <mw:MetroTabItem Header="Meisterschaft"  HeaderTemplate="{StaticResource TabButtonTemplate}"
+
+                            <mw:MetroTabItem Header="Meisterschaft" HeaderTemplate="{StaticResource TabButtonTemplate}"
                                              VerticalContentAlignment="Top">
                                 <Grid Margin="10 10">
+                                    <ScrollViewer HorizontalScrollBarVisibility="Auto"
+                                                  VerticalScrollBarVisibility="Auto">
                                         <DataGrid x:Name="dgMeisterschaft"
                                                   ItemsSource="{Binding EingabeKontrolleMeisterschaft}">
                                             <DataGrid.Columns>
-                                                <DataGridTextColumn Header="Spieltag" Binding="{Binding Spieltag, StringFormat=\{0:dd.MM.yyyy\}}" MinWidth="100" Width="*"/>
-                                                <DataGridTextColumn Header="Spieler1Name" Binding="{Binding Spieler1Name}" MinWidth="200" Width="*"/>
-                                                <DataGridTextColumn Header="Spieler2Name" Binding="{Binding Spieler2Name}" MinWidth="200" Width="*"/>
-                                                <DataGridTextColumn Header="HolzSpieler1" Binding="{Binding HolzSpieler1}" MinWidth="200"  Width="*"/>
-                                                <DataGridTextColumn Header="HolzSpieler2" Binding="{Binding HolzSpieler2}" MinWidth="200"  Width="*"/>
+                                                <DataGridTextColumn Header="Spieltag"
+                                                                    Binding="{Binding Spieltag, StringFormat=\{0:dd.MM.yyyy\}}"
+                                                                    MinWidth="100" Width="*" />
+                                                <DataGridTextColumn Header="Spieler1Name"
+                                                                    Binding="{Binding Spieler1Name}" MinWidth="200"
+                                                                    Width="*" />
+                                                <DataGridTextColumn Header="Spieler2Name"
+                                                                    Binding="{Binding Spieler2Name}" MinWidth="200"
+                                                                    Width="*" />
+                                                <DataGridTextColumn Header="HolzSpieler1"
+                                                                    Binding="{Binding HolzSpieler1}" MinWidth="200"
+                                                                    Width="*" />
+                                                <DataGridTextColumn Header="HolzSpieler2"
+                                                                    Binding="{Binding HolzSpieler2}" MinWidth="200"
+                                                                    Width="*" />
                                                 <DataGridTemplateColumn Header="HinRueckrunde">
                                                     <DataGridTemplateColumn.CellTemplate>
                                                         <DataTemplate>
                                                             <TextBlock>
                                                                 <TextBlock.Style>
                                                                     <Style TargetType="TextBlock">
-                                                                        <Setter Property="Text" Value="{Binding HinRueckrunde}" />
+                                                                        <Setter Property="Text"
+                                                                            Value="{Binding HinRueckrunde}" />
                                                                         <Style.Triggers>
-                                                                            <DataTrigger Binding="{Binding HinRueckrunde}" Value="0">
-                                                                                <Setter Property="Text" Value="Hinrunde" />
+                                                                            <DataTrigger
+                                                                                Binding="{Binding HinRueckrunde}"
+                                                                                Value="0">
+                                                                                <Setter Property="Text"
+                                                                                    Value="Hinrunde" />
                                                                             </DataTrigger>
-                                                                            <DataTrigger Binding="{Binding HinRueckrunde}" Value="1">
-                                                                                <Setter Property="Text" Value="Rückrunde" />
+                                                                            <DataTrigger
+                                                                                Binding="{Binding HinRueckrunde}"
+                                                                                Value="1">
+                                                                                <Setter Property="Text"
+                                                                                    Value="Rückrunde" />
                                                                             </DataTrigger>
                                                                         </Style.Triggers>
                                                                     </Style>
@@ -347,33 +434,43 @@
                                                 </DataGridTemplateColumn>
                                             </DataGrid.Columns>
                                         </DataGrid>
-                                    </Grid>
+                                    </ScrollViewer>
+                                </Grid>
                             </mw:MetroTabItem>
-                            
-                            <mw:MetroTabItem Header="Blitztunier"  HeaderTemplate="{StaticResource TabButtonTemplate}"
+
+                            <mw:MetroTabItem Header="Blitztunier" HeaderTemplate="{StaticResource TabButtonTemplate}"
                                              VerticalContentAlignment="Top">
                                 <Grid Margin="10 10">
+                                    <ScrollViewer HorizontalScrollBarVisibility="Auto"
+                                                  VerticalScrollBarVisibility="Auto">
                                         <DataGrid x:Name="dgBlitztunier"
                                                   ItemsSource="{Binding EingabeKontrolleBlitztunier}">
                                             <DataGrid.Columns>
-                                                <DataGridTextColumn Header="Spieltag" Binding="{Binding Spieltag, StringFormat=\{0:dd.MM.yyyy\}}" MinWidth="100" Width="*"/>
-                                                <DataGridTextColumn Header="Spieler1Name" Binding="{Binding Spieler1Name}" MinWidth="200" Width="*"/>
-                                                <DataGridTextColumn Header="Spieler2Name" Binding="{Binding Spieler2Name}" MinWidth="200" Width="*"/>
-                                                <DataGridTextColumn Header="PunkteSpieler1" Binding="{Binding PunkteSpieler1}" MinWidth="200"  Width="*"/>
-                                                <DataGridTextColumn Header="PunkteSpieler2" Binding="{Binding PunkteSpieler2}" MinWidth="200"  Width="*"/>
+                                                <DataGridTextColumn Header="Spieltag" Binding="{Binding Spieltag, StringFormat=\{0:dd.MM.yyyy\}}" MinWidth="100" Width="*" />
+                                                <DataGridTextColumn Header="Spieler1Name" Binding="{Binding Spieler1Name}" MinWidth="200" Width="*" />
+                                                <DataGridTextColumn Header="Spieler2Name" Binding="{Binding Spieler2Name}" MinWidth="200" Width="*" />
+                                                <DataGridTextColumn Header="PunkteSpieler1" Binding="{Binding PunkteSpieler1}" MinWidth="200" Width="*" />
+                                                <DataGridTextColumn Header="PunkteSpieler2" Binding="{Binding PunkteSpieler2}" MinWidth="200" Width="*" />
                                                 <DataGridTemplateColumn Header="HinRueckrunde">
                                                     <DataGridTemplateColumn.CellTemplate>
                                                         <DataTemplate>
                                                             <TextBlock>
                                                                 <TextBlock.Style>
                                                                     <Style TargetType="TextBlock">
-                                                                        <Setter Property="Text" Value="{Binding HinRueckrunde}" />
+                                                                        <Setter Property="Text"
+                                                                            Value="{Binding HinRueckrunde}" />
                                                                         <Style.Triggers>
-                                                                            <DataTrigger Binding="{Binding HinRueckrunde}" Value="0">
-                                                                                <Setter Property="Text" Value="Hinrunde" />
+                                                                            <DataTrigger
+                                                                                Binding="{Binding HinRueckrunde}"
+                                                                                Value="0">
+                                                                                <Setter Property="Text"
+                                                                                    Value="Hinrunde" />
                                                                             </DataTrigger>
-                                                                            <DataTrigger Binding="{Binding HinRueckrunde}" Value="1">
-                                                                                <Setter Property="Text" Value="Rückrunde" />
+                                                                            <DataTrigger
+                                                                                Binding="{Binding HinRueckrunde}"
+                                                                                Value="1">
+                                                                                <Setter Property="Text"
+                                                                                    Value="Rückrunde" />
                                                                             </DataTrigger>
                                                                         </Style.Triggers>
                                                                     </Style>
@@ -384,7 +481,8 @@
                                                 </DataGridTemplateColumn>
                                             </DataGrid.Columns>
                                         </DataGrid>
-                                    </Grid>
+                                    </ScrollViewer>
+                                </Grid>
                             </mw:MetroTabItem>
                         </mw:MetroAnimatedTabControl>
                     </StackPanel>

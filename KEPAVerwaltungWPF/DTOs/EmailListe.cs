@@ -2,6 +2,6 @@
 
 public class EmailListe
 {
-    public string Vorname { get; set; }
+    public string Name { get; set; }
     public string EMail { get; set; }
 }

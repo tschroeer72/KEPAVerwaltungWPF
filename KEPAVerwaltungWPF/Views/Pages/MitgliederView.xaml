@@ -11,7 +11,7 @@
              xmlns:dtOs="clr-namespace:KEPAVerwaltungWPF.DTOs"
              xmlns:helper="clr-namespace:KEPAVerwaltungWPF.Helper"
              mc:Ignorable="d"
-             d:DesignHeight="800" d:DesignWidth="900"
+             d:DesignHeight="800" d:DesignWidth="1400"
              d:DataContext="{d:DesignInstance Type=vm:MitgliederViewModel}">
     
     <i:Interaction.Triggers>

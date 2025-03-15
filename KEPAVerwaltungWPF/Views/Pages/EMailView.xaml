@@ -24,18 +24,18 @@
                 </TextBlock>
             </Grid>
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                <RadioButton x:Name="BtnEntwickler"
-                             GroupName="grpMnuVerwaltung"
-                             Style="{StaticResource BtnUnderPageMenuStyle}"
-                             Content="E-Mail an Entwickler" FontSize="24"
-                             Width="260"
-                             Click="OpenUnderPage">
-                </RadioButton>
                 <RadioButton x:Name="BtnRundmail"
                              GroupName="grpMnuVerwaltung"
                              Style="{StaticResource BtnUnderPageMenuStyle}"
                              Content="Rundmail" FontSize="24"
                              Width="160"
+                             Click="OpenUnderPage">
+                </RadioButton>
+                <RadioButton x:Name="BtnEntwickler"
+                             GroupName="grpMnuVerwaltung"
+                             Style="{StaticResource BtnUnderPageMenuStyle}"
+                             Content="E-Mail an Entwickler" FontSize="24"
+                             Width="260"
                              Click="OpenUnderPage">
                 </RadioButton>
             </StackPanel>

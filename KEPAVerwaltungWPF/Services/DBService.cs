@@ -2375,7 +2375,7 @@ public class DBService(
         foreach (var item in lstNR)
         {
             AusgabeNeunerRatten objAusgabe = new();
-            objAusgabe.MeisterschaftsID = item.MeisterschaftsId;
+            //objAusgabe.MeisterschaftsID = item.MeisterschaftsId;
             objAusgabe.SpieltagID = item.SpieltagId;
             objAusgabe.Spieltag = item.Spieltag;
             objAusgabe.SpielerID = item.SpielerId;
@@ -3106,6 +3106,17 @@ public class DBService(
         return st;
     }
 
+    public async Task<List<Spieltage>> GetSpieltagListAsync(int iMeisterschaftsID)
+    {
+        var lstSpieltage = await _localDbContext.TblSpieltags
+            .OrderByDescending(o => o.Spieltag)
+            .Where(w => w.MeisterschaftsId == iMeisterschaftsID)
+            .Select(s => new Spieltage { Id = s.Id, Spieltag = s.Spieltag })
+            .ToListAsync();
+        
+        return lstSpieltage;
+    }
+    
     public async Task Save9erRattenAsync(Int32 iSpieltagID, Int32 iSpielerID, Int32 iNeuner, Int32 iRatten)
     {
         StringBuilder sb = new StringBuilder();
@@ -3723,6 +3734,278 @@ public class DBService(
 
     #endregion
 
+    #region Ergebnisausgabe
+
+    public async Task<List<AusgabeNeunerRatten>> Get9erRattenFromSpieltageAsync(List<int> lstIDs)
+    {
+        List<AusgabeNeunerRatten> lstAusgabe = new();
+        
+        var lst9erRatten = await _localDbContext.Vw9erRattens
+            .OrderByDescending(o => o.Spieltag)
+            .Where(w => lstIDs.Contains(w.SpieltagId))
+            .Select(s => s).ToListAsync();
+        
+        foreach (var item in lst9erRatten)
+        {
+            AusgabeNeunerRatten objAusgabe = new();
+            //objAusgabe.MeisterschaftsID = item.MeisterschaftsId;
+            objAusgabe.SpieltagID = item.SpieltagId;
+            objAusgabe.Spieltag = item.Spieltag;
+            objAusgabe.SpielerID = item.SpielerId;
+            if (!string.IsNullOrEmpty(item.Spitzname))
+            {
+                objAusgabe.Spielername = item.Spitzname;
+            }
+            else
+            {
+                objAusgabe.Spielername = item.Vorname;
+            }
+
+            objAusgabe.Neuner = item.Neuner;
+            objAusgabe.Ratten = item.Ratten;
+
+            lstAusgabe.Add(objAusgabe);
+        }
+        return lstAusgabe;
+    }
+    
+    public async Task<List<AusgabeSechsTageRennen>> Get6TageRennenFromSpieltageAsync(List<int> lstIDs)
+    {
+        List<AusgabeSechsTageRennen> lstAusgabe = new();
+        
+        var lst6TageRennen = await _localDbContext.VwSpiel6TageRennens
+            .OrderByDescending(o => o.Spieltag)
+            .Where(w => lstIDs.Contains(w.SpieltagId))
+            .Select(s => s).ToListAsync();
+        
+        foreach (var item in lst6TageRennen)
+        {
+            AusgabeSechsTageRennen objAusgabe = new();
+            objAusgabe.SpieltagID = item.SpieltagId;
+            objAusgabe.Spieltag = item.Spieltag;
+            objAusgabe.Spieler1ID = item.SpielerId1;
+            if (!string.IsNullOrEmpty(item.Spieler1Spitzname))
+            {
+                objAusgabe.Spieler1Name = item.Spieler1Spitzname;
+            }
+            else
+            {
+                objAusgabe.Spieler1Name = item.Spieler1Vorname;
+            }
+
+            objAusgabe.Spieler2ID = item.SpielerId2;
+            if (!string.IsNullOrEmpty(item.Spieler2Spitzname))
+            {
+                objAusgabe.Spieler2Name = item.Spieler2Spitzname;
+            }
+            else
+            {
+                objAusgabe.Spieler2Name = item.Spieler2Vorname;
+            }
+
+            objAusgabe.Runden = item.Runden;
+            objAusgabe.Punkte = item.Punkte;
+
+            lstAusgabe.Add(objAusgabe);
+        }
+        return lstAusgabe;
+    }
+
+    public async Task<List<AusgabePokal>> GetPokalFromSpieltageAsync(List<int> lstIDs)
+    {
+        List<AusgabePokal> lstAusgabe = new();
+        
+        var lstPokal = await _localDbContext.VwSpielPokals
+            .OrderByDescending(o => o.Spieltag)
+            .Where(w => lstIDs.Contains(w.SpieltagId))
+            .Select(s => s).ToListAsync();
+        
+        foreach (var item in lstPokal)
+        {
+            AusgabePokal objAusgabe = new();
+            objAusgabe.SpieltagID = item.SpieltagId;
+            objAusgabe.Spieltag = item.Spieltag;
+            objAusgabe.SpielerID = item.SpielerId;
+            if (!string.IsNullOrEmpty(item.Spitzname))
+            {
+                objAusgabe.Spielername = item.Spitzname;
+            }
+            else
+            {
+                objAusgabe.Spielername = item.Vorname;
+            }
+
+            objAusgabe.Platzierung = item.Platzierung;
+
+            lstAusgabe.Add(objAusgabe);
+        }
+        return lstAusgabe;
+    }
+    
+    public async Task<List<AusgabeSargkegeln>> GetSargkegelnFromSpieltageAsync(List<int> lstIDs)
+    {
+        List<AusgabeSargkegeln> lstAusgabe = new();
+        
+        var lstSarg = await _localDbContext.VwSpielSargKegelns
+            .OrderByDescending(o => o.Spieltag)
+            .Where(w => lstIDs.Contains(w.SpieltagId))
+            .Select(s => s).ToListAsync();
+        
+        foreach (var item in lstSarg)
+        {
+            AusgabeSargkegeln objAusgabe = new();
+            objAusgabe.SpieltagID = item.SpieltagId;
+            objAusgabe.Spieltag = item.Spieltag;
+            objAusgabe.SpielerID = item.SpielerId;
+            if (!string.IsNullOrEmpty(item.Spitzname))
+            {
+                objAusgabe.Spielername = item.Spitzname;
+            }
+            else
+            {
+                objAusgabe.Spielername = item.Vorname;
+            }
+
+            objAusgabe.Platzierung = item.Platzierung;
+
+            lstAusgabe.Add(objAusgabe);
+        }
+        return lstAusgabe;
+    }
+    
+    public async Task<List<AusgabeMeisterschaft>> GetMeisterschaftFromSpieltageAsync(List<int> lstIDs)
+    {
+        List<AusgabeMeisterschaft> lstAusgabe = new();
+        
+        var lstMeister = await _localDbContext.VwSpielMeisterschafts
+            .OrderByDescending(o => o.Spieltag)
+            .Where(w => lstIDs.Contains(w.SpieltagId))
+            .Select(s => s).ToListAsync();
+        
+        foreach (var item in lstMeister)
+        {
+            AusgabeMeisterschaft objAusgabe = new();
+            objAusgabe.SpieltagID = item.SpieltagId;
+            objAusgabe.Spieltag = item.Spieltag;
+            objAusgabe.Spieler1ID = item.SpielerId1;
+            if (!string.IsNullOrEmpty(item.Spieler1Spitzname))
+            {
+                objAusgabe.Spieler1Name = item.Spieler1Spitzname;
+            }
+            else
+            {
+                objAusgabe.Spieler1Name = item.Spieler1Vorname;
+            }
+
+            objAusgabe.Spieler2ID = item.SpielerId2;
+            if (!string.IsNullOrEmpty(item.Spieler2Spitzname))
+            {
+                objAusgabe.Spieler2Name = item.Spieler2Spitzname;
+            }
+            else
+            {
+                objAusgabe.Spieler2Name = item.Spieler2Vorname;
+            }
+
+            objAusgabe.HolzSpieler1 = item.HolzSpieler1;
+            objAusgabe.HolzSpieler2 = item.HolzSpieler2;
+            objAusgabe.HinRueckrunde = item.HinRückrunde;
+
+            lstAusgabe.Add(objAusgabe);
+        }
+        return lstAusgabe;
+    }
+    
+    public async Task<List<AusgabeKombimeisterschaft>> GetKombimeisterschaftFromSpieltageAsync(List<int> lstIDs)
+    {
+        List<AusgabeKombimeisterschaft> lstAusgabe = new();
+        
+        var lstMeister = await _localDbContext.VwSpielKombimeisterschafts
+            .OrderByDescending(o => o.Spieltag)
+            .Where(w => lstIDs.Contains(w.SpieltagId))
+            .Select(s => s).ToListAsync();
+        
+        foreach (var item in lstMeister)
+        {
+            AusgabeKombimeisterschaft objAusgabe = new();
+            objAusgabe.SpieltagID = item.SpieltagId;
+            objAusgabe.Spieltag = item.Spieltag;
+            objAusgabe.Spieler1ID = item.SpielerId1;
+            if (!string.IsNullOrEmpty(item.Spieler1Spitzname))
+            {
+                objAusgabe.Spieler1Name = item.Spieler1Spitzname;
+            }
+            else
+            {
+                objAusgabe.Spieler1Name = item.Spieler1Vorname;
+            }
+
+            objAusgabe.Spieler2ID = item.SpielerId2;
+            if (!string.IsNullOrEmpty(item.Spieler2Spitzname))
+            {
+                objAusgabe.Spieler2Name = item.Spieler2Spitzname;
+            }
+            else
+            {
+                objAusgabe.Spieler2Name = item.Spieler2Vorname;
+            }
+
+            objAusgabe.Spieler1Punkte3bis8 = item.Spieler1Punkte3bis8;
+            objAusgabe.Spieler2Punkte3bis8 = item.Spieler2Punkte3bis8;
+            objAusgabe.Spieler1Punkte5Kugeln = item.Spieler1Punkte5Kugeln;
+            objAusgabe.Spieler2Punkte5Kugeln = item.Spieler2Punkte5Kugeln;
+            objAusgabe.HinRueckrunde = item.HinRückrunde;
+
+            lstAusgabe.Add(objAusgabe);
+        }
+        return lstAusgabe;
+    }
+    
+    public async Task<List<AusgabeBlitztunier>> GetBlitztunierFromSpieltageAsync(List<int> lstIDs)
+    {
+        List<AusgabeBlitztunier> lstAusgabe = new();
+        
+        var lstBlitz = await _localDbContext.VwSpielBlitztuniers
+            .OrderByDescending(o => o.Spieltag)
+            .Where(w => lstIDs.Contains(w.SpieltagId))
+            .Select(s => s).ToListAsync();
+        
+        foreach (var item in lstBlitz)
+        {
+            AusgabeBlitztunier objAusgabe = new();
+            objAusgabe.SpieltagID = item.SpieltagId;
+            objAusgabe.Spieltag = item.Spieltag;
+            objAusgabe.Spieler1ID = item.SpielerId1;
+            if (!string.IsNullOrEmpty(item.Spieler1Spitzname))
+            {
+                objAusgabe.Spieler1Name = item.Spieler1Spitzname;
+            }
+            else
+            {
+                objAusgabe.Spieler1Name = item.Spieler1Vorname;
+            }
+
+            objAusgabe.Spieler2ID = item.SpielerId2;
+            if (!string.IsNullOrEmpty(item.Spieler2Spitzname))
+            {
+                objAusgabe.Spieler2Name = item.Spieler2Spitzname;
+            }
+            else
+            {
+                objAusgabe.Spieler2Name = item.Spieler2Vorname;
+            }
+
+            objAusgabe.PunkteSpieler1 = item.PunkteSpieler1;
+            objAusgabe.PunkteSpieler2 = item.PunkteSpieler2;
+            objAusgabe.HinRueckrunde = item.HinRückrunde;
+
+            lstAusgabe.Add(objAusgabe);
+        }
+        return lstAusgabe;
+    }
+    
+    #endregion
+    
     #region Mitgliederverwaltung
 
     public async Task SaveMitgliedAsync(MitgliedDetails currentMitglied)
@@ -4267,13 +4550,13 @@ public class DBService(
             {
                 var lst = await (_localDbContext.TblMitglieders
                     .Where(w => w.PassivSeit == null && w.Email != null)
-                    .Select(s => new { s.Vorname, s.Email })).ToListAsync();
+                    .Select(s => new { s.Vorname, s.Nachname, s.Email })).ToListAsync();
                 //lstEMails = lst.ToList();
 
                 foreach (var item in lst)
                 {
                     EmailListe objEMail = new EmailListe();
-                    objEMail.Vorname = item.Vorname;
+                    objEMail.Name = item.Nachname + ", " + item.Vorname;
                     objEMail.EMail = item.Email;
                     lstEMails.Add(objEMail);
                 }
@@ -4282,13 +4565,13 @@ public class DBService(
             {
                 var lst = await (_localDbContext.TblMitglieders
                     .Where(w => w.Email != null)
-                    .Select(s => new { s.Vorname, s.Email })).ToListAsync();
+                    .Select(s => new { s.Vorname, s.Nachname, s.Email })).ToListAsync();
                 //lstEMails = lst.ToList();
 
                 foreach (var item in lst)
                 {
                     EmailListe objEMail = new EmailListe();
-                    objEMail.Vorname = item.Vorname;
+                    objEMail.Name = item.Nachname + ", " + item.Vorname;
                     objEMail.EMail = item.Email;
                     lstEMails.Add(objEMail);
                 }
@@ -4784,6 +5067,36 @@ public class DBService(
         return lstTypen;
     }
 
+    public async Task<string> GetMeisterschaftstypFromMeisterschaftByIDAsync(int iID)
+    {
+        string strMT = "n/a";
+
+        try
+        {
+            var m = await _localDbContext.TblMeisterschaftens
+                .Where(w => w.Id == iID)
+                .Select(s => s).FirstOrDefaultAsync();
+
+            if (m != null)
+            {
+                var mt = await _localDbContext.TblMeisterschaftstyps
+                    .Where(w => w.Id == m.MeisterschaftstypId)
+                    .Select(s => s).FirstOrDefaultAsync();
+
+                if (mt != null)
+                {
+                    strMT = mt.Meisterschaftstyp;
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            ViewManager.ShowErrorWindow("DBService", "GetMeisterschaftstypFromMeisterschaftByIDAsync", ex.ToString());
+        }
+
+        return strMT;
+    }
+    
     public async Task<Int32> GetAktiveMeisterschaftsIDAsync()
     {
         Int32 intID = -1;

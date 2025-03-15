@@ -4,6 +4,6 @@ namespace KEPAVerwaltungWPF.DTOs;
 
 public partial class Spieltage : ObservableObject
 {
-    [ObservableProperty] private bool isSelected = false;
+    [ObservableProperty] private int id = -1;
     [ObservableProperty] private DateTime spieltag;
 }

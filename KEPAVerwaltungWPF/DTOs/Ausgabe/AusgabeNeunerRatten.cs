@@ -4,7 +4,7 @@ namespace KEPAVerwaltungWPF.DTOs.Ausgabe;
 
 public partial class AusgabeNeunerRatten : ObservableObject
 {
-    [ObservableProperty] private int meisterschaftsID = -1;
+    //[ObservableProperty] private int meisterschaftsID = -1;
     [ObservableProperty] private int spieltagID = -1;
     [ObservableProperty] private DateTime spieltag = DateTime.MinValue;
     [ObservableProperty] private int spielerID = -1;
