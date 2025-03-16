@@ -3,10 +3,13 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+             xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes" 
+             xmlns:mw="http://metro.mahapps.com/winfx/xaml/controls" 
              xmlns:local="clr-namespace:KEPAVerwaltungWPF.Views.Pages"
              xmlns:vm="clr-namespace:KEPAVerwaltungWPF.ViewModels"
              mc:Ignorable="d"
-             d:DesignHeight="300" d:DesignWidth="300"
+             d:DesignHeight="600" d:DesignWidth="1400"
              d:DataContext="{d:DesignInstance Type=vm:StatistikViewModel}">
     
     <Grid Background="{DynamicResource BackgroundBrush}">
@@ -21,10 +24,117 @@
                            Style="{StaticResource TitelTxtBxStyle}">
                 </TextBlock>
             </Grid>
+        </Grid>
         
-            <Grid HorizontalAlignment="Right">
-
-            </Grid>
+        <Grid Grid.Row="1" Margin="20 0">
+            <md:Card HorizontalAlignment="Left" 
+                     VerticalAlignment="Top"
+                     Padding="10 10"
+                     Background="{DynamicResource BackgroundBrush}"
+                     md:ElevationAssist.Elevation="Dp3">
+                <StackPanel Orientation="Vertical">
+                    <StackPanel Orientation="Horizontal">
+                        <GroupBox Header="Zeitbereich">
+                            <StackPanel Orientation="Vertical">
+                                <RadioButton GroupName="Zeit" 
+                                             Content="Laufende Meisterschaft" 
+                                             IsChecked="{Binding ZeitLaufendeMeisterschaft}"
+                                             Margin="0 5">
+                                </RadioButton>
+                                <RadioButton GroupName="Zeit" 
+                                             Content="Letzte Meisterschaft"
+                                             IsChecked="{Binding ZeitLetzteMeisterschaft}"
+                                             Margin="0 5">
+                                </RadioButton>
+                                <StackPanel Orientation="Horizontal">
+                                    <RadioButton GroupName="Zeit" 
+                                                 Content="Individueller Zeitbereich"
+                                                 IsChecked="{Binding ZeitBereich}"
+                                                 Margin="0 5">
+                                    </RadioButton>
+                                    <DatePicker md:HintAssist.Hint="Von"
+                                                Margin="10 10"
+                                                IsEnabled="{Binding ZeitBereichReadOnly, UpdateSourceTrigger=PropertyChanged}"
+                                                SelectedDate="{Binding ZeitBereichVon, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource DateYearOneToEmptyDateConverter}}"
+                                                MinWidth="120">
+                                    </DatePicker>
+                                    <DatePicker md:HintAssist.Hint="Bis"
+                                                Margin="10 10"
+                                                IsEnabled="{Binding ZeitBereichReadOnly, UpdateSourceTrigger=PropertyChanged}"
+                                                SelectedDate="{Binding ZeitBereichBis, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource DateYearOneToEmptyDateConverter}}"
+                                                MinWidth="120">
+                                    </DatePicker>
+                                </StackPanel>
+                                <RadioButton GroupName="Zeit" 
+                                                 Content="Gesamt"
+                                                 IsChecked="{Binding ZeitGesamt}"
+                                                 Margin="0 5">
+                                </RadioButton>
+                            </StackPanel>
+                        </GroupBox>
+                        
+                        <GroupBox Header="Auswahl" Margin="20 0">
+                            <StackPanel Orientation="Horizontal">
+                                <StackPanel Orientation="Vertical">
+                                    <RadioButton GroupName="Auswahl" 
+                                                 Content="Neuner"
+                                                 IsChecked="{Binding AuswahlNeuner}"
+                                                 Margin="0 5">
+                                    </RadioButton>
+                                    <RadioButton GroupName="Auswahl" 
+                                                 Content="Ratten"
+                                                 IsChecked="{Binding AuswahlRatten}"
+                                                 Margin="0 5">
+                                    </RadioButton>
+                                    <RadioButton GroupName="Auswahl" 
+                                                 Content="Pokal"
+                                                 IsChecked="{Binding AuswahlPokal}"
+                                                 Margin="0 5">
+                                    </RadioButton>
+                                    <RadioButton GroupName="Auswahl" 
+                                                 Content="Sarg"
+                                                 IsChecked="{Binding AuswahlSarg}"
+                                                 Margin="0 5">
+                                    </RadioButton>
+                                    <RadioButton GroupName="Auswahl" 
+                                                 Content="Ergebnisse Spieler/Spieler"
+                                                 IsChecked="{Binding AuswahlErgebnisseSpielerSpieler}"
+                                                 Margin="0 5">
+                                    </RadioButton>
+                                </StackPanel>
+                                <StackPanel Orientation="Vertical" Margin=" 20 0">
+                                    <RadioButton GroupName="Auswahl" 
+                                                 Content="Platzierung 6-Tage-Rennen"
+                                                 IsChecked="{Binding AuswahlPlatzierung6TageRennen}"
+                                                 Margin="0 5">
+                                    </RadioButton>
+                                    <RadioButton GroupName="Auswahl" 
+                                                 Content="Beste Mannschaft 6-Tage-Rennen"
+                                                 IsChecked="{Binding AuswahlBesteMannschaft6TageREnnen}"
+                                                 Margin="0 5">
+                                    </RadioButton>
+                                    <RadioButton GroupName="Auswahl" 
+                                                 Content="Mannschaft/Mitglied 6-Tage-Rennen"
+                                                 IsChecked="{Binding AuswahlMannschaftMitglied6TageRennen}"
+                                                 Margin="0 5">
+                                    </RadioButton>
+                                    <RadioButton GroupName="Auswahl" 
+                                                 Content="Neunerkönig / Rattenorden"
+                                                 IsChecked="{Binding AuswahlNeunerkoenigRattenorden}"
+                                                 Margin="0 5">
+                                    </RadioButton>
+                                </StackPanel>
+                            </StackPanel>
+                        </GroupBox>    
+                    </StackPanel>
+                    
+                    <StackPanel Orientation="Horizontal" Margin="10 20">
+                        <Button Content="Vorschau">
+                            
+                        </Button>
+                    </StackPanel>
+                </StackPanel>
+            </md:Card>
         </Grid>
     </Grid>
 </UserControl>

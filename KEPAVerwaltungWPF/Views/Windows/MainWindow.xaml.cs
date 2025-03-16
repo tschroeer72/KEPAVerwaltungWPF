@@ -49,9 +49,9 @@ public partial class MainWindow : MetroWindow
                 case "BtnVordrucke":
                     ViewManager.ShowPageOnMainView<VordruckeView>();
                     break;
-                case "BtnEinstellungen":
-                    ViewManager.ShowPageOnMainView<EinstellungenView>();
-                    break;
+                // case "BtnEinstellungen":
+                //     ViewManager.ShowPageOnMainView<EinstellungenView>();
+                //     break;
             }
         }
         else if (sender is MenuItem objMenuItem)
@@ -60,6 +60,9 @@ public partial class MainWindow : MetroWindow
             {
                 case "MnuBtnAnleitung":
                     ShowAnleitung();
+                    break;
+                case "MnuBtnEinstellungen":
+                    ViewManager.ShowPageOnMainView<EinstellungenView>();
                     break;
                 case "MnuBtnLightTheme":
                     ChangeTheme(ThemeType.Light);
@@ -193,9 +196,15 @@ public partial class MainWindow : MetroWindow
         {
             case Key.F1:
                 ShowAnleitung();
+                e.Handled = true; // Verhindert, dass andere Ereignisse ausgelöst werden
+                break;
+            case Key.F8:
+                ViewManager.ShowPageOnMainView<EinstellungenView>();
+                e.Handled = true; // Verhindert, dass andere Ereignisse ausgelöst werden
                 break;
             case Key.F11:
                 SwitchThemeMode();
+                e.Handled = true; // Verhindert, dass andere Ereignisse ausgelöst werden
                 break;
             case Key.F12:
                 EnableDisableZoom(!MainViewModel.ZoomActive);

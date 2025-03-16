@@ -106,6 +106,27 @@
                             </MenuItem.Header>
                         </MenuItem>
                         
+                        <MenuItem Name="MnuBtnEinstellungen"
+                                  Height="50" 
+                                  Background="{DynamicResource BackgroundBrush}"
+                                  FontWeight="ExtraBold"
+                                  Cursor="Hand" 
+                                  InputGestureText="F8"
+                                  Click="OpenPageOnMain">
+                            <MenuItem.Header>
+                                <StackPanel Orientation="Horizontal">
+                                    <md:PackIcon Kind="Settings"
+                                                 Height="30" Width="30"
+                                                 Foreground="{DynamicResource TitleBrush}"/>
+                                    <Label Content="Einstellungen" 
+                                           Foreground="{DynamicResource TitleBrush}"
+                                           FontSize="20" FontWeight="ExtraBold"
+                                           VerticalContentAlignment="Center">
+                                    </Label>
+                                </StackPanel>
+                            </MenuItem.Header>
+                        </MenuItem>
+                        
                         <MenuItem x:Name="MnuBtnLightTheme"
                                   Height="50" 
                                   Background="{DynamicResource BackgroundBrush}"
@@ -269,12 +290,12 @@
                              Width="140" Height="44"
                              Click="OpenPageOnMain">
                 </RadioButton>
-                <RadioButton x:Name="BtnEinstellungen" GroupName="grpTitleBar"
-                             Style="{StaticResource BtnMainMenuStyle}"
-                             Content="Einstellungen" 
-                             Width="200" Height="44"
-                             Click="OpenPageOnMain">
-                </RadioButton>
+                <!-- <RadioButton x:Name="BtnEinstellungen" GroupName="grpTitleBar" -->
+                <!--              Style="{StaticResource BtnMainMenuStyle}" -->
+                <!--              Content="Einstellungen"  -->
+                <!--              Width="200" Height="44" -->
+                <!--              Click="OpenPageOnMain"> -->
+                <!-- </RadioButton> -->
             </StackPanel>
         </Grid>
         

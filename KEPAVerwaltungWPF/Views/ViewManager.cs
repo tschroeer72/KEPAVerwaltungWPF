@@ -71,17 +71,17 @@ public class ViewManager
             case "HomeView":
                 MainView!.BtnHome.IsChecked = true;
                 MainView!.BtnVerwaltung.IsChecked = false;
-                MainView!.BtnEinstellungen.IsChecked = false;
+                // MainView!.BtnEinstellungen.IsChecked = false;
                 break;
             case "VerwaltungView":
                 MainView!.BtnHome.IsChecked = false;
                 MainView!.BtnVerwaltung.IsChecked = true;
-                MainView!.BtnEinstellungen.IsChecked = false;
+                // MainView!.BtnEinstellungen.IsChecked = false;
                 break;
             case "AdminView":
                 MainView!.BtnHome.IsChecked = false;
                 MainView!.BtnVerwaltung.IsChecked = false;
-                MainView!.BtnEinstellungen.IsChecked = true;
+                // MainView!.BtnEinstellungen.IsChecked = true;
                 break;
         }
     }

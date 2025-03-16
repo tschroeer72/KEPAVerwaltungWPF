@@ -46,7 +46,7 @@
                          Background="{DynamicResource BackgroundBrush}"
                          md:ElevationAssist.Elevation="Dp3">
                     <StackPanel Orientation="Vertical">
-                        <Label Content="Versandgund und CC-Empfänger"
+                        <Label Content="Versandgrund und CC-Empfänger"
                                Margin="0 0 0 5"
                                Style="{StaticResource CardHeaderStyle}">
                         </Label>
