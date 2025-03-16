@@ -130,7 +130,11 @@
                     
                     <StackPanel Orientation="Horizontal" Margin="10 20">
                         <Button Content="Vorschau">
-                            
+                            <i:Interaction.Triggers>
+                                <i:EventTrigger EventName="Click">
+                                    <i:InvokeCommandAction Command="{Binding VorschauCommand}"/>
+                                </i:EventTrigger>
+                            </i:Interaction.Triggers>
                         </Button>
                     </StackPanel>
                 </StackPanel>

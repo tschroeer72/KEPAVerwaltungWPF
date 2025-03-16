@@ -3,10 +3,13 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+             xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes" 
+             xmlns:mw="http://metro.mahapps.com/winfx/xaml/controls" 
              xmlns:local="clr-namespace:KEPAVerwaltungWPF.Views.Pages"
              xmlns:vm="clr-namespace:KEPAVerwaltungWPF.ViewModels"
              mc:Ignorable="d"
-             d:DesignHeight="300" d:DesignWidth="300"
+             d:DesignHeight="600" d:DesignWidth="1400"
              d:DataContext="{d:DesignInstance Type=vm:VordruckeViewModel}">
     
     <Grid Background="{DynamicResource BackgroundBrush}">
@@ -21,10 +24,96 @@
                            Style="{StaticResource TitelTxtBxStyle}">
                 </TextBlock>
             </Grid>
+        </Grid>
         
-            <Grid HorizontalAlignment="Right">
-
-            </Grid>
+        <Grid Grid.Row="1" Margin="20 0">
+            <md:Card HorizontalAlignment="Left" 
+                     VerticalAlignment="Top"
+                     Padding="10 10"
+                     Background="{DynamicResource BackgroundBrush}"
+                     md:ElevationAssist.Elevation="Dp3">
+                <StackPanel Orientation="Vertical">
+                    <StackPanel Orientation="Horizontal">
+                        <GroupBox Header="Mitglieder">
+                            <StackPanel Orientation="Vertical">
+                                <RadioButton GroupName="Auswahl" 
+                                             Content="Aktive Mitglieder"
+                                             IsChecked="{Binding AuswahlAktiveMitglieder}"
+                                             Margin="0 5">
+                                </RadioButton>
+                                <RadioButton GroupName="Auswahl" 
+                                             Content="Alle Mitglieder"
+                                             IsChecked="{Binding AuswahlAlleMitglieder}"
+                                             Margin="0 5">
+                                </RadioButton>
+                            </StackPanel>
+                        </GroupBox>
+                        
+                        <GroupBox Header="Spiele" Margin="20 0">
+                            <StackPanel Orientation="Vertical">
+                                <RadioButton GroupName="Auswahl" 
+                                             Content="6-Tage-Rennen"
+                                             IsChecked="{Binding Auswahl6TageRennen}"
+                                             Margin="0 5">
+                                </RadioButton>
+                                <RadioButton GroupName="Auswahl" 
+                                             Content="Kombimeisterschaft"
+                                             IsChecked="{Binding AuswahlKombimeisterschaft}"
+                                             Margin="0 5">
+                                </RadioButton>
+                                <RadioButton GroupName="Auswahl" 
+                                             Content="Meisterschaft"
+                                             IsChecked="{Binding AuswahlMeisterschaft}"
+                                             Margin="0 5">
+                                </RadioButton>
+                                <RadioButton GroupName="Auswahl" 
+                                             Content="Blitztunier"
+                                             IsChecked="{Binding AuswahlBlitztunier}"
+                                             Margin="0 5">
+                                </RadioButton>
+                                <RadioButton GroupName="Auswahl" 
+                                             Content="Weihnachtsbaum"
+                                             IsChecked="{Binding AuswahlWeihnachtsbaum}"
+                                             Margin="0 5">
+                                </RadioButton>
+                            </StackPanel>
+                        </GroupBox>
+                        
+                        <GroupBox Header="Kasse">
+                            <StackPanel Orientation="Vertical">
+                                <RadioButton GroupName="Auswahl" 
+                                             Content="Spielverluste"
+                                             IsChecked="{Binding AuswahlSpielverluste}"
+                                             Margin="0 5">
+                                </RadioButton>
+                                <RadioButton GroupName="Auswahl" 
+                                             Content="Abrechnung"
+                                             IsChecked="{Binding AuswahlAbrechnung}"
+                                             Margin="0 5">
+                                </RadioButton>
+                            </StackPanel>
+                        </GroupBox>
+                    </StackPanel>
+                    
+                    <StackPanel Orientation="Horizontal" Margin="10 20">
+                        <Button Content="Vorschau">
+                            <i:Interaction.Triggers>
+                                <i:EventTrigger EventName="Click">
+                                    <i:InvokeCommandAction Command="{Binding VorschauCommand}"/>
+                                </i:EventTrigger>
+                            </i:Interaction.Triggers>
+                        </Button>
+                        
+                        <Button Content="PDF-Export">
+                            <i:Interaction.Triggers>
+                                <i:EventTrigger EventName="Click">
+                                    <i:InvokeCommandAction Command="{Binding VorschauCommand}"/>
+                                </i:EventTrigger>
+                            </i:Interaction.Triggers>
+                        </Button>
+                    </StackPanel>
+                </StackPanel>
+            </md:Card>
         </Grid>
     </Grid>
 </UserControl>
