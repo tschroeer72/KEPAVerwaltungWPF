@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -7,6 +8,7 @@ using KEPAVerwaltungWPF.Services;
 using KEPAVerwaltungWPF.ViewModels;
 using KEPAVerwaltungWPF.Views.Pages;
 using MahApps.Metro.Controls;
+using PdfSharp.Quality;
 
 namespace KEPAVerwaltungWPF.Views.Windows;
 

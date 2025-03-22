@@ -77,6 +77,12 @@
                                     HorizontalAlignment="Left"
                                     MinWidth="180"
                                     Content="Druckvorschau">
+                                <i:Interaction.Triggers>
+                                    <i:EventTrigger EventName="Click">
+                                        <i:InvokeCommandAction
+                                            Command="{Binding DruckvorschauCommand}" />
+                                    </i:EventTrigger>
+                                </i:Interaction.Triggers>
                             </Button>
                         </StackPanel>
                         <StackPanel Margin="10 10">

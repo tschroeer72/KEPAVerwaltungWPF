@@ -1,6 +1,7 @@
 ﻿using System.Configuration;
 using System.Diagnostics;
 using System.Globalization;
+using System.IO;
 using System.Windows;
 using System.Windows.Markup;
 using KEPAVerwaltungWPF.Models.Local;
@@ -13,6 +14,7 @@ using KEPAVerwaltungWPF.Views.Pages;
 using Microsoft.Extensions.DependencyInjection;
 using KEPAVerwaltungWPF.Views.Windows;
 using Microsoft.EntityFrameworkCore;
+using PdfSharp.Quality;
 using SplashScreen = KEPAVerwaltungWPF.Views.Windows.SplashScreen;
 
 namespace KEPAVerwaltungWPF;
@@ -31,6 +33,26 @@ public partial class App : Application
         _ServiceProvider = ServiceCollection.BuildServiceProvider();
     }
     
+    protected override void OnExit(ExitEventArgs e)
+    {
+        _ServiceProvider.Dispose();
+        base.OnExit(e);
+        
+        string tempFolderPath = Path.GetDirectoryName(PdfFileUtility.GetTempPdfFullFileName("del"));
+        if (Directory.Exists(tempFolderPath))
+            foreach (var file in System.IO.Directory.GetFiles(tempFolderPath))
+            {
+                try
+                {
+                    File.Delete(file);
+                }
+                catch (Exception ex)
+                {
+                    // Log or handle the exception as needed
+                    MessageBox.Show($"Error deleting file {file}: {ex.Message}");
+                }
+            }
+    }
     protected override async void OnStartup(StartupEventArgs e)
     {
         var mainView = _ServiceProvider.GetService<MainWindow>();
@@ -75,6 +97,7 @@ public partial class App : Application
         //Services
         services.AddSingleton<DBService>();
         services.AddSingleton<CommonService>();
+        services.AddSingleton<PrintService>();
         
         // DbContexts
         var localDbConnectionString = ConfigurationManager.ConnectionStrings["LocalDB"].ConnectionString;

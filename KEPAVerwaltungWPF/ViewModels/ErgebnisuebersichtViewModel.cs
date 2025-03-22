@@ -12,10 +12,12 @@ namespace KEPAVerwaltungWPF.ViewModels;
 public partial class ErgebnisuebersichtViewModel : BaseViewModel
 {
     private readonly DBService _dbService;
+    private readonly PrintService _printService;
 
-    public ErgebnisuebersichtViewModel(DBService dbService)
+    public ErgebnisuebersichtViewModel(DBService dbService, PrintService printService)
     {
         _dbService = dbService;
+        _printService = printService;
         Titel = "Ergebnisübersicht";
     }
     
@@ -89,5 +91,22 @@ public partial class ErgebnisuebersichtViewModel : BaseViewModel
         ErgebnisseMeisterschaft = new ObservableCollection<AusgabeMeisterschaft>(await _dbService.GetMeisterschaftFromSpieltageAsync(lstSpieltageIDs));
         ErgebnisseKombimeisterschaft = new ObservableCollection<AusgabeKombimeisterschaft>(await _dbService.GetKombimeisterschaftFromSpieltageAsync(lstSpieltageIDs));
         ErgebnisseBlitztunier = new ObservableCollection<AusgabeBlitztunier>(await _dbService.GetBlitztunierFromSpieltageAsync(lstSpieltageIDs));
+    }
+
+    [RelayCommand]
+    public async Task DruckvorschauAsync()
+    {
+        switch (Meisterschaftstyp)
+        {
+            case "Kurzturnier":
+                await _printService.DruckErgebnisKurztunierAsync(SelectedMeisterschaftID);
+                break;
+            case "Meisterschaft":
+                await _printService.DruckErgebnisMeisterschaftAsync(SelectedMeisterschaftID);
+                break;
+            case "Kombimeisterschaft":
+                await _printService.DruckErgebnisKombimeisterschaftAsync(SelectedMeisterschaftID);
+                break;
+        }
     }
 }

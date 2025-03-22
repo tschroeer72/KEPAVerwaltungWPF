@@ -5,6 +5,7 @@ using System.Windows.Documents;
 using AutoMapper;
 using KEPAVerwaltungWPF.DTOs;
 using KEPAVerwaltungWPF.DTOs.Ausgabe;
+using KEPAVerwaltungWPF.DTOs.Ergebnisse;
 using KEPAVerwaltungWPF.Models.Local;
 using KEPAVerwaltungWPF.Models.Web;
 using KEPAVerwaltungWPF.Views;
@@ -19,7 +20,6 @@ public class DBService(
     WebDbContext _webDbContext,
     CommonService _commonService) //, IMapper _mapper
 {
-  
     /*
     public Int32 GetIDFromTurboDBNumber(Int32 iTurboDBNumber)
     {
@@ -47,8 +47,6 @@ public class DBService(
         return intID;
     }
     */
-
-
 
     /*
     public List<ClsErgebnisKombimeisterschaftKreuztabelle> GetErgebnisKombimeisterschaft(Int32 iMeisterschaftsID)
@@ -263,8 +261,6 @@ public class DBService(
         return lstMeister;
     }
     */
-
-
 
     /*
     public List<ClsStatistik9erRatten> GetStatistik9erRatten(Int32 iZeitbereich, out Dictionary<string, int> oNeunerkönig, out Dictionary<string, int> oRattenkönig, DateTime? dtVon = null, DateTime? dtBis = null)
@@ -1726,7 +1722,6 @@ public class DBService(
     */
 
 
-
     #region Hilfsmethoden
 
     private DataTable CreateDataTable<T>(IEnumerable<T> entities)
@@ -2992,12 +2987,13 @@ public class DBService(
                         var lstEingabeKM = oEingabeliste as List<Kombimeisterschaft>;
                         foreach (var item in lstEingabeKM)
                             await SaveSpielKombimeisterschaftAsync(intSpieltagID, item.Spieler1ID, item.Spieler2ID,
-                                item.HinRueckrunde, item.Spieler1Punkte3bis8, item.Spieler1Punkte5Kugeln, item.Spieler2Punkte3bis8, item.Spieler2Punkte5Kugeln);
+                                item.HinRueckrunde, item.Spieler1Punkte3bis8, item.Spieler1Punkte5Kugeln,
+                                item.Spieler2Punkte3bis8, item.Spieler2Punkte5Kugeln);
 
                         if (oIDsToDelete != null && oIDsToDelete.Count > 0)
                             foreach (var del in oIDsToDelete)
                                 await DeleteSpielKombimeisterschaftAsync(del);
-                        
+
                         break;
                 }
 
@@ -3113,10 +3109,10 @@ public class DBService(
             .Where(w => w.MeisterschaftsId == iMeisterschaftsID)
             .Select(s => new Spieltage { Id = s.Id, Spieltag = s.Spieltag })
             .ToListAsync();
-        
+
         return lstSpieltage;
     }
-    
+
     public async Task Save9erRattenAsync(Int32 iSpieltagID, Int32 iSpielerID, Int32 iNeuner, Int32 iRatten)
     {
         StringBuilder sb = new StringBuilder();
@@ -3736,15 +3732,224 @@ public class DBService(
 
     #region Ergebnisausgabe
 
+    public async Task<List<ErgebnisKombimeisterschaftKreuztabelle>> GetErgebnisKombimeisterschaftAsync(
+        Int32 iMeisterschaftsID)
+    {
+        List<ErgebnisKombimeisterschaftKreuztabelle>
+            lstKombi = new List<ErgebnisKombimeisterschaftKreuztabelle>();
+
+        try
+        {
+            var items = await _localDbContext.VwErgebnisKombimeisterschafts
+                .Where(w => w.MeisterschaftsId == iMeisterschaftsID)
+                .Select(s => s).ToListAsync();
+
+            foreach (var objM in items)
+            {
+                ErgebnisKombimeisterschaftKreuztabelle objKombi = new();
+                objKombi.MeisterschaftsID = objM.MeisterschaftsId;
+                objKombi.Spieler1ID = objM.SpielerId1;
+                if (!string.IsNullOrEmpty(objM.Spieler1Spitzname))
+                {
+                    objKombi.Spieler1Name = objM.Spieler1Spitzname;
+                }
+                else
+                {
+                    objKombi.Spieler1Name = objM.Spieler1Vorname;
+                }
+
+                objKombi.Spieler2ID = objM.SpielerId2;
+                if (!string.IsNullOrEmpty(objM.Spieler2Spitzname))
+                {
+                    objKombi.Spieler2Name = objM.Spieler2Spitzname;
+                }
+                else
+                {
+                    objKombi.Spieler2Name = objM.Spieler2Vorname;
+                }
+
+                objKombi.Spieler1Punkte3bis8 = objM.Spieler1Punkte3bis8;
+                objKombi.Spieler1Punkte5Kugeln = objM.Spieler1Punkte5Kugeln;
+                objKombi.Spieler2Punkte3bis8 = objM.Spieler2Punkte3bis8;
+                objKombi.Spieler2Punkte5Kugeln = objM.Spieler2Punkte5Kugeln;
+                ;
+                objKombi.HinRueckrunde = objM.HinRückrunde;
+
+                lstKombi.Add(objKombi);
+            }
+        }
+        catch (Exception ex)
+        {
+            ViewManager.ShowErrorWindow("DBService", "GetErgebnisKombimeisterschaft", ex.Message);
+        }
+
+        return lstKombi;
+    }
+
+    public async Task<List<ErgebnisMeisterschaftKreuztabelle>> GetErgebnisMeisterschaftAsync(Int32 iMeisterschaftsID)
+    {
+        List<ErgebnisMeisterschaftKreuztabelle> lstMeister = new();
+
+        try
+        {
+            var items = await _localDbContext.VwErgebnisKurztuniers
+                .Where(w => w.MeisterschaftsId == iMeisterschaftsID)
+                .Select(s => s).ToListAsync();
+
+            foreach (var objM in items)
+            {
+                ErgebnisMeisterschaftKreuztabelle objMeister = new();
+                objMeister.MeisterschaftsID = objM.MeisterschaftsId;
+                objMeister.Spieler1ID = objM.SpielerId1;
+                if (!string.IsNullOrEmpty(objM.Spieler1Spitzname))
+                {
+                    objMeister.Spieler1Name = objM.Spieler1Spitzname;
+                }
+                else
+                {
+                    objMeister.Spieler1Name = objM.Spieler1Vorname;
+                }
+
+                objMeister.Spieler2ID = objM.SpielerId2;
+                if (!string.IsNullOrEmpty(objM.Spieler2Spitzname))
+                {
+                    objMeister.Spieler2Name = objM.Spieler2Spitzname;
+                }
+                else
+                {
+                    objMeister.Spieler2Name = objM.Spieler2Vorname;
+                }
+
+                objMeister.Spieler1Punkte = objM.PunkteSpieler1;
+                objMeister.Spieler2Punkte = objM.PunkteSpieler2;
+                objMeister.HinRueckrunde = objM.HinRückrunde;
+
+                lstMeister.Add(objMeister);
+            }
+        }
+        catch (Exception ex)
+        {
+            ViewManager.ShowErrorWindow("DBService", "GetErgebnisMeisterschaft", ex.Message);
+        }
+
+        //Testdaten, falls keine echten Daten vorhanden
+        if (lstMeister.Count == 0)
+        {
+            for (Int32 i = 0; i <= 1; i++)
+            {
+                for (Int32 j = 1; j <= 6; j++)
+                {
+                    for (Int32 k = 1; k <= 6; k++)
+                    {
+                        if (j != k)
+                        {
+                            ErgebnisMeisterschaftKreuztabelle objMeister = new();
+                            objMeister.MeisterschaftsID = iMeisterschaftsID;
+                            objMeister.Spieler1ID = j;
+                            objMeister.Spieler1Name = "Spieler " + j.ToString();
+                            objMeister.Spieler2ID = k;
+                            objMeister.Spieler2Name = "Spieler " + k.ToString();
+                            objMeister.Spieler1Punkte = 0;
+                            objMeister.Spieler2Punkte = 0;
+                            objMeister.HinRueckrunde = i;
+
+                            lstMeister.Add(objMeister);
+                        }
+                    }
+                }
+            }
+        }
+
+        return lstMeister;
+    }
+
+
+    public async Task<List<ErgebnisKurztunierKreuztabelle>> GetErgebnisKurztunierAsync(Int32 iMeisterschaftsID)
+    {
+        List<ErgebnisKurztunierKreuztabelle> lstKurz = new();
+
+        try
+        {
+            var items = await _localDbContext.VwErgebnisKurztuniers
+                .Where(w => w.MeisterschaftsId == iMeisterschaftsID)
+                .Select(s => s).ToListAsync();
+
+            foreach (var objM in items)
+            {
+                ErgebnisKurztunierKreuztabelle objKurz = new();
+                objKurz.MeisterschaftsID = objM.MeisterschaftsId;
+                objKurz.Spieler1ID = objM.SpielerId1;
+                if (!string.IsNullOrEmpty(objM.Spieler1Spitzname))
+                {
+                    objKurz.Spieler1Name = objM.Spieler1Spitzname;
+                }
+                else
+                {
+                    objKurz.Spieler1Name = objM.Spieler1Vorname;
+                }
+
+                objKurz.Spieler2ID = objM.SpielerId2;
+                if (!string.IsNullOrEmpty(objM.Spieler2Spitzname))
+                {
+                    objKurz.Spieler2Name = objM.Spieler2Spitzname;
+                }
+                else
+                {
+                    objKurz.Spieler2Name = objM.Spieler2Vorname;
+                }
+
+                objKurz.Spieler1Punkte = objM.PunkteSpieler1;
+                objKurz.Spieler2Punkte = objM.PunkteSpieler2;
+                objKurz.HinRueckrunde = objM.HinRückrunde;
+
+                lstKurz.Add(objKurz);
+            }
+        }
+        catch (Exception ex)
+        {
+            ViewManager.ShowErrorWindow("DBService", "GetErgebnisKurztunier", ex.Message);
+        }
+
+        //Testdaten, falls keine echten Daten vorhanden
+        if (lstKurz.Count == 0)
+        {
+            for (Int32 i = 0; i <= 1; i++)
+            {
+                for (Int32 j = 1; j <= 6; j++)
+                {
+                    for (Int32 k = 1; k <= 6; k++)
+                    {
+                        if (j != k)
+                        {
+                            ErgebnisKurztunierKreuztabelle objKurz = new();
+                            objKurz.MeisterschaftsID = iMeisterschaftsID;
+                            objKurz.Spieler1ID = j;
+                            objKurz.Spieler1Name = "Spieler " + j.ToString();
+                            objKurz.Spieler2ID = k;
+                            objKurz.Spieler2Name = "Spieler " + k.ToString();
+                            objKurz.Spieler1Punkte = 0;
+                            objKurz.Spieler2Punkte = 0;
+                            objKurz.HinRueckrunde = i;
+
+                            lstKurz.Add(objKurz);
+                        }
+                    }
+                }
+            }
+        }
+
+        return lstKurz;
+    }
+
     public async Task<List<AusgabeNeunerRatten>> Get9erRattenFromSpieltageAsync(List<int> lstIDs)
     {
         List<AusgabeNeunerRatten> lstAusgabe = new();
-        
+
         var lst9erRatten = await _localDbContext.Vw9erRattens
             .OrderByDescending(o => o.Spieltag)
             .Where(w => lstIDs.Contains(w.SpieltagId))
             .Select(s => s).ToListAsync();
-        
+
         foreach (var item in lst9erRatten)
         {
             AusgabeNeunerRatten objAusgabe = new();
@@ -3766,18 +3971,19 @@ public class DBService(
 
             lstAusgabe.Add(objAusgabe);
         }
+
         return lstAusgabe;
     }
-    
+
     public async Task<List<AusgabeSechsTageRennen>> Get6TageRennenFromSpieltageAsync(List<int> lstIDs)
     {
         List<AusgabeSechsTageRennen> lstAusgabe = new();
-        
+
         var lst6TageRennen = await _localDbContext.VwSpiel6TageRennens
             .OrderByDescending(o => o.Spieltag)
             .Where(w => lstIDs.Contains(w.SpieltagId))
             .Select(s => s).ToListAsync();
-        
+
         foreach (var item in lst6TageRennen)
         {
             AusgabeSechsTageRennen objAusgabe = new();
@@ -3808,18 +4014,19 @@ public class DBService(
 
             lstAusgabe.Add(objAusgabe);
         }
+
         return lstAusgabe;
     }
 
     public async Task<List<AusgabePokal>> GetPokalFromSpieltageAsync(List<int> lstIDs)
     {
         List<AusgabePokal> lstAusgabe = new();
-        
+
         var lstPokal = await _localDbContext.VwSpielPokals
             .OrderByDescending(o => o.Spieltag)
             .Where(w => lstIDs.Contains(w.SpieltagId))
             .Select(s => s).ToListAsync();
-        
+
         foreach (var item in lstPokal)
         {
             AusgabePokal objAusgabe = new();
@@ -3839,18 +4046,19 @@ public class DBService(
 
             lstAusgabe.Add(objAusgabe);
         }
+
         return lstAusgabe;
     }
-    
+
     public async Task<List<AusgabeSargkegeln>> GetSargkegelnFromSpieltageAsync(List<int> lstIDs)
     {
         List<AusgabeSargkegeln> lstAusgabe = new();
-        
+
         var lstSarg = await _localDbContext.VwSpielSargKegelns
             .OrderByDescending(o => o.Spieltag)
             .Where(w => lstIDs.Contains(w.SpieltagId))
             .Select(s => s).ToListAsync();
-        
+
         foreach (var item in lstSarg)
         {
             AusgabeSargkegeln objAusgabe = new();
@@ -3870,18 +4078,19 @@ public class DBService(
 
             lstAusgabe.Add(objAusgabe);
         }
+
         return lstAusgabe;
     }
-    
+
     public async Task<List<AusgabeMeisterschaft>> GetMeisterschaftFromSpieltageAsync(List<int> lstIDs)
     {
         List<AusgabeMeisterschaft> lstAusgabe = new();
-        
+
         var lstMeister = await _localDbContext.VwSpielMeisterschafts
             .OrderByDescending(o => o.Spieltag)
             .Where(w => lstIDs.Contains(w.SpieltagId))
             .Select(s => s).ToListAsync();
-        
+
         foreach (var item in lstMeister)
         {
             AusgabeMeisterschaft objAusgabe = new();
@@ -3913,18 +4122,19 @@ public class DBService(
 
             lstAusgabe.Add(objAusgabe);
         }
+
         return lstAusgabe;
     }
-    
+
     public async Task<List<AusgabeKombimeisterschaft>> GetKombimeisterschaftFromSpieltageAsync(List<int> lstIDs)
     {
         List<AusgabeKombimeisterschaft> lstAusgabe = new();
-        
+
         var lstMeister = await _localDbContext.VwSpielKombimeisterschafts
             .OrderByDescending(o => o.Spieltag)
             .Where(w => lstIDs.Contains(w.SpieltagId))
             .Select(s => s).ToListAsync();
-        
+
         foreach (var item in lstMeister)
         {
             AusgabeKombimeisterschaft objAusgabe = new();
@@ -3958,18 +4168,19 @@ public class DBService(
 
             lstAusgabe.Add(objAusgabe);
         }
+
         return lstAusgabe;
     }
-    
+
     public async Task<List<AusgabeBlitztunier>> GetBlitztunierFromSpieltageAsync(List<int> lstIDs)
     {
         List<AusgabeBlitztunier> lstAusgabe = new();
-        
+
         var lstBlitz = await _localDbContext.VwSpielBlitztuniers
             .OrderByDescending(o => o.Spieltag)
             .Where(w => lstIDs.Contains(w.SpieltagId))
             .Select(s => s).ToListAsync();
-        
+
         foreach (var item in lstBlitz)
         {
             AusgabeBlitztunier objAusgabe = new();
@@ -4001,11 +4212,12 @@ public class DBService(
 
             lstAusgabe.Add(objAusgabe);
         }
+
         return lstAusgabe;
     }
-    
+
     #endregion
-    
+
     #region Mitgliederverwaltung
 
     public async Task SaveMitgliedAsync(MitgliedDetails currentMitglied)
@@ -5016,7 +5228,7 @@ public class DBService(
         }
         catch (Exception ex)
         {
-            ViewManager.ShowErrorWindow("DBService", "GetMeisterschaften", ex.ToString());
+            ViewManager.ShowErrorWindow("DBService", "GetMeisterschaftenAsync", ex.ToString());
         }
 
         var lstMeisterschaftSort = lstMeisterschaft.OrderByDescending(o => o.ID).ToList();
@@ -5096,7 +5308,7 @@ public class DBService(
 
         return strMT;
     }
-    
+
     public async Task<Int32> GetAktiveMeisterschaftsIDAsync()
     {
         Int32 intID = -1;

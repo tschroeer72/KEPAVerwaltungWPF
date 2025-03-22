@@ -107,7 +107,7 @@
                         <Button Content="PDF-Export">
                             <i:Interaction.Triggers>
                                 <i:EventTrigger EventName="Click">
-                                    <i:InvokeCommandAction Command="{Binding VorschauCommand}"/>
+                                    <i:InvokeCommandAction Command="{Binding PDFExportCommand}"/>
                                 </i:EventTrigger>
                             </i:Interaction.Triggers>
                         </Button>

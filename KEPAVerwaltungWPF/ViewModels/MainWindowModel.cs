@@ -1,8 +1,10 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+﻿using System.IO;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using KEPAVerwaltungWPF.DTOs;
 using KEPAVerwaltungWPF.Enums;
 using KEPAVerwaltungWPF.Services;
+using PdfSharp.Quality;
 
 namespace KEPAVerwaltungWPF.ViewModels;
 
@@ -24,6 +26,5 @@ public partial class MainWindowModel : BaseViewModel
     [ObservableProperty] private MagnifyType zoomType = MagnifyType.Rectangle;
     
     // [ObservableProperty] private string aktiveMeisterschaft = "keine aktive Meisterschaft";
-    
-    
+
 }

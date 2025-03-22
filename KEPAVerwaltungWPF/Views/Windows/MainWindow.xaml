@@ -36,12 +36,6 @@
         Loaded="MainWindow_OnLoaded"
         PreviewKeyDown="MainWindow_OnPreviewKeyDown">
     
-    <i:Interaction.Triggers>
-        <i:EventTrigger EventName="Loaded">
-            <i:InvokeCommandAction Command="{Binding ShowSplashViewCommand}"/>
-        </i:EventTrigger>
-    </i:Interaction.Triggers>
-    
     <mw:MetroWindow.LeftWindowCommands>
         <mw:WindowCommands ShowLastSeparator="False">
             <TextBlock Text="{Binding Titel}" Margin="2 0"

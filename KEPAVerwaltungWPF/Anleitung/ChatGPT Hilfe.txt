@@ -1,0 +1,165 @@
+Kannst du mir folgenden Code von virtual print engine nach pdfsharp 6.2 prewview gdi konvertieren? Nach Möglichkeit 1 zu 1 ohne irgendwelche Optimierung. Die Einheiten sind in Zentimetern angegeben. 
+
+Hier noch ein paar Hinweise zu den VPE Platzhaltern:
+nTopMargin ist die obere Blattkante, nLeftMargin die linke Blattkante, nRightMargin die rechte Blattkante und nBottomMargin die untere Blattkante.
+
+nTop entspricht der oberen Koordinate des letzten gezeichneten Objekts, nLeft der linken Koordinate, nRight der rechten Koordinate und nBottom der unteren Koordinate.
+nFree berechnet die jeweilige Koordinate anhand des zu zeichnenden Inhalts
+negative Koordinaten entsprechen der gewünschten Breite z.b. -4.5 entbricht der breite von 4.5cm
+
+   private void DruckVorlage6TageRennen()
+        {
+            //Anfang
+            VpeControl vpe = new VpeControl();
+            vpe.OpenDoc();
+            vpe.OpenProgressBar();
+            vpe.DevOrientation = PageOrientation.Landscape;
+            vpe.PageOrientation = PageOrientation.Landscape;
+
+            //Überschrift
+            vpe.TextAlignment = TextAlignment.Center;
+            vpe.SelectFont("Arial", 14);
+            vpe.SetFontAttr(TextAlignment.Center, false, false, false, false);
+            vpe.Write(vpe.nLeftMargin, vpe.nTopMargin, vpe.nRightMargin, -1, "6 Tage Rennen");
+
+            //Kopfzeile 1
+            vpe.SelectFont("Arial", 12);
+            vpe.SetFontAttr(TextAlignment.Left, false, false, false, false);
+            vpe.Write(vpe.nLeftMargin, vpe.nBottom, -4.5, vpe.nFree, "Mannschaft");
+            vpe.PenStyle = PenStyle.Solid;
+            vpe.Line(vpe.nRight, vpe.nTop, vpe.nRight, vpe.nBottom);
+            vpe.SetFontAttr(TextAlignment.Center, false, false, false, false);
+            vpe.Write(vpe.nRight, vpe.nTop, -3, vpe.nFree, "1. Nacht");
+            vpe.Line(vpe.nRight, vpe.nTop, vpe.nRight, vpe.nBottom);
+            vpe.Write(vpe.nRight, vpe.nTop, -3, vpe.nFree, "2. Nacht");
+            vpe.Line(vpe.nRight, vpe.nTop, vpe.nRight, vpe.nBottom);
+            vpe.Write(vpe.nRight, vpe.nTop, -3, vpe.nFree, "3. Nacht");
+            vpe.Line(vpe.nRight, vpe.nTop, vpe.nRight, vpe.nBottom);
+            vpe.Write(vpe.nRight, vpe.nTop, -3, vpe.nFree, "4. Nacht");
+            vpe.Line(vpe.nRight, vpe.nTop, vpe.nRight, vpe.nBottom);
+            vpe.Write(vpe.nRight, vpe.nTop, -3, vpe.nFree, "5. Nacht");
+            vpe.Line(vpe.nRight, vpe.nTop, vpe.nRight, vpe.nBottom);
+            vpe.Write(vpe.nRight, vpe.nTop, -3, vpe.nFree, "6. Nacht");
+            vpe.Line(vpe.nRight, vpe.nTop, vpe.nRight, vpe.nBottom);
+            vpe.Write(vpe.nRight, vpe.nTop, -3, vpe.nFree, "Platz");
+            vpe.Line(vpe.nLeftMargin, vpe.nBottom, -22.5, vpe.nBottom);
+
+            //Kopfzeile 2
+            vpe.SetFontAttr(TextAlignment.Left, false, false, false, false);
+            vpe.Write(vpe.nLeftMargin, vpe.nBottom, -1, vpe.nFree, "Nr.");
+            vpe.Line(vpe.nRight, vpe.nTop, vpe.nRight, vpe.nBottom);
+            vpe.SetFontAttr(TextAlignment.Center, false, false, false, false);
+            vpe.Write(vpe.nRight, vpe.nTop, -3.5, -0.5, "Namen");
+            vpe.Line(vpe.nRight, vpe.nTop, vpe.nRight, vpe.nBottom);
+            vpe.SelectFont("Arial", 12);
+            vpe.Write(vpe.nRight, vpe.nTop, -2, -0.5, "Holz");
+            vpe.Line(vpe.nRight, vpe.nTop, vpe.nRight, vpe.nBottom);
+            vpe.SelectFont("Arial", 9);
+            vpe.Write(vpe.nRight, vpe.nTop, -0.5, -0.5, "Pkt");
+            vpe.Line(vpe.nRight, vpe.nTop, vpe.nRight, vpe.nBottom);
+            vpe.Write(vpe.nRight, vpe.nTop, -0.5, -0.5, "RD");
+            vpe.Line(vpe.nRight, vpe.nTop, vpe.nRight, vpe.nBottom);
+            vpe.SelectFont("Arial", 12);
+            vpe.Write(vpe.nRight, vpe.nTop, -2, -0.5, "Holz");
+            vpe.Line(vpe.nRight, vpe.nTop, vpe.nRight, vpe.nBottom);
+            vpe.SelectFont("Arial", 9);
+            vpe.Write(vpe.nRight, vpe.nTop, -0.5, -0.5, "Pkt");
+            vpe.Line(vpe.nRight, vpe.nTop, vpe.nRight, vpe.nBottom);
+            vpe.Write(vpe.nRight, vpe.nTop, -0.5, -0.5, "RD");
+            vpe.Line(vpe.nRight, vpe.nTop, vpe.nRight, vpe.nBottom);
+            vpe.SelectFont("Arial", 12);
+            vpe.Write(vpe.nRight, vpe.nTop, -2, -0.5, "Holz");
+            vpe.Line(vpe.nRight, vpe.nTop, vpe.nRight, vpe.nBottom);
+            vpe.SelectFont("Arial", 9);
+            vpe.Write(vpe.nRight, vpe.nTop, -0.5, -0.5, "Pkt");
+            vpe.Line(vpe.nRight, vpe.nTop, vpe.nRight, vpe.nBottom);
+            vpe.Write(vpe.nRight, vpe.nTop, -0.5, -0.5, "RD");
+            vpe.Line(vpe.nRight, vpe.nTop, vpe.nRight, vpe.nBottom);
+            vpe.SelectFont("Arial", 12);
+            vpe.Write(vpe.nRight, vpe.nTop, -2, -0.5, "Holz");
+            vpe.Line(vpe.nRight, vpe.nTop, vpe.nRight, vpe.nBottom);
+            vpe.SelectFont("Arial", 9);
+            vpe.Write(vpe.nRight, vpe.nTop, -0.5, -0.5, "Pkt");
+            vpe.Line(vpe.nRight, vpe.nTop, vpe.nRight, vpe.nBottom);
+            vpe.Write(vpe.nRight, vpe.nTop, -0.5, -0.5, "RD");
+            vpe.Line(vpe.nRight, vpe.nTop, vpe.nRight, vpe.nBottom);
+            vpe.SelectFont("Arial", 12);
+            vpe.Write(vpe.nRight, vpe.nTop, -2, -0.5, "Holz");
+            vpe.Line(vpe.nRight, vpe.nTop, vpe.nRight, vpe.nBottom);
+            vpe.SelectFont("Arial", 9);
+            vpe.Write(vpe.nRight, vpe.nTop, -0.5, -0.5, "Pkt");
+            vpe.Line(vpe.nRight, vpe.nTop, vpe.nRight, vpe.nBottom);
+            vpe.Write(vpe.nRight, vpe.nTop, -0.5, -0.5, "RD");
+            vpe.Line(vpe.nRight, vpe.nTop, vpe.nRight, vpe.nBottom);
+            vpe.SelectFont("Arial", 12);
+            vpe.Write(vpe.nRight, vpe.nTop, -2, -0.5, "Holz");
+            vpe.Line(vpe.nRight, vpe.nTop, vpe.nRight, vpe.nBottom);
+            vpe.SelectFont("Arial", 9);
+            vpe.Write(vpe.nRight, vpe.nTop, -0.5, -0.5, "Pkt");
+            vpe.Line(vpe.nRight, vpe.nTop, vpe.nRight, vpe.nBottom);
+            vpe.Write(vpe.nRight, vpe.nTop, -0.5, -0.5, "RD");
+            vpe.Line(vpe.nRight, vpe.nTop, vpe.nRight, vpe.nBottom);
+            vpe.Line(vpe.nLeftMargin, vpe.nBottom, vpe.nRightMargin, vpe.nBottom);
+
+            for (Int32 i = 1; i <= 10; i++)
+            {
+                //1. Mannschaft
+                vpe.SetFontAttr(TextAlignment.Center, false, false, false, false);
+                vpe.SelectFont("Arial", 14);
+                vpe.Write(vpe.nLeftMargin, vpe.nTop + 0.5, -1, -1, i.ToString());
+                vpe.Line(vpe.nRight, vpe.nTop - 0.5, vpe.nRight, vpe.nBottom);
+
+                vpe.PenStyle = PenStyle.Dash;
+                vpe.Line(vpe.nRight, vpe.nTop + 0.75, -3.5, vpe.nTop + 0.75); //Trennlinie Namen
+                vpe.PenStyle = PenStyle.Solid;
+                vpe.Line(vpe.nRight, vpe.nTop - 0.75, vpe.nRight, -1.5); //Senktrecht
+                //1. Nacht
+                vpe.Line(vpe.nRight, vpe.nTop + 0.75, -2, vpe.nTop + 0.75); //Trennlinie Holz
+                vpe.Line(vpe.nLeft + 0.66, vpe.nTop - 0.75, vpe.nLeft + 0.66, -1.5); //Senktrecht
+                vpe.Line(vpe.nRight + 0.66, vpe.nTop, vpe.nRight + 0.66, -1.5); //Senktrecht
+                vpe.Line(vpe.nRight + 0.68, vpe.nTop, vpe.nRight + 0.68, -1.5); //Senktrecht
+                vpe.Line(vpe.nRight + 0.5, vpe.nTop, vpe.nRight + 0.5, -1.5); //Senktrecht
+                vpe.Line(vpe.nRight + 0.5, vpe.nTop, vpe.nRight + 0.5, -1.5); //Senktrecht
+                //2. Nacht
+                vpe.Line(vpe.nRight, vpe.nTop + 0.75, -2, vpe.nTop + 0.75); //Trennlinie Holz
+                vpe.Line(vpe.nLeft + 0.66, vpe.nTop - 0.75, vpe.nLeft + 0.66, -1.5); //Senktrecht
+                vpe.Line(vpe.nRight + 0.66, vpe.nTop, vpe.nRight + 0.66, -1.5); //Senktrecht
+                vpe.Line(vpe.nRight + 0.68, vpe.nTop, vpe.nRight + 0.68, -1.5); //Senktrecht
+                vpe.Line(vpe.nRight + 0.5, vpe.nTop, vpe.nRight + 0.5, -1.5); //Senktrecht
+                vpe.Line(vpe.nRight + 0.5, vpe.nTop, vpe.nRight + 0.5, -1.5); //Senktrecht
+                //3. Nacht
+                vpe.Line(vpe.nRight, vpe.nTop + 0.75, -2, vpe.nTop + 0.75); //Trennlinie Holz
+                vpe.Line(vpe.nLeft + 0.66, vpe.nTop - 0.75, vpe.nLeft + 0.66, -1.5); //Senktrecht
+                vpe.Line(vpe.nRight + 0.66, vpe.nTop, vpe.nRight + 0.66, -1.5); //Senktrecht
+                vpe.Line(vpe.nRight + 0.68, vpe.nTop, vpe.nRight + 0.68, -1.5); //Senktrecht
+                vpe.Line(vpe.nRight + 0.5, vpe.nTop, vpe.nRight + 0.5, -1.5); //Senktrecht
+                vpe.Line(vpe.nRight + 0.5, vpe.nTop, vpe.nRight + 0.5, -1.5); //Senktrecht
+                //4. Nacht
+                vpe.Line(vpe.nRight, vpe.nTop + 0.75, -2, vpe.nTop + 0.75); //Trennlinie Holz
+                vpe.Line(vpe.nLeft + 0.66, vpe.nTop - 0.75, vpe.nLeft + 0.66, -1.5); //Senktrecht
+                vpe.Line(vpe.nRight + 0.66, vpe.nTop, vpe.nRight + 0.66, -1.5); //Senktrecht
+                vpe.Line(vpe.nRight + 0.68, vpe.nTop, vpe.nRight + 0.68, -1.5); //Senktrecht
+                vpe.Line(vpe.nRight + 0.5, vpe.nTop, vpe.nRight + 0.5, -1.5); //Senktrecht
+                vpe.Line(vpe.nRight + 0.5, vpe.nTop, vpe.nRight + 0.5, -1.5); //Senktrecht
+                //5. Nacht
+                vpe.Line(vpe.nRight, vpe.nTop + 0.75, -2, vpe.nTop + 0.75); //Trennlinie Holz
+                vpe.Line(vpe.nLeft + 0.66, vpe.nTop - 0.75, vpe.nLeft + 0.66, -1.5); //Senktrecht
+                vpe.Line(vpe.nRight + 0.66, vpe.nTop, vpe.nRight + 0.66, -1.5); //Senktrecht
+                vpe.Line(vpe.nRight + 0.68, vpe.nTop, vpe.nRight + 0.68, -1.5); //Senktrecht
+                vpe.Line(vpe.nRight + 0.5, vpe.nTop, vpe.nRight + 0.5, -1.5); //Senktrecht
+                vpe.Line(vpe.nRight + 0.5, vpe.nTop, vpe.nRight + 0.5, -1.5); //Senktrecht
+                //6. Nacht
+                vpe.Line(vpe.nRight, vpe.nTop + 0.75, -2, vpe.nTop + 0.75); //Trennlinie Holz
+                vpe.Line(vpe.nLeft + 0.66, vpe.nTop - 0.75, vpe.nLeft + 0.66, -1.5); //Senktrecht
+                vpe.Line(vpe.nRight + 0.66, vpe.nTop, vpe.nRight + 0.66, -1.5); //Senktrecht
+                vpe.Line(vpe.nRight + 0.68, vpe.nTop, vpe.nRight + 0.68, -1.5); //Senktrecht
+                vpe.Line(vpe.nRight + 0.5, vpe.nTop, vpe.nRight + 0.5, -1.5); //Senktrecht
+                vpe.Line(vpe.nRight + 0.5, vpe.nTop, vpe.nRight + 0.5, -1.5); //Senktrecht
+
+                vpe.Line(vpe.nLeftMargin, vpe.nBottom, vpe.nRightMargin, vpe.nBottom); //Zeilenabschluss
+            }
+            
+            //Ende
+            vpe.CloseProgressBar();
+            vpe.Preview();
+        }

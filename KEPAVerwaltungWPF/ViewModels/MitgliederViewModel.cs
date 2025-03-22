@@ -6,6 +6,10 @@ using KEPAVerwaltungWPF.DTOs;
 using KEPAVerwaltungWPF.Services;
 using KEPAVerwaltungWPF.Validations;
 using KEPAVerwaltungWPF.Views;
+using MigraDoc.DocumentObjectModel;
+using MigraDoc.DocumentObjectModel.Tables;
+using MigraDoc.Rendering;
+using PdfSharp.Quality;
 
 namespace KEPAVerwaltungWPF.ViewModels;
 
@@ -81,6 +85,7 @@ public partial class MitgliederViewModel : BaseViewModel
         }
     }
 
+    
     [ObservableProperty] private ObservableCollection<TreeNode> mitgliederTree = new();
     [ObservableProperty] private MitgliedDetails currentMitglied = new();
     [ObservableProperty] private List<StatistikSpielerErgebnisse> statistikSpielerErgebnisse = new();
