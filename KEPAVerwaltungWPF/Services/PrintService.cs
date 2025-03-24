@@ -1,4 +1,7 @@
-﻿using KEPAVerwaltungWPF.DTOs;
+﻿using System.Drawing;
+using System.IO;
+using System.Reflection;
+using KEPAVerwaltungWPF.DTOs;
 using KEPAVerwaltungWPF.DTOs.Ergebnisse;
 using KEPAVerwaltungWPF.Helper;
 using KEPAVerwaltungWPF.Views;
@@ -7,6 +10,8 @@ using MigraDoc.DocumentObjectModel.Tables;
 using MigraDoc.Rendering;
 using PdfSharp;
 using PdfSharp.Drawing;
+using PdfSharp.Drawing.Layout;
+using PdfSharp.Pdf;
 using PdfSharp.Quality;
 
 namespace KEPAVerwaltungWPF.Services;
@@ -240,6 +245,736 @@ public class PrintService(DBService _dbService)
             vpe.PDFExport(PDFFilename);
     }
 
+    public void DruckVorlageMeisterschaft(int AnzahlTeilnehmer, string PDFFilename = "")
+    {
+        string strMeisterschaft = "Meisterschaft";
+        string strMeisterschaftstyp = "Meisterschaft";
+        Double x;
+        Double y;
+        Double xZeile;
+        Double yZeile;
+        Double xBak;
+        Double yBak;
+        Double xErg;
+        Double yErg;
+        string strText = string.Empty;
+        Int32 intSummeHinrunde = 0;
+        Int32 intSummeRückrunde = 0;
+        Int32 intSummeHinRückrunde = 0;
+        Int32 intIndex = -1;
+        Int32 intIndexSpieler1 = -1;
+        Int32 intIndexSpieler2 = -1;
+        Int32 intPlatzierungTemp = 0;
+        Int32 intPunkteTemp = 0;
+
+        //Anfang
+        VpeToPdfSharp vpe = new();
+        vpe.FileName = "Vorlage_Meisterschaft";
+        vpe.OpenDoc();
+        vpe.OpenProgressBar();
+        vpe.PageOrientation = PageOrientation.Landscape;
+        vpe.SetMargins(2, 2, 2, 2);
+        vpe.PenSize = 0.01;
+
+        //Überschrift
+        vpe.SelectFont("Arial", 18);
+        vpe.SetFontAttr(TextAlignment.Center, true, false, false, false);
+        vpe.Write(vpe.nLeftMargin, vpe.nTopMargin, vpe.nLeftMargin + 1.7 + AnzahlTeilnehmer * 2.4 + 3 * 0.8, -1,
+            strMeisterschaft);
+        vpe.SelectFont("Arial", 14);
+        vpe.Write(vpe.nLeftMargin, vpe.nBottom, vpe.nLeftMargin + 1.7 + AnzahlTeilnehmer * 2.4 + 3 * 0.8, -1,
+            strMeisterschaftstyp);
+
+        //Kopfzeile und Namensspalte
+        vpe.SelectFont("Arial", 18);
+        x = vpe.nLeftMargin;
+        y = vpe.nBottom;
+        //strText = "2023";
+        strText = DateTime.Now.Year.ToString();
+        vpe.WriteBox(x, y, -1.7, -1, strText);
+        x = vpe.nRight;
+        y = vpe.nTop;
+        xZeile = vpe.nLeft;
+        yZeile = vpe.nBottom;
+        xErg = vpe.nRight;
+        yErg = vpe.nBottom;
+        for (Int32 i = 0; i < AnzahlTeilnehmer; i++)
+        {
+            vpe.SelectFont("Arial", 9);
+            strText = " ";
+            vpe.WriteBox(x, y, -2.4, -0.5, strText);
+            xBak = vpe.nRight;
+            yBak = vpe.nTop;
+            vpe.SelectFont("Arial", 10);
+            vpe.WriteBox(vpe.nLeft, vpe.nTop + 0.5, -2.4, -0.5, "Punkte");
+            x = xBak;
+            y = yBak;
+        }
+
+        vpe.SelectFont("Arial", 7);
+        strText = "Tot. Hi. Rü.";
+        vpe.WriteBox(x, y, -0.8, -1, strText);
+        strText = "Total";
+        vpe.WriteBox(vpe.nRight, vpe.nTop, -0.8, -1, strText);
+        strText = "Platz";
+        vpe.WriteBox(vpe.nRight, vpe.nTop, -0.8, -1, strText);
+
+        x = xZeile;
+        y = yZeile;
+        vpe.SelectFont("Arial", 9);
+        for (Int32 i = 0; i < AnzahlTeilnehmer; i++)
+        {
+            strText = " ";
+            vpe.WriteBox(x, y, -1.7, -1, strText);
+            x = vpe.nLeft;
+            y = vpe.nBottom;
+        }
+
+        //Ergebnisse
+        x = xErg;
+        y = yErg;
+        vpe.SelectFont("Arial", 10);
+        for (Int32 i = 0; i < AnzahlTeilnehmer; i++) //Zeilen durchgehen
+        {
+            intSummeHinrunde = 0;
+            intSummeRückrunde = 0;
+            intSummeHinRückrunde = 0;
+
+            for (Int32 j = 0; j < AnzahlTeilnehmer; j++) //Spalten durchgehen
+            {
+                xBak = 0;
+                yBak = 0;
+                if (i == j)
+                {
+                    vpe.SetFontAttr(TextAlignment.Center, true, false, false, false);
+                    //Hinrunde
+                    //Punkte
+                    vpe.SelectFont("Arial", 10);
+                    strText = "XXX";
+                    vpe.WriteBox(x, y, -2.4, -0.5, strText);
+
+                    xBak = vpe.nRight;
+                    yBak = vpe.nTop;
+
+                    //Rückrunde
+                    //Punkte
+                    strText = "XXX";
+                    vpe.WriteBox(x, y + 0.5, -2.4, -0.5, strText);
+                    vpe.SetFontAttr(TextAlignment.Center, false, false, false, false);
+                }
+                else
+                {
+                    // //Hinrunde
+                    // vpe.SelectFont("Arial", 10);
+                    // strText = " ";
+                    // intIndexSpieler1 = lstListe.FindIndex(f =>
+                    //     f.Spieler1ID == lstTeilnehmer[i].SpielerID && f.Spieler2ID == lstTeilnehmer[j].SpielerID &&
+                    //     f.HinRueckrunde == 0);
+                    // intIndexSpieler2 = lstListe.FindIndex(f =>
+                    //     f.Spieler2ID == lstTeilnehmer[i].SpielerID && f.Spieler1ID == lstTeilnehmer[j].SpielerID &&
+                    //     f.HinRueckrunde == 0);
+                    //
+                    // //Punkte
+                    // if (intIndexSpieler1 != -1 || intIndexSpieler2 != -1)
+                    // {
+                    //     if (intIndexSpieler1 != -1)
+                    //     {
+                    //         if (lstListe[intIndexSpieler1].Spieler1ID == lstTeilnehmer[i].SpielerID)
+                    //         {
+                    //             strText = lstListe[intIndexSpieler1].Spieler1Punkte.ToString();
+                    //         }
+                    //         else
+                    //         {
+                    //             strText = lstListe[intIndexSpieler1].Spieler2Punkte.ToString();
+                    //         }
+                    //     }
+                    //
+                    //     if (intIndexSpieler2 != -1)
+                    //     {
+                    //         if (lstListe[intIndexSpieler2].Spieler1ID == lstTeilnehmer[j].SpielerID)
+                    //         {
+                    //             strText = lstListe[intIndexSpieler2].Spieler2Punkte.ToString();
+                    //         }
+                    //         else
+                    //         {
+                    //             strText = lstListe[intIndexSpieler2].Spieler1Punkte.ToString();
+                    //         }
+                    //     }
+                    // }
+
+                    strText = " ";
+                    vpe.WriteBox(x, y, -2.4, -0.5, strText);
+
+
+                    xBak = vpe.nRight;
+                    yBak = vpe.nTop;
+                    vpe.SetFontAttr(TextAlignment.Center, false, false, false, false);
+
+                    // //Rückrunde
+                    // vpe.SelectFont("Arial", 10);
+                    // strText = " ";
+                    // intIndexSpieler1 = lstListe.FindIndex(f =>
+                    //     f.Spieler1ID == lstTeilnehmer[i].SpielerID && f.Spieler2ID == lstTeilnehmer[j].SpielerID &&
+                    //     f.HinRueckrunde == 1);
+                    // intIndexSpieler2 = lstListe.FindIndex(f =>
+                    //     f.Spieler2ID == lstTeilnehmer[i].SpielerID && f.Spieler1ID == lstTeilnehmer[j].SpielerID &&
+                    //     f.HinRueckrunde == 1);
+                    //
+                    // //Punkte
+                    // if (intIndexSpieler1 != -1 || intIndexSpieler2 != -1)
+                    // {
+                    //     if (intIndexSpieler1 != -1)
+                    //     {
+                    //         if (lstListe[intIndexSpieler1].Spieler1ID == lstTeilnehmer[i].SpielerID)
+                    //         {
+                    //             strText = lstListe[intIndexSpieler1].Spieler1Punkte.ToString();
+                    //         }
+                    //         else
+                    //         {
+                    //             strText = lstListe[intIndexSpieler1].Spieler2Punkte.ToString();
+                    //         }
+                    //     }
+                    //
+                    //     if (intIndexSpieler2 != -1)
+                    //     {
+                    //         if (lstListe[intIndexSpieler2].Spieler1ID == lstTeilnehmer[j].SpielerID)
+                    //         {
+                    //             strText = lstListe[intIndexSpieler2].Spieler2Punkte.ToString();
+                    //         }
+                    //         else
+                    //         {
+                    //             strText = lstListe[intIndexSpieler2].Spieler1Punkte.ToString();
+                    //         }
+                    //     }
+                    // }
+
+                    strText = " ";
+                    vpe.WriteBox(x, y + 0.5, -2.4, -0.5, strText);
+                }
+
+                x = xBak;
+                y = yBak;
+            }
+
+            yBak = vpe.nBottom;
+
+            vpe.SetFontAttr(TextAlignment.Center, true, false, false, false);
+            vpe.SelectFont("Arial", 8);
+            //strText = "a" + i.ToString();
+            strText = " "; // intSummeHinrunde.ToString();
+            vpe.WriteBox(vpe.nRight, vpe.nTop - 0.5, -0.8, -0.5, strText);
+            //strText = "b" + i.ToString();
+            strText = " "; //intSummeRückrunde.ToString();
+            vpe.WriteBox(vpe.nLeft, vpe.nBottom, -0.8, -0.5, strText);
+            //strText = "c" + i.ToString();
+            strText = " "; //intSummeHinRückrunde.ToString();
+            vpe.WriteBox(vpe.nRight, vpe.nTop - 0.5, -0.8, -1, strText);
+            //strText = "d" + i.ToString();
+            // switch (lstTeilnehmer[i].Platzierung)
+            // {
+            //     case 1:
+            //         vpe.SelectFont("Arial", 18);
+            //         break;
+            //     case 2:
+            //         vpe.SelectFont("Arial", 15);
+            //         break;
+            //     case 3:
+            //         vpe.SelectFont("Arial", 12);
+            //         break;
+            //     default:
+            //         vpe.SelectFont("Arial", 8);
+            //         break;
+            // }
+
+            strText = " "; //lstTeilnehmer[i].Platzierung.ToString();
+            vpe.WriteBox(vpe.nRight, vpe.nTop, -0.8, -1, strText);
+            vpe.SetFontAttr(TextAlignment.Center, false, false, false, false);
+
+            x = xErg;
+            y = yBak;
+        }
+
+        vpe.SelectFont("Arial", 7);
+        vpe.SetFontAttr(TextAlignment.Center, true, false, false, false);
+        strText = "Tot. Hi. Rü.";
+        vpe.WriteBox(vpe.nLeftMargin, vpe.nBottom, -1.7, -0.5, strText);
+        for (Int32 i = 0; i < AnzahlTeilnehmer; i++)
+        {
+            vpe.SelectFont("Arial", 10);
+            //Zeilensumme Punkte
+            //strText = arrPunkte3bis8[i].ToString();
+            strText = " "; //lstTeilnehmer[i].Punkte.ToString();
+            vpe.WriteBox(vpe.nRight, vpe.nTop, -2.4, -0.5, strText);
+            ////Zeilensumme 5 Kugeln
+            ////strText = arrPunkte5Kugeln[i].ToString();
+            //strText = lstTeilnehmer[i].Punkte5Kugeln.ToString();
+            //vpe.WriteBox(vpe.nRight, vpe.nTop, -0.8, -0.5, strText);
+            //vpe.SelectFont("Arial", 8);
+            //vpe.Write(vpe.nRight, vpe.nTop, -0.8, -0.5, "");
+        }
+
+        //Ende
+        vpe.CloseProgressBar();
+
+        if (PDFFilename == string.Empty)
+            vpe.Preview();
+        else
+            vpe.PDFExport(PDFFilename);
+    }
+
+    public void DruckVorlageBlitztunier(int AnzahlTeilnehmer, string PDFFilename = "")
+    {
+        string strMeisterschaft = "Blitztunier";
+        string strMeisterschaftstyp = "Kurztunier";
+        Double x;
+        Double y;
+        Double xZeile;
+        Double yZeile;
+        Double xBak;
+        Double yBak;
+        Double xErg;
+        Double yErg;
+        string strText = string.Empty;
+        Int32 intSummeHinrunde = 0;
+        Int32 intSummeRückrunde = 0;
+        Int32 intSummeHinRückrunde = 0;
+        Int32 intIndex = -1;
+        Int32 intIndexSpieler1 = -1;
+        Int32 intIndexSpieler2 = -1;
+        Int32 intPlatzierungTemp = 0;
+        Int32 intPunkteTemp = 0;
+
+        //Anfang
+        VpeToPdfSharp vpe = new();
+        vpe.FileName = "Vorlage_Kurztunier";
+        vpe.OpenDoc();
+        vpe.OpenProgressBar();
+        vpe.PageOrientation = PageOrientation.Landscape;
+        vpe.SetMargins(2, 2, 2, 2);
+        vpe.PenSize = 0.01;
+
+        //Überschrift
+        vpe.SelectFont("Arial", 18);
+        vpe.SetFontAttr(TextAlignment.Center, true, false, false, false);
+        //vpe.Write(vpe.nLeftMargin, vpe.nTopMargin, vpe.nLeftMargin + 1.7 + lstTeilnehmer.Count * 2.4 + 3 * 0.8, -1, "KOMBI-Meisterschaft");
+        vpe.Write(vpe.nLeftMargin, vpe.nTopMargin, vpe.nLeftMargin + 1.7 + AnzahlTeilnehmer * 2.4 + 3 * 0.8, -1,
+            strMeisterschaft);
+        vpe.SelectFont("Arial", 14);
+        vpe.Write(vpe.nLeftMargin, vpe.nBottom, vpe.nLeftMargin + 1.7 + AnzahlTeilnehmer * 2.4 + 3 * 0.8, -1,
+            strMeisterschaftstyp);
+
+        //Kopfzeile und Namensspalte
+        vpe.SelectFont("Arial", 18);
+        x = vpe.nLeftMargin;
+        y = vpe.nBottom;
+        //strText = "2023";
+        strText = DateTime.Now.Year.ToString();
+        vpe.WriteBox(x, y, -1.7, -1, strText);
+        x = vpe.nRight;
+        y = vpe.nTop;
+        xZeile = vpe.nLeft;
+        yZeile = vpe.nBottom;
+        xErg = vpe.nRight;
+        yErg = vpe.nBottom;
+        for (Int32 i = 0; i < AnzahlTeilnehmer; i++)
+        {
+            vpe.SelectFont("Arial", 9);
+            strText = " ";
+            vpe.WriteBox(x, y, -2.4, -0.5, strText);
+            xBak = vpe.nRight;
+            yBak = vpe.nTop;
+            vpe.SelectFont("Arial", 10);
+            vpe.WriteBox(vpe.nLeft, vpe.nTop + 0.5, -2.4, -0.5, "Punkte");
+            x = xBak;
+            y = yBak;
+        }
+
+        vpe.SelectFont("Arial", 7);
+        strText = "Tot. Hi. Rü.";
+        vpe.WriteBox(x, y, -0.8, -1, strText);
+        strText = "Total";
+        vpe.WriteBox(vpe.nRight, vpe.nTop, -0.8, -1, strText);
+        strText = "Platz";
+        vpe.WriteBox(vpe.nRight, vpe.nTop, -0.8, -1, strText);
+
+        x = xZeile;
+        y = yZeile;
+        vpe.SelectFont("Arial", 9);
+        for (Int32 i = 0; i < AnzahlTeilnehmer; i++)
+        {
+            strText = " ";
+            vpe.WriteBox(x, y, -1.7, -1, strText);
+            x = vpe.nLeft;
+            y = vpe.nBottom;
+        }
+
+        //Ergebnisse
+        x = xErg;
+        y = yErg;
+        vpe.SelectFont("Arial", 10);
+        for (Int32 i = 0; i < AnzahlTeilnehmer; i++) //Zeilen durchgehen
+        {
+            intSummeHinrunde = 0;
+            intSummeRückrunde = 0;
+            intSummeHinRückrunde = 0;
+
+            for (Int32 j = 0; j < AnzahlTeilnehmer; j++) //Spalten durchgehen
+            {
+                xBak = 0;
+                yBak = 0;
+                if (i == j)
+                {
+                    vpe.SetFontAttr(TextAlignment.Center, true, false, false, false);
+                    //Hinrunde
+                    //Punkte
+                    vpe.SelectFont("Arial", 10);
+                    strText = "XXX";
+                    vpe.WriteBox(x, y, -2.4, -0.5, strText);
+
+                    xBak = vpe.nRight;
+                    yBak = vpe.nTop;
+
+                    //Rückrunde
+                    //Punkte
+                    strText = "XXX";
+                    vpe.WriteBox(x, y + 0.5, -2.4, -0.5, strText);
+                    vpe.SetFontAttr(TextAlignment.Center, false, false, false, false);
+                }
+                else
+                {
+                    // //Hinrunde
+                    // vpe.SelectFont("Arial", 10);
+                    // strText = " ";
+                    // intIndexSpieler1 = lstListe.FindIndex(f =>
+                    //     f.Spieler1ID == lstTeilnehmer[i].SpielerID && f.Spieler2ID == lstTeilnehmer[j].SpielerID &&
+                    //     f.HinRueckrunde == 0);
+                    // intIndexSpieler2 = lstListe.FindIndex(f =>
+                    //     f.Spieler2ID == lstTeilnehmer[i].SpielerID && f.Spieler1ID == lstTeilnehmer[j].SpielerID &&
+                    //     f.HinRueckrunde == 0);
+                    //
+                    // //Punkte
+                    // if (intIndexSpieler1 != -1 || intIndexSpieler2 != -1)
+                    // {
+                    //     if (intIndexSpieler1 != -1)
+                    //     {
+                    //         if (lstListe[intIndexSpieler1].Spieler1ID == lstTeilnehmer[i].SpielerID)
+                    //         {
+                    //             strText = lstListe[intIndexSpieler1].Spieler1Punkte.ToString();
+                    //         }
+                    //         else
+                    //         {
+                    //             strText = lstListe[intIndexSpieler1].Spieler2Punkte.ToString();
+                    //         }
+                    //     }
+                    //
+                    //     if (intIndexSpieler2 != -1)
+                    //     {
+                    //         if (lstListe[intIndexSpieler2].Spieler1ID == lstTeilnehmer[j].SpielerID)
+                    //         {
+                    //             strText = lstListe[intIndexSpieler2].Spieler2Punkte.ToString();
+                    //         }
+                    //         else
+                    //         {
+                    //             strText = lstListe[intIndexSpieler2].Spieler1Punkte.ToString();
+                    //         }
+                    //     }
+                    // }
+
+                    strText = " ";
+                    vpe.WriteBox(x, y, -2.4, -0.5, strText);
+
+                    xBak = vpe.nRight;
+                    yBak = vpe.nTop;
+                    vpe.SetFontAttr(TextAlignment.Center, false, false, false, false);
+
+                    // //Rückrunde
+                    // vpe.SelectFont("Arial", 10);
+                    // strText = " ";
+                    // intIndexSpieler1 = lstListe.FindIndex(f =>
+                    //     f.Spieler1ID == lstTeilnehmer[i].SpielerID && f.Spieler2ID == lstTeilnehmer[j].SpielerID &&
+                    //     f.HinRueckrunde == 1);
+                    // intIndexSpieler2 = lstListe.FindIndex(f =>
+                    //     f.Spieler2ID == lstTeilnehmer[i].SpielerID && f.Spieler1ID == lstTeilnehmer[j].SpielerID &&
+                    //     f.HinRueckrunde == 1);
+                    //
+                    // //Punkte
+                    // if (intIndexSpieler1 != -1 || intIndexSpieler2 != -1)
+                    // {
+                    //     if (intIndexSpieler1 != -1)
+                    //     {
+                    //         if (lstListe[intIndexSpieler1].Spieler1ID == lstTeilnehmer[i].SpielerID)
+                    //         {
+                    //             strText = lstListe[intIndexSpieler1].Spieler1Punkte.ToString();
+                    //         }
+                    //         else
+                    //         {
+                    //             strText = lstListe[intIndexSpieler1].Spieler2Punkte.ToString();
+                    //         }
+                    //     }
+                    //
+                    //     if (intIndexSpieler2 != -1)
+                    //     {
+                    //         if (lstListe[intIndexSpieler2].Spieler1ID == lstTeilnehmer[j].SpielerID)
+                    //         {
+                    //             strText = lstListe[intIndexSpieler2].Spieler2Punkte.ToString();
+                    //         }
+                    //         else
+                    //         {
+                    //             strText = lstListe[intIndexSpieler2].Spieler1Punkte.ToString();
+                    //         }
+                    //     }
+                    // }
+
+                    strText = " ";
+                    vpe.WriteBox(x, y + 0.5, -2.4, -0.5, strText);
+                }
+
+                x = xBak;
+                y = yBak;
+            }
+
+            yBak = vpe.nBottom;
+
+            vpe.SetFontAttr(TextAlignment.Center, true, false, false, false);
+            vpe.SelectFont("Arial", 8);
+            //strText = "a" + i.ToString();
+            strText = " "; // intSummeHinrunde.ToString();
+            vpe.WriteBox(vpe.nRight, vpe.nTop - 0.5, -0.8, -0.5, strText);
+            //strText = "b" + i.ToString();
+            strText = " "; // intSummeRückrunde.ToString();
+            vpe.WriteBox(vpe.nLeft, vpe.nBottom, -0.8, -0.5, strText);
+            //strText = "c" + i.ToString();
+            strText = " "; //  intSummeHinRückrunde.ToString();
+            vpe.WriteBox(vpe.nRight, vpe.nTop - 0.5, -0.8, -1, strText);
+            //strText = "d" + i.ToString();
+            // switch (lstTeilnehmer[i].Platzierung)
+            // {
+            //     case 1:
+            //         vpe.SelectFont("Arial", 18);
+            //         break;
+            //     case 2:
+            //         vpe.SelectFont("Arial", 15);
+            //         break;
+            //     case 3:
+            //         vpe.SelectFont("Arial", 12);
+            //         break;
+            //     default:
+            //         vpe.SelectFont("Arial", 8);
+            //         break;
+            // }
+
+            strText = " "; // lstTeilnehmer[i].Platzierung.ToString();
+            vpe.WriteBox(vpe.nRight, vpe.nTop, -0.8, -1, strText);
+            vpe.SetFontAttr(TextAlignment.Center, false, false, false, false);
+
+            x = xErg;
+            y = yBak;
+        }
+
+        vpe.SelectFont("Arial", 7);
+        vpe.SetFontAttr(TextAlignment.Center, true, false, false, false);
+        strText = "Tot. Hi. Rü.";
+        vpe.WriteBox(vpe.nLeftMargin, vpe.nBottom, -1.7, -0.5, strText);
+        for (Int32 i = 0; i < AnzahlTeilnehmer; i++)
+        {
+            vpe.SelectFont("Arial", 10);
+            //Zeilensumme Punkte
+            //strText = arrPunkte3bis8[i].ToString();
+            strText = " "; // lstTeilnehmer[i].Punkte.ToString();
+            vpe.WriteBox(vpe.nRight, vpe.nTop, -2.4, -0.5, strText);
+            ////Zeilensumme 5 Kugeln
+            ////strText = arrPunkte5Kugeln[i].ToString();
+            //strText = lstTeilnehmer[i].Punkte5Kugeln.ToString();
+            //vpe.WriteBox(vpe.nRight, vpe.nTop, -0.8, -0.5, strText);
+            //vpe.SelectFont("Arial", 8);
+            //vpe.Write(vpe.nRight, vpe.nTop, -0.8, -0.5, "");
+        }
+
+        //Ende
+        vpe.CloseProgressBar();
+
+        if (PDFFilename == string.Empty)
+            vpe.Preview();
+        else
+            vpe.PDFExport(PDFFilename);
+    }
+
+    public void DruckVorlageWeihnachtsbaum(string PDFFilename = "")
+    {
+        double cm = 28.35; // 1 cm in Punkten
+
+        try
+        {
+            //********************
+            //* Grundeinstellung *
+            //********************
+            PdfDocument document = new PdfDocument();
+            PdfPage page = document.AddPage();
+            page.Size = PageSize.A4;
+            page.Orientation = PdfSharp.PageOrientation.Portrait;
+            XGraphics gfx = XGraphics.FromPdfPage(page);
+
+            //*****************
+            //* Bild zeichnen *
+            //*****************
+            
+            // Bild aus den Ressourcen laden
+            string resourceName = "KEPAVerwaltungWPF.Images.Weihnachtsbaumkegeln.jpg";
+
+            using Stream stream = Assembly.GetExecutingAssembly().GetManifestResourceStream(resourceName);
+            if (stream == null)
+            {
+                //Console.WriteLine("Ressource nicht gefunden!");
+                return;
+            }
+
+            XImage img = XImage.FromStream(stream);
+            gfx.DrawImage(img, 0.2 * cm, 0.2 * cm);
+            
+            //******************
+            //* Texte zeichnen *
+            //******************
+            XFont font = new XFont("Arial", 20);
+            XRect rect = new XRect(9 * cm, 2 * cm, 4 * cm, 1.5 * cm);
+            gfx.DrawString("Name:", font, XBrushes.Black, rect, XStringFormats.Center);
+
+            XPen pen = new XPen(XColors.Black, 1);
+            pen.DashStyle = XDashStyle.Solid;
+
+            //Tabellenkopf
+            XRect rectLinks = new XRect(17 * cm, 4 * cm, 1.3 * cm, 1.1 * cm);
+            XRect rectRechts = new XRect(rectLinks.X + rectLinks.Width, rectLinks.Y, 1.3 * cm, 1.1 * cm);
+            
+            gfx.DrawRectangle(pen, rectLinks.X, rectLinks.Y, rectLinks.Width, rectLinks.Height);
+            font = new XFont("Arial", 10);
+            XTextFormatter tf = new XTextFormatter(gfx);
+            tf.DrawString("Wert je Wurf", font, XBrushes.Black, rectLinks, XStringFormats.TopLeft);
+            
+            gfx.DrawRectangle(pen, rectRechts.X, rectRechts.Y, rectRechts.Width, rectRechts.Height);
+            font = new XFont("Arial", 10);
+            tf.DrawString("Wert je Reihe", font, XBrushes.Black, rectRechts, XStringFormats.TopLeft);
+            
+            //Zeile 1
+            rectLinks.Y = rectLinks.Y + rectLinks.Height;
+            rectLinks.Height = 2.5 * cm;
+            gfx.DrawRectangle(pen, rectLinks.X, rectLinks.Y, rectLinks.Width, rectLinks.Height);
+            font = new XFont("Arial", 20);
+            tf.DrawString("10", font, XBrushes.Black, rectLinks, XStringFormats.TopLeft);
+            
+            rectRechts.Y = rectRechts.Y + rectRechts.Height;
+            rectRechts.Height = 2.5 * cm;
+            gfx.DrawRectangle(pen, rectRechts.X, rectRechts.Y, rectRechts.Width, rectRechts.Height);
+            font = new XFont("Arial", 14);
+            tf.DrawString(" ", font, XBrushes.Black, rectRechts, XStringFormats.TopLeft);
+            
+            //Zeile 2
+            rectLinks.Y = rectLinks.Y + rectLinks.Height;
+            gfx.DrawRectangle(pen, rectLinks.X, rectLinks.Y, rectLinks.Width, rectLinks.Height);
+            font = new XFont("Arial", 20);
+            tf.DrawString("7", font, XBrushes.Black, rectLinks, XStringFormats.TopLeft);
+            
+            rectRechts.Y = rectRechts.Y + rectRechts.Height;
+            gfx.DrawRectangle(pen, rectRechts.X, rectRechts.Y, rectRechts.Width, rectRechts.Height);
+            font = new XFont("Arial", 14);
+            tf.DrawString(" ", font, XBrushes.Black, rectRechts, XStringFormats.TopLeft);
+            
+            //Zeile 3
+            rectLinks.Y = rectLinks.Y + rectLinks.Height;
+            gfx.DrawRectangle(pen, rectLinks.X, rectLinks.Y, rectLinks.Width, rectLinks.Height);
+            font = new XFont("Arial", 20);
+            tf.DrawString("4", font, XBrushes.Black, rectLinks, XStringFormats.TopLeft);
+            
+            rectRechts.Y = rectRechts.Y + rectRechts.Height;
+            gfx.DrawRectangle(pen, rectRechts.X, rectRechts.Y, rectRechts.Width, rectRechts.Height);
+            font = new XFont("Arial", 14);
+            tf.DrawString(" ", font, XBrushes.Black, rectRechts, XStringFormats.TopLeft);
+            
+            //Zeile 4
+            rectLinks.Y = rectLinks.Y + rectLinks.Height;
+            gfx.DrawRectangle(pen, rectLinks.X, rectLinks.Y, rectLinks.Width, rectLinks.Height);
+            font = new XFont("Arial", 20);
+            tf.DrawString("3", font, XBrushes.Black, rectLinks, XStringFormats.TopLeft);
+            
+            rectRechts.Y = rectRechts.Y + rectRechts.Height;
+            gfx.DrawRectangle(pen, rectRechts.X, rectRechts.Y, rectRechts.Width, rectRechts.Height);
+            font = new XFont("Arial", 14);
+            tf.DrawString(" ", font, XBrushes.Black, rectRechts, XStringFormats.TopLeft);
+            
+            //Zeile 5
+            rectLinks.Y = rectLinks.Y + rectLinks.Height;
+            gfx.DrawRectangle(pen, rectLinks.X, rectLinks.Y, rectLinks.Width, rectLinks.Height);
+            font = new XFont("Arial", 20);
+            tf.DrawString("2", font, XBrushes.Black, rectLinks, XStringFormats.TopLeft);
+            
+            rectRechts.Y = rectRechts.Y + rectRechts.Height;
+            gfx.DrawRectangle(pen, rectRechts.X, rectRechts.Y, rectRechts.Width, rectRechts.Height);
+            font = new XFont("Arial", 14);
+            tf.DrawString(" ", font, XBrushes.Black, rectRechts, XStringFormats.TopLeft);
+            
+            //Zeile 6
+            rectLinks.Y = rectLinks.Y + rectLinks.Height;
+            gfx.DrawRectangle(pen, rectLinks.X, rectLinks.Y, rectLinks.Width, rectLinks.Height);
+            font = new XFont("Arial", 20);
+            tf.DrawString("5", font, XBrushes.Black, rectLinks, XStringFormats.TopLeft);
+            
+            rectRechts.Y = rectRechts.Y + rectRechts.Height;
+            gfx.DrawRectangle(pen, rectRechts.X, rectRechts.Y, rectRechts.Width, rectRechts.Height);
+            font = new XFont("Arial", 14);
+            tf.DrawString(" ", font, XBrushes.Black, rectRechts, XStringFormats.TopLeft);
+            
+            //Zeile 7
+            rectLinks.Y = rectLinks.Y + rectLinks.Height;
+            gfx.DrawRectangle(pen, rectLinks.X, rectLinks.Y, rectLinks.Width, rectLinks.Height);
+            font = new XFont("Arial", 20);
+            tf.DrawString("8", font, XBrushes.Black, rectLinks, XStringFormats.TopLeft);
+            
+            rectRechts.Y = rectRechts.Y + rectRechts.Height;
+            gfx.DrawRectangle(pen, rectRechts.X, rectRechts.Y, rectRechts.Width, rectRechts.Height);
+            font = new XFont("Arial", 14);
+            tf.DrawString(" ", font, XBrushes.Black, rectRechts, XStringFormats.TopLeft);
+            
+            //*******************
+            //* Linien zeichnen *
+            //*******************
+            pen.DashStyle = XDashStyle.Dash;
+
+            gfx.DrawLine(pen, 9.5 * cm, 5 * cm, 16.8 * cm, 5.5 * cm);
+            gfx.DrawLine(pen, 10.8 * cm, 8.5 * cm, 16.8 * cm, 8 * cm);
+            gfx.DrawLine(pen, 12.5 * cm, 10.6 * cm, 16.8 * cm, 10.5 * cm);
+            gfx.DrawLine(pen, 14.2 * cm, 13.4 * cm, 16.8 * cm, 12.9 * cm);
+            gfx.DrawLine(pen, 15.8 * cm, 15.4 * cm, 16.8 * cm, 15.4 * cm);
+            gfx.DrawLine(pen, 15.6 * cm, 19 * cm, 16.8 * cm, 18 * cm);
+            gfx.DrawLine(pen, 14.5 * cm, 21.4 * cm, 16.8 * cm, 20.5 * cm);
+            
+            //**********
+            //* Gesamt *
+            //**********
+            font = new XFont("Arial", 20);
+            rect = new XRect(16 * cm, 24 * cm, 4 * cm, 1.5 * cm);
+            gfx.DrawString("Gesamt:", font, XBrushes.Black, rect, XStringFormats.Center);
+            
+            pen.DashStyle = XDashStyle.Solid;
+            rect = new XRect(16.5 * cm, 25.5 * cm, 3 * cm, 3 * cm);
+            gfx.DrawEllipse(pen, rect);
+            
+            //****************
+            //* PDF erzeugen *
+            //****************
+            if (PDFFilename == string.Empty)
+            {
+                var filename = PdfFileUtility.GetTempPdfFullFileName("Vorlage_Weihnachtsbaum");
+                document.Save(filename);
+                PdfFileUtility.ShowDocument(filename);
+            }
+            else
+                document.Save(PDFFilename);
+        }
+        catch (Exception ex)
+        {
+            ViewManager.ShowErrorWindow("PrintService", "DruckVorlageWeihnachtsbaum", ex.Message);
+        }
+    }
+    
     public void DruckvorlageAbrechnung(string PDFFilename = "")
     {
         Int32 x;
@@ -1565,7 +2300,11 @@ public class PrintService(DBService _dbService)
 
             //Ende
             vpe.CloseProgressBar();
-            vpe.Preview();
+
+            if (PDFFilename == string.Empty)
+                vpe.Preview();
+            else
+                vpe.PDFExport(PDFFilename);
         }
         catch (Exception ex)
         {
@@ -1579,7 +2318,7 @@ public class PrintService(DBService _dbService)
         {
             List<ErgebnisKurztunierKreuztabelle> lstListe =
                 await _dbService.GetErgebnisKurztunierAsync(MeisterschaftsID);
-            List<ErgebnisKurztunierPlatzierung> lstTeilnehmer = new ();
+            List<ErgebnisKurztunierPlatzierung> lstTeilnehmer = new();
             string strMeisterschaft = await _dbService.GetMeisterschaftsbezeichnungAsync(MeisterschaftsID);
             string strMeisterschaftstyp =
                 await _dbService.GetMeisterschaftstypFromMeisterschaftByIDAsync(MeisterschaftsID);
@@ -1612,7 +2351,7 @@ public class PrintService(DBService _dbService)
                 intIndex = lstTeilnehmer.FindIndex(f => f.SpielerID == item.Spieler1ID);
                 if (intIndex == -1) // Nicht gefunden, also anlegen
                 {
-                    ErgebnisKurztunierPlatzierung objTeilnehmer = new ();
+                    ErgebnisKurztunierPlatzierung objTeilnehmer = new();
                     objTeilnehmer.SpielerID = item.Spieler1ID;
                     objTeilnehmer.SpielerName = item.Spieler1Name;
                     objTeilnehmer.Punkte += item.Spieler1Punkte;
@@ -1630,7 +2369,7 @@ public class PrintService(DBService _dbService)
                 intIndex = lstTeilnehmer.FindIndex(f => f.SpielerID == item.Spieler2ID);
                 if (intIndex == -1) // Nicht gefunden, also anlegen
                 {
-                    ErgebnisKurztunierPlatzierung objTeilnehmer = new ();
+                    ErgebnisKurztunierPlatzierung objTeilnehmer = new();
                     objTeilnehmer.SpielerID = item.Spieler2ID;
                     objTeilnehmer.SpielerName = item.Spieler2Name;
                     objTeilnehmer.Punkte += item.Spieler1Punkte;
@@ -1671,7 +2410,7 @@ public class PrintService(DBService _dbService)
             //-----------------
 
             //Anfang
-            VpeToPdfSharp vpe = new ();
+            VpeToPdfSharp vpe = new();
             vpe.FileName = "ErgebnisKurztunier";
             vpe.OpenDoc();
             vpe.OpenProgressBar();
@@ -1917,7 +2656,11 @@ public class PrintService(DBService _dbService)
 
             //Ende
             vpe.CloseProgressBar();
-            vpe.Preview();
+
+            if (PDFFilename == string.Empty)
+                vpe.Preview();
+            else
+                vpe.PDFExport(PDFFilename);
         }
         catch (Exception ex)
         {

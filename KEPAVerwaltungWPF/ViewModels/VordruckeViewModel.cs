@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.Input;
 using KEPAVerwaltungWPF.DTOs;
 using KEPAVerwaltungWPF.Helper;
 using KEPAVerwaltungWPF.Services;
+using KEPAVerwaltungWPF.Views;
 using MigraDoc.DocumentObjectModel;
 using MigraDoc.DocumentObjectModel.Tables;
 using MigraDoc.Rendering;
@@ -30,6 +31,55 @@ public partial class VordruckeViewModel : BaseViewModel
         Titel = "Listen und Vordrucke";
     }
 
+    private async Task AuswahlVorlage(string PDFFilename = "")
+    {
+        if (Auswahl6TageRennen)
+            _printService.DruckVorlage6TageRennen(PDFFilename);
+   
+        if (AuswahlKombimeisterschaft)
+            _printService.DruckVorlageKombimeisterschaft(PDFFilename);
+   
+        if (AuswahlMeisterschaft)
+        {
+            string strAnzahlTelnehmer =
+                ViewManager.ShowInputWindow("Für wieviele Teilnemer soll die Vorlage generiert werden?");
+            if (!string.IsNullOrEmpty(strAnzahlTelnehmer))
+            {
+                if (int.TryParse(strAnzahlTelnehmer, out int anzahlTeilnehmer) && anzahlTeilnehmer >= 3)
+                    _printService.DruckVorlageMeisterschaft(anzahlTeilnehmer, PDFFilename);
+                else
+                    DelShowMainInfoFlyout?.Invoke("Die Anzahl der Teilnehmer muss mindestens 3 sein.", true);
+            }
+        }
+
+        if (AuswahlBlitztunier)
+        {
+            string strAnzahlTelnehmer =
+                ViewManager.ShowInputWindow("Für wieviele Teilnemer soll die Vorlage generiert werden?");
+            if (!string.IsNullOrEmpty(strAnzahlTelnehmer))
+            {
+                if (int.TryParse(strAnzahlTelnehmer, out int anzahlTeilnehmer) && anzahlTeilnehmer >= 3)
+                    _printService.DruckVorlageBlitztunier(anzahlTeilnehmer, PDFFilename);
+                else
+                    DelShowMainInfoFlyout?.Invoke("Die Anzahl der Teilnehmer muss mindestens 3 sein.", true);
+            }
+        }
+
+        if(AuswahlWeihnachtsbaum)
+            _printService.DruckVorlageWeihnachtsbaum(PDFFilename);
+        
+        if (AuswahlAbrechnung)
+            _printService.DruckvorlageAbrechnung(PDFFilename);
+
+        if (AuswahlSpielverluste)
+            _printService.DruckVorlageSpielverluste(PDFFilename);
+
+        if (AuswahlAktiveMitglieder)
+            await _printService.DruckMitgliederlisteAsync(true, PDFFilename);
+
+        if (AuswahlAlleMitglieder)
+            await _printService.DruckMitgliederlisteAsync(false, PDFFilename);
+    }
 
     // private void DruckVorlage6TageRennen(bool bPDF = false)
     // {
@@ -180,23 +230,16 @@ public partial class VordruckeViewModel : BaseViewModel
     [ObservableProperty] private bool auswahlAbrechnung = false;
 
     [RelayCommand]
-    public async Task Vorschau()
+    public async Task VorschauAsync()
     {
-        _printService.DruckVorlage6TageRennen();
-
-        _printService.DruckVorlageKombimeisterschaft();
-
-        _printService.DruckvorlageAbrechnung();
-
-        _printService.DruckVorlageSpielverluste();
-
-        await _printService.DruckMitgliederlisteAsync();
-        await _printService.DruckMitgliederlisteAsync(false);
+        await AuswahlVorlage();
     }
 
     [RelayCommand]
-    public void PDFExport()
+    public async Task PDFExportAsync()
     {
-        //DruckVorlage6TageRennen(true);
+        var filename = DelShowFileDialog?.Invoke();
+        if (filename != null)
+            await AuswahlVorlage(filename);
     }
 }
