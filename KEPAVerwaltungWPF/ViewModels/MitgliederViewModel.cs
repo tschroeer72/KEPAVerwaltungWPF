@@ -10,6 +10,8 @@ using MigraDoc.DocumentObjectModel;
 using MigraDoc.DocumentObjectModel.Tables;
 using MigraDoc.Rendering;
 using PdfSharp.Quality;
+using StatistikSpieler = KEPAVerwaltungWPF.DTOs.Statistik.StatistikSpieler;
+using StatistikSpielerErgebnisse = KEPAVerwaltungWPF.DTOs.Statistik.StatistikSpielerErgebnisse;
 
 namespace KEPAVerwaltungWPF.ViewModels;
 

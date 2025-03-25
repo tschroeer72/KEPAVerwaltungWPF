@@ -1,6 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 
-namespace KEPAVerwaltungWPF.DTOs;
+namespace KEPAVerwaltungWPF.DTOs.Statistik;
 
 public partial class StatistikSpieler : ObservableObject
 {

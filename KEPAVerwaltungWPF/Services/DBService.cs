@@ -6,10 +6,13 @@ using AutoMapper;
 using KEPAVerwaltungWPF.DTOs;
 using KEPAVerwaltungWPF.DTOs.Ausgabe;
 using KEPAVerwaltungWPF.DTOs.Ergebnisse;
+using KEPAVerwaltungWPF.DTOs.Statistik;
 using KEPAVerwaltungWPF.Models.Local;
 using KEPAVerwaltungWPF.Models.Web;
 using KEPAVerwaltungWPF.Views;
 using Microsoft.EntityFrameworkCore;
+using StatistikSpieler = KEPAVerwaltungWPF.DTOs.Statistik.StatistikSpieler;
+using StatistikSpielerErgebnisse = KEPAVerwaltungWPF.DTOs.Statistik.StatistikSpielerErgebnisse;
 using TblDbchangeLog = KEPAVerwaltungWPF.Models.Web.TblDbchangeLog;
 using TblMeisterschaften = KEPAVerwaltungWPF.Models.Local.TblMeisterschaften;
 
@@ -262,1467 +265,18 @@ public class DBService(
     }
     */
 
-    /*
-    public List<ClsStatistik9erRatten> GetStatistik9erRatten(Int32 iZeitbereich, out Dictionary<string, int> oNeunerkönig, out Dictionary<string, int> oRattenkönig, DateTime? dtVon = null, DateTime? dtBis = null)
-    {
-        List<ClsStatistik9erRatten> lst9erRatten = new List<ClsStatistik9erRatten>();
-        List<ClsStatistik9erRatten> lst9erRattenSortiert = new List<ClsStatistik9erRatten>();
-        Dictionary<string, int> dicNeunerkönig = new Dictionary<string, int>();
-        Dictionary<string, int> dicRattenkönig = new Dictionary<string, int>();
-
-        try
-        {
-            using (KEPAVerwaltungEntities DBContext = new KEPAVerwaltungEntities())
-            {
-                var list9er = (DBContext.vwStatistik9er
-                    .OrderBy(o => o.Spieltag)
-                    .ThenByDescending(t => t.Neuner)
-                    .Select(s => s));
-
-                var listRatten = (DBContext.vwStatistikRatten
-                    .OrderBy(o => o.Spieltag)
-                    .ThenByDescending(t => t.Ratten)
-                    .Select(s => s));
-
-                switch (iZeitbereich)
-                {
-                    case 0: //laufende Meisterschaft
-                        list9er = list9er.Where(w => w.MeisterschaftsID == Properties.Settings.Default.AktiveMeisterschaft);
-                        listRatten = listRatten.Where(w => w.MeisterschaftsID == Properties.Settings.Default.AktiveMeisterschaft);
-                        break;
-                    case 1: //letzte Meisterschaft
-                        Int32 intID = GetLetzteMeisterschaftsID();
-                        list9er = list9er.Where(w => w.MeisterschaftsID == intID);
-                        listRatten = listRatten.Where(w => w.MeisterschaftsID == intID);
-                        break;
-                    case 2: //Zeitbereich
-                        list9er = list9er.Where(w => w.Spieltag >= dtVon && w.Spieltag <= dtBis);
-                        listRatten = listRatten.Where(w => w.Spieltag >= dtVon && w.Spieltag <= dtBis);
-                        break;
-                    case 3: //Gesamt
-                        break;
-                }
-
-                Int32 intIndex;
-                //erst 9er
-                foreach (var item in list9er.ToList())
-                {
-                    intIndex = lst9erRatten.FindIndex(f => f.Spieltag == item.Spieltag);
-                    if (intIndex == -1)
-                    {
-                        ClsStatistik9erRatten objNR = new ClsStatistik9erRatten();
-                        objNR.MeisterschaftsID = item.MeisterschaftsID;
-                        objNR.Bezeichnung = item.Bezeichnung;
-                        objNR.Beginn = item.Beginn;
-                        objNR.Ende = item.Ende;
-                        objNR.Spieltag = item.Spieltag;
-                        objNR.Neuner = item.Neuner;
-                        objNR.Neunerkönig = item.Nachname + ", " + item.Vorname;
-                        lst9erRatten.Add(objNR);
-
-                        if (!dicNeunerkönig.ContainsKey(objNR.Neunerkönig))
-                        {
-                            dicNeunerkönig.Add(objNR.Neunerkönig, 1);
-                        }
-                        else
-                        {
-                            dicNeunerkönig[objNR.Neunerkönig]++;
-                        }
-                    }
-                    else
-                    {
-                        if (lst9erRatten[intIndex].Neuner == item.Neuner)
-                        {
-                            string strName = item.Nachname + ", " + item.Vorname;
-                            lst9erRatten[intIndex].Neunerkönig += "\n" + strName;
-
-                            if (!dicNeunerkönig.ContainsKey(strName))
-                            {
-                                dicNeunerkönig.Add(strName, 1);
-                            }
-                            else
-                            {
-                                dicNeunerkönig[strName]++;
-                            }
-                        }
-                    }
-                }
-
-                //jetzt die Ratten
-                foreach (var item in listRatten.ToList())
-                {
-                    intIndex = lst9erRatten.FindIndex(f => f.Spieltag == item.Spieltag);
-                    if (intIndex == -1)
-                    {
-                        if (item.Ratten > 0)
-                        {
-                            ClsStatistik9erRatten objNR = new ClsStatistik9erRatten();
-                            objNR.MeisterschaftsID = item.MeisterschaftsID;
-                            objNR.Bezeichnung = item.Bezeichnung;
-                            objNR.Beginn = item.Beginn;
-                            objNR.Ende = item.Ende;
-                            objNR.Spieltag = item.Spieltag;
-                            objNR.Ratten = item.Ratten;
-                            objNR.Rattenorden = item.Nachname + ", " + item.Vorname;
-                            lst9erRatten.Add(objNR);
-
-                            if (!dicRattenkönig.ContainsKey(objNR.Rattenorden))
-                            {
-                                dicRattenkönig.Add(objNR.Rattenorden, 1);
-                            }
-                            else
-                            {
-                                dicRattenkönig[objNR.Rattenorden]++;
-                            }
-                        }
-                    }
-                    else
-                    {
-                        if (item.Ratten > 0)
-                        {
-                            if (lst9erRatten[intIndex].Ratten == 0)
-                            {
-                                lst9erRatten[intIndex].Ratten = item.Ratten;
-                                string strName = item.Nachname + ", " + item.Vorname;
-                                lst9erRatten[intIndex].Rattenorden += strName;
-
-                                if (!dicRattenkönig.ContainsKey(strName))
-                                {
-                                    dicRattenkönig.Add(strName, 1);
-                                }
-                                else
-                                {
-                                    dicRattenkönig[strName]++;
-                                }
-                            }
-                            else
-                            {
-                                if (lst9erRatten[intIndex].Ratten == item.Ratten)
-                                {
-                                    lst9erRatten[intIndex].Ratten = item.Ratten;
-                                    string strName = item.Nachname + ", " + item.Vorname;
-                                    lst9erRatten[intIndex].Rattenorden += "\n" + strName;
-
-                                    if (!dicRattenkönig.ContainsKey(strName))
-                                    {
-                                        dicRattenkönig.Add(strName, 1);
-                                    }
-                                    else
-                                    {
-                                        dicRattenkönig[strName]++;
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-
-            lst9erRattenSortiert = lst9erRatten.OrderBy(o => o.Spieltag).ToList();
-        }
-        catch (Exception ex)
-        {
-            FrmError objForm = new FrmError("ClsDB", "GetStatistik9erRatten", ex.ToString());
-            objForm.ShowDialog();
-        }
-
-        oNeunerkönig = dicNeunerkönig;
-        oRattenkönig = dicRattenkönig;
-
-        return lst9erRattenSortiert;
-    }
-    */
-
-    /*
-    public List<ClsStatistik9er> GetStatistik9er(Int32 iZeitbereich, DateTime? dtVon = null, DateTime? dtBis = null)
-    {
-        List<ClsStatistik9er> lst9er = new List<ClsStatistik9er>();
-
-        try
-        {
-            using (KEPAVerwaltungEntities DBContext = new KEPAVerwaltungEntities())
-            {
-                var list9er = (DBContext.vwStatistik9er
-                    .OrderBy(o => o.Spieltag)
-                    .Select(s => new { s.MeisterschaftsID, s.Spieltag, s.Neuner, s.Nachname, s.Vorname }));
-
-                switch (iZeitbereich)
-                {
-                    case 0: //laufende Meisterschaft
-                        list9er = list9er.Where(w => w.MeisterschaftsID == Properties.Settings.Default.AktiveMeisterschaft);
-                        break;
-                    case 1: //letzte Meisterschaft
-                        Int32 intID = GetLetzteMeisterschaftsID();
-                        list9er = list9er.Where(w => w.MeisterschaftsID == intID);
-                        break;
-                    case 2: //Zeitbereich
-                        list9er = list9er.Where(w => w.Spieltag >= dtVon && w.Spieltag <= dtBis);
-                        break;
-                    case 3: //Gesamt
-                        break;
-                }
-
-                var lst = from l in list9er
-                          group l by new
-                          {
-                              l.MeisterschaftsID,
-                              l.Spieltag,
-                              l.Nachname,
-                              l.Vorname
-                          } into g
-                          select new
-                          {
-                              MeisterschaftsID = g.Key.MeisterschaftsID,
-                              Spieltag = g.Key.Spieltag,
-                              Neuner = g.Sum(s => s.Neuner),
-                              Nachname = g.Key.Nachname,
-                              Vorname = g.Key.Vorname
-                          };
-
-                //var debug = lst.ToList();
-
-                Int32 intIndex = -1;
-                string strSpieler;
-                foreach (var item in lst.ToList())
-                {
-                    strSpieler = item.Nachname + ", " + item.Vorname;
-                    intIndex = lst9er.FindIndex(f => f.Spieler == strSpieler);
-                    if (intIndex == -1)
-                    {
-                        ClsStatistik9er obj9er = new ClsStatistik9er();
-                        obj9er.Spieler = strSpieler;
-                        obj9er.Gesamt += item.Neuner;
-                        obj9er.AnzTeilnahmen++;
-
-                        switch (item.Neuner)
-                        {
-                            case 10:
-                                obj9er.Zehn++;
-                                break;
-                            case 9:
-                                obj9er.Neun++;
-                                break;
-                            case 8:
-                                obj9er.Acht++;
-                                break;
-                            case 7:
-                                obj9er.Sieben++;
-                                break;
-                            case 6:
-                                obj9er.Sechs++;
-                                break;
-                            case 5:
-                                obj9er.Fünf++;
-                                break;
-                            case 4:
-                                obj9er.Vier++;
-                                break;
-                            case 3:
-                                obj9er.Drei++;
-                                break;
-                            case 2:
-                                obj9er.Zwei++;
-                                break;
-                            case 1:
-                                obj9er.Eins++;
-                                break;
-                        }
-
-                        lst9er.Add(obj9er);
-                    }
-                    else
-                    {
-                        lst9er[intIndex].Gesamt += item.Neuner;
-                        lst9er[intIndex].AnzTeilnahmen++;
-
-                        switch (item.Neuner)
-                        {
-                            case 10:
-                                lst9er[intIndex].Zehn++;
-                                break;
-                            case 9:
-                                lst9er[intIndex].Neun++;
-                                break;
-                            case 8:
-                                lst9er[intIndex].Acht++;
-                                break;
-                            case 7:
-                                lst9er[intIndex].Sieben++;
-                                break;
-                            case 6:
-                                lst9er[intIndex].Sechs++;
-                                break;
-                            case 5:
-                                lst9er[intIndex].Fünf++;
-                                break;
-                            case 4:
-                                lst9er[intIndex].Vier++;
-                                break;
-                            case 3:
-                                lst9er[intIndex].Drei++;
-                                break;
-                            case 2:
-                                lst9er[intIndex].Zwei++;
-                                break;
-                            case 1:
-                                lst9er[intIndex].Eins++;
-                                break;
-                        }
-                    }
-                }
-            }
-        }
-        catch (Exception ex)
-        {
-            FrmError objForm = new FrmError("ClsDB", "GetStatistik9er", ex.ToString());
-            objForm.ShowDialog();
-        }
-
-        var lst9erSort = lst9er
-            .OrderByDescending(o => o.Gesamt)
-            .ToList();
-
-        return lst9erSort;
-    }
-    */
-
-    /*
-    public List<ClsStatistikRatten> GetStatistikRatten(Int32 iZeitbereich, DateTime? dtVon = null, DateTime? dtBis = null)
-    {
-        List<ClsStatistikRatten> lstRatten = new List<ClsStatistikRatten>();
-
-        try
-        {
-            using (KEPAVerwaltungEntities DBContext = new KEPAVerwaltungEntities())
-            {
-                var listRatten = (DBContext.vwStatistikRatten
-                    .OrderBy(o => o.Spieltag)
-                    .Select(s => new { s.MeisterschaftsID, s.Spieltag, s.Ratten, s.Nachname, s.Vorname }));
-
-                switch (iZeitbereich)
-                {
-                    case 0: //laufende Meisterschaft
-                        listRatten = listRatten.Where(w => w.MeisterschaftsID == Properties.Settings.Default.AktiveMeisterschaft);
-                        break;
-                    case 1: //letzte Meisterschaft
-                        Int32 intID = GetLetzteMeisterschaftsID();
-                        listRatten = listRatten.Where(w => w.MeisterschaftsID == intID);
-                        break;
-                    case 2: //Zeitbereich
-                        listRatten = listRatten.Where(w => w.Spieltag >= dtVon && w.Spieltag <= dtBis);
-                        break;
-                    case 3: //Gesamt
-                        break;
-                }
-
-                var lst = from l in listRatten
-                          group l by new
-                          {
-                              l.MeisterschaftsID,
-                              l.Spieltag,
-                              l.Nachname,
-                              l.Vorname
-                          } into g
-                          select new
-                          {
-                              MeisterschaftsID = g.Key.MeisterschaftsID,
-                              Spieltag = g.Key.Spieltag,
-                              Ratten = g.Sum(s => s.Ratten),
-                              Nachname = g.Key.Nachname,
-                              Vorname = g.Key.Vorname
-                          };
-
-                //var debug = lst.ToList();
-
-                Int32 intIndex = -1;
-                string strSpieler;
-                foreach (var item in lst.ToList())
-                {
-                    strSpieler = item.Nachname + ", " + item.Vorname;
-                    intIndex = lstRatten.FindIndex(f => f.Spieler == strSpieler);
-                    if (intIndex == -1)
-                    {
-                        ClsStatistikRatten objRatten = new ClsStatistikRatten();
-                        objRatten.Spieler = strSpieler;
-                        objRatten.Gesamt += item.Ratten;
-                        objRatten.AnzTeilnahmen++;
-
-                        switch (item.Ratten)
-                        {
-                            case 10:
-                                objRatten.Zehn++;
-                                break;
-                            case 9:
-                                objRatten.Neun++;
-                                break;
-                            case 8:
-                                objRatten.Acht++;
-                                break;
-                            case 7:
-                                objRatten.Sieben++;
-                                break;
-                            case 6:
-                                objRatten.Sechs++;
-                                break;
-                            case 5:
-                                objRatten.Fünf++;
-                                break;
-                            case 4:
-                                objRatten.Vier++;
-                                break;
-                            case 3:
-                                objRatten.Drei++;
-                                break;
-                            case 2:
-                                objRatten.Zwei++;
-                                break;
-                            case 1:
-                                objRatten.Eins++;
-                                break;
-                        }
-
-                        lstRatten.Add(objRatten);
-                    }
-                    else
-                    {
-                        lstRatten[intIndex].Gesamt += item.Ratten;
-                        lstRatten[intIndex].AnzTeilnahmen++;
-
-                        switch (item.Ratten)
-                        {
-                            case 10:
-                                lstRatten[intIndex].Zehn++;
-                                break;
-                            case 9:
-                                lstRatten[intIndex].Neun++;
-                                break;
-                            case 8:
-                                lstRatten[intIndex].Acht++;
-                                break;
-                            case 7:
-                                lstRatten[intIndex].Sieben++;
-                                break;
-                            case 6:
-                                lstRatten[intIndex].Sechs++;
-                                break;
-                            case 5:
-                                lstRatten[intIndex].Fünf++;
-                                break;
-                            case 4:
-                                lstRatten[intIndex].Vier++;
-                                break;
-                            case 3:
-                                lstRatten[intIndex].Drei++;
-                                break;
-                            case 2:
-                                lstRatten[intIndex].Zwei++;
-                                break;
-                            case 1:
-                                lstRatten[intIndex].Eins++;
-                                break;
-                        }
-                    }
-                }
-            }
-        }
-        catch (Exception ex)
-        {
-            FrmError objForm = new FrmError("ClsDB", "GetStatistikRatten", ex.ToString());
-            objForm.ShowDialog();
-        }
-
-        var lstRattenSort = lstRatten
-            .OrderByDescending(o => o.Gesamt)
-            .ToList();
-
-        return lstRattenSort;
-    }
-    */
-
-    /*
-    public List<ClsStatistikPokal> GetStatistikPokal(Int32 iZeitbereich, DateTime? dtVon = null, DateTime? dtBis = null)
-    {
-        List<ClsStatistikPokal> lstPokal = new List<ClsStatistikPokal>();
-
-        try
-        {
-            using (KEPAVerwaltungEntities DBContext = new KEPAVerwaltungEntities())
-            {
-                var listPokal = (DBContext.vwStatistikPokal
-                    .OrderBy(o => o.Spieltag)
-                    .Select(s => new { s.MeisterschaftsID, s.Spieltag, s.Platzierung, s.Nachname, s.Vorname }));
-
-                switch (iZeitbereich)
-                {
-                    case 0: //laufende Meisterschaft
-                        listPokal = listPokal.Where(w => w.MeisterschaftsID == Properties.Settings.Default.AktiveMeisterschaft);
-                        break;
-                    case 1: //letzte Meisterschaft
-                        Int32 intID = GetLetzteMeisterschaftsID();
-                        listPokal = listPokal.Where(w => w.MeisterschaftsID == intID);
-                        break;
-                    case 2: //Zeitbereich
-                        listPokal = listPokal.Where(w => w.Spieltag >= dtVon && w.Spieltag <= dtBis);
-                        break;
-                    case 3: //Gesamt
-                        break;
-                }
-
-                //var debug = lst.ToList();
-
-                Int32 intIndex = -1;
-                string strSpieler;
-                foreach (var item in listPokal.ToList())
-                {
-                    strSpieler = item.Nachname + ", " + item.Vorname;
-                    intIndex = lstPokal.FindIndex(f => f.Spieler == strSpieler);
-                    if (intIndex == -1)
-                    {
-                        ClsStatistikPokal objPokal = new ClsStatistikPokal();
-                        objPokal.Spieler = strSpieler;
-                        switch (item.Platzierung)
-                        {
-                            case 1:
-                                objPokal.Eins++;
-                                break;
-                            case 2:
-                                objPokal.Zwei++;
-                                break;
-                        }
-
-                        lstPokal.Add(objPokal);
-                    }
-                    else
-                    {
-                        switch (item.Platzierung)
-                        {
-                            case 1:
-                                lstPokal[intIndex].Eins++;
-                                break;
-                            case 2:
-                                lstPokal[intIndex].Zwei++;
-                                break;
-                        }
-                    }
-                }
-            }
-        }
-        catch (Exception ex)
-        {
-            FrmError objForm = new FrmError("ClsDB", "GetStatistikPokal", ex.ToString());
-            objForm.ShowDialog();
-        }
-
-        var lstPokalSort = lstPokal
-            .OrderByDescending(o => o.Eins)
-            .ThenByDescending(t => t.Zwei)
-            .ToList();
-
-        return lstPokalSort;
-    }
-    */
-
-    /*
-    public List<ClsStatistikSarg> GetStatistikSarg(Int32 iZeitbereich, DateTime? dtVon = null, DateTime? dtBis = null)
-    {
-        List<ClsStatistikSarg> lstSarg = new List<ClsStatistikSarg>();
-
-        try
-        {
-            using (KEPAVerwaltungEntities DBContext = new KEPAVerwaltungEntities())
-            {
-                var listSarg = (DBContext.vwStatistikSarg
-                    .OrderBy(o => o.Spieltag)
-                    .Select(s => new { s.MeisterschaftsID, s.Spieltag, s.Platzierung, s.Nachname, s.Vorname }));
-
-                switch (iZeitbereich)
-                {
-                    case 0: //laufende Meisterschaft
-                        listSarg = listSarg.Where(w => w.MeisterschaftsID == Properties.Settings.Default.AktiveMeisterschaft);
-                        break;
-                    case 1: //letzte Meisterschaft
-                        Int32 intID = GetLetzteMeisterschaftsID();
-                        listSarg = listSarg.Where(w => w.MeisterschaftsID == intID);
-                        break;
-                    case 2: //Zeitbereich
-                        listSarg = listSarg.Where(w => w.Spieltag >= dtVon && w.Spieltag <= dtBis);
-                        break;
-                    case 3: //Gesamt
-                        break;
-                }
-
-                //var debug = lst.ToList();
-
-                Int32 intIndex = -1;
-                string strSpieler;
-                foreach (var item in listSarg.ToList())
-                {
-                    strSpieler = item.Nachname + ", " + item.Vorname;
-                    intIndex = lstSarg.FindIndex(f => f.Spieler == strSpieler);
-                    if (intIndex == -1)
-                    {
-                        ClsStatistikSarg objSarg = new ClsStatistikSarg();
-                        objSarg.Spieler = strSpieler;
-                        objSarg.AnzTeilnahmen++;
-                        switch (item.Platzierung)
-                        {
-                            case 1:
-                                objSarg.Eins++;
-                                break;
-                            case 2:
-                                objSarg.Zwei++;
-                                break;
-                            case 3:
-                                objSarg.Drei++;
-                                break;
-                            case 4:
-                                objSarg.Vier++;
-                                break;
-                            case 5:
-                                objSarg.Fünf++;
-                                break;
-                            case 6:
-                                objSarg.Sechs++;
-                                break;
-                            case 7:
-                                objSarg.Sieben++;
-                                break;
-                            case 8:
-                                objSarg.Acht++;
-                                break;
-                            case 9:
-                                objSarg.Neun++;
-                                break;
-                            case 10:
-                                objSarg.Zehn++;
-                                break;
-                        }
-
-                        lstSarg.Add(objSarg);
-                    }
-                    else
-                    {
-                        lstSarg[intIndex].AnzTeilnahmen++;
-                        switch (item.Platzierung)
-                        {
-                            case 1:
-                                lstSarg[intIndex].Eins++;
-                                break;
-                            case 2:
-                                lstSarg[intIndex].Zwei++;
-                                break;
-                            case 3:
-                                lstSarg[intIndex].Drei++;
-                                break;
-                            case 4:
-                                lstSarg[intIndex].Vier++;
-                                break;
-                            case 5:
-                                lstSarg[intIndex].Fünf++;
-                                break;
-                            case 6:
-                                lstSarg[intIndex].Sechs++;
-                                break;
-                            case 7:
-                                lstSarg[intIndex].Sieben++;
-                                break;
-                            case 8:
-                                lstSarg[intIndex].Acht++;
-                                break;
-                            case 9:
-                                lstSarg[intIndex].Neun++;
-                                break;
-                            case 10:
-                                lstSarg[intIndex].Zehn++;
-                                break;
-                        }
-                    }
-                }
-            }
-        }
-        catch (Exception ex)
-        {
-            FrmError objForm = new FrmError("ClsDB", "GetStatistikSarg", ex.ToString());
-            objForm.ShowDialog();
-        }
-
-
-        var lstSargSort = lstSarg
-            .OrderByDescending(o => o.Eins)
-            .ThenByDescending(t => t.Zwei)
-            .ThenByDescending(t => t.Drei)
-            .ThenByDescending(t => t.Vier)
-            .ThenByDescending(t => t.Fünf)
-            .ThenByDescending(t => t.Sechs)
-            .ThenByDescending(t => t.Sieben)
-            .ThenByDescending(t => t.Acht)
-            .ThenByDescending(t => t.Neun)
-            .ThenByDescending(t => t.Zehn)
-            .ToList();
-
-        return lstSargSort;
-    }
-    */
-
-    /*
-    public List<ClsStatistik6TageRennenPlatzierung> GetStatistik6TageRennenPlatz(Int32 iZeitbereich, DateTime? dtVon = null, DateTime? dtBis = null)
-    {
-        List<ClsStatistik6TageRennenPlatzierung> lst6TR = new List<ClsStatistik6TageRennenPlatzierung>();
-
-        try
-        {
-            using (KEPAVerwaltungEntities DBContext = new KEPAVerwaltungEntities())
-            {
-                //Teil 1
-                var list6TRS1 = (DBContext.vwStatistik6TageRennenSpieler1
-                    .OrderBy(o => o.Spieltag)
-                    .ThenBy(t => t.Spielnummer)
-                    .ThenBy(t => t.Platz)
-                    .Select(s => new { s.MeisterschaftsID, s.Spieltag, s.Spielnummer, s.Runden, s.Punkte, s.Platz, s.Nachname, s.Vorname }));
-
-                switch (iZeitbereich)
-                {
-                    case 0: //laufende Meisterschaft
-                        list6TRS1 = list6TRS1.Where(w => w.MeisterschaftsID == Properties.Settings.Default.AktiveMeisterschaft);
-                        break;
-                    case 1: //letzte Meisterschaft
-                        Int32 intID = GetLetzteMeisterschaftsID();
-                        list6TRS1 = list6TRS1.Where(w => w.MeisterschaftsID == intID);
-                        break;
-                    case 2: //Zeitbereich
-                        list6TRS1 = list6TRS1.Where(w => w.Spieltag >= dtVon && w.Spieltag <= dtBis);
-                        break;
-                    case 3: //Gesamt
-                        break;
-                }
-
-                Int32 intIndex = -1;
-                string strSpieler;
-                foreach (var item in list6TRS1.ToList())
-                {
-                    strSpieler = item.Nachname + ", " + item.Vorname;
-                    intIndex = lst6TR.FindIndex(f => f.Spieler == strSpieler);
-                    if (intIndex == -1)
-                    {
-                        ClsStatistik6TageRennenPlatzierung obj6TR = new ClsStatistik6TageRennenPlatzierung();
-                        obj6TR.Spieler = strSpieler;
-                        obj6TR.AnzTeilnahmen++;
-
-                        switch (item.Platz)
-                        {
-                            case 1:
-                                obj6TR.Eins++;
-                                break;
-                            case 2:
-                                obj6TR.Zwei++;
-                                break;
-                            case 3:
-                                obj6TR.Drei++;
-                                break;
-                            case 4:
-                                obj6TR.Vier++;
-                                break;
-                            case 5:
-                                obj6TR.Fünf++;
-                                break;
-                            case 6:
-                                obj6TR.Sechs++;
-                                break;
-                        }
-
-                        lst6TR.Add(obj6TR);
-                    }
-                    else
-                    {
-                        lst6TR[intIndex].AnzTeilnahmen++;
-                        switch (item.Platz)
-                        {
-                            case 1:
-                                lst6TR[intIndex].Eins++;
-                                break;
-                            case 2:
-                                lst6TR[intIndex].Zwei++;
-                                break;
-                            case 3:
-                                lst6TR[intIndex].Drei++;
-                                break;
-                            case 4:
-                                lst6TR[intIndex].Vier++;
-                                break;
-                            case 5:
-                                lst6TR[intIndex].Fünf++;
-                                break;
-                            case 6:
-                                lst6TR[intIndex].Sechs++;
-                                break;
-                        }
-                    }
-                }
-
-                //Teil 2
-                var list6TRS2 = (DBContext.vwStatistik6TageRennenSpieler2
-                    .OrderBy(o => o.Spieltag)
-                    .ThenBy(t => t.Spielnummer)
-                    .ThenBy(t => t.Platz)
-                    .Select(s => new { s.MeisterschaftsID, s.Spieltag, s.Spielnummer, s.Runden, s.Punkte, s.Platz, s.Nachname, s.Vorname }));
-
-                switch (iZeitbereich)
-                {
-                    case 0: //laufende Meisterschaft
-                        list6TRS2 = list6TRS2.Where(w => w.MeisterschaftsID == Properties.Settings.Default.AktiveMeisterschaft);
-                        break;
-                    case 1: //letzte Meisterschaft
-                        Int32 intID = GetLetzteMeisterschaftsID();
-                        list6TRS2 = list6TRS2.Where(w => w.MeisterschaftsID == intID);
-                        break;
-                    case 2: //Zeitbereich
-                        list6TRS2 = list6TRS2.Where(w => w.Spieltag >= dtVon && w.Spieltag <= dtBis);
-                        break;
-                    case 3: //Gesamt
-                        break;
-                }
-
-                intIndex = -1;
-                foreach (var item in list6TRS2.ToList())
-                {
-                    strSpieler = item.Nachname + ", " + item.Vorname;
-                    intIndex = lst6TR.FindIndex(f => f.Spieler == strSpieler);
-                    if (intIndex == -1)
-                    {
-                        ClsStatistik6TageRennenPlatzierung obj6TR = new ClsStatistik6TageRennenPlatzierung();
-                        obj6TR.Spieler = strSpieler;
-                        obj6TR.AnzTeilnahmen++;
-
-                        switch (item.Platz)
-                        {
-                            case 1:
-                                obj6TR.Eins++;
-                                break;
-                            case 2:
-                                obj6TR.Zwei++;
-                                break;
-                            case 3:
-                                obj6TR.Drei++;
-                                break;
-                            case 4:
-                                obj6TR.Vier++;
-                                break;
-                            case 5:
-                                obj6TR.Fünf++;
-                                break;
-                            case 6:
-                                obj6TR.Sechs++;
-                                break;
-                        }
-
-                        lst6TR.Add(obj6TR);
-                    }
-                    else
-                    {
-                        lst6TR[intIndex].AnzTeilnahmen++;
-                        switch (item.Platz)
-                        {
-                            case 1:
-                                lst6TR[intIndex].Eins++;
-                                break;
-                            case 2:
-                                lst6TR[intIndex].Zwei++;
-                                break;
-                            case 3:
-                                lst6TR[intIndex].Drei++;
-                                break;
-                            case 4:
-                                lst6TR[intIndex].Vier++;
-                                break;
-                            case 5:
-                                lst6TR[intIndex].Fünf++;
-                                break;
-                            case 6:
-                                lst6TR[intIndex].Sechs++;
-                                break;
-                        }
-                    }
-                }
-            }
-        }
-        catch (Exception ex)
-        {
-            FrmError objForm = new FrmError("ClsDB", "GetStatistik6TageRennenPlatz", ex.ToString());
-            objForm.ShowDialog();
-        }
-
-        var lst6TRSort = lst6TR
-            .OrderByDescending(o => o.Eins)
-            .ThenByDescending(t => t.Zwei)
-            .ThenByDescending(t => t.Drei)
-            .ThenByDescending(t => t.Vier)
-            .ThenByDescending(t => t.Fünf)
-            .ThenByDescending(t => t.Sechs)
-            .ToList();
-
-        return lst6TRSort;
-    }
-    */
-
-    /*
-    public List<ClsStatistik6TageRennenBesteMannschaft> GetStatistik6TageRennenBesteMannschaft(Int32 iZeitbereich, DateTime? dtVon = null, DateTime? dtBis = null)
-    {
-        List<ClsStatistik6TageRennenBesteMannschaft> lst6TR = new List<ClsStatistik6TageRennenBesteMannschaft> ();
-
-        try
-        {
-            using (KEPAVerwaltungEntities DBContext = new KEPAVerwaltungEntities())
-            {
-                var list6TR = (DBContext.vwSpiel6TageRennen
-                    .OrderBy(o => o.Spieltag)
-                    .ThenBy(t => t.Spielnummer)
-                    .ThenBy(t => t.Platz)
-                    .Select(s => new { s.MeisterschaftsID, s.Spieltag, s.Spielnummer, s.Runden, s.Punkte, s.Platz, s.SpielerID1, s.Spieler1Nachname, s.Spieler1Vorname, s.SpielerID2, s.Spieler2Nachname, s.Spieler2Vorname }));
-
-                switch (iZeitbereich)
-                {
-                    case 0: //laufende Meisterschaft
-                        list6TR = list6TR.Where(w => w.MeisterschaftsID == Properties.Settings.Default.AktiveMeisterschaft);
-                        break;
-                    case 1: //letzte Meisterschaft
-                        Int32 intID = GetLetzteMeisterschaftsID();
-                        list6TR = list6TR.Where(w => w.MeisterschaftsID == intID);
-                        break;
-                    case 2: //Zeitbereich
-                        list6TR = list6TR.Where(w => w.Spieltag >= dtVon && w.Spieltag <= dtBis);
-                        break;
-                    case 3: //Gesamt
-                        break;
-                }
-
-                Int32 intIndex = -1;
-                string strMannschaft;
-                string strSpieler1;
-                string strSpieler2;
-                foreach (var item in list6TR.ToList())
-                {
-                    strSpieler1 = item.Spieler1Nachname + ", " + item.Spieler1Vorname;
-                    strSpieler2 = item.Spieler2Nachname + ", " + item.Spieler2Vorname;
-                    ClsStatistik6TageRennenBesteMannschaft obj6TR = new ClsStatistik6TageRennenBesteMannschaft();
-
-                    if(string.Compare(item.Spieler1Nachname, item.Spieler2Nachname,true) < 0)
-                    {
-                        strMannschaft = strSpieler1 + " | " + strSpieler2;
-                        obj6TR.Mannschaft = strMannschaft;
-                        obj6TR.Spieler1ID = item.SpielerID1;
-                        obj6TR.Spieler2ID = item.SpielerID2;
-                    }
-                    else
-                    {
-                        if(string.Compare(item.Spieler1Nachname, item.Spieler2Nachname, true) == 0)
-                        {
-                            if (string.Compare(item.Spieler1Vorname, item.Spieler2Vorname, true) < 0)
-                            {
-                                strMannschaft = strSpieler1 + " | " + strSpieler2;
-                                obj6TR.Mannschaft = strMannschaft;
-                                obj6TR.Spieler1ID = item.SpielerID1;
-                                obj6TR.Spieler2ID = item.SpielerID2;
-                            }
-                            else
-                            {
-                                strMannschaft = strSpieler2 + " | " + strSpieler1;
-                                obj6TR.Mannschaft = strMannschaft;
-                                obj6TR.Spieler1ID = item.SpielerID2;
-                                obj6TR.Spieler2ID = item.SpielerID1;
-                            }
-                        }
-                        else
-                        {
-                            strMannschaft = strSpieler2 + " | " + strSpieler1;
-                            obj6TR.Mannschaft = strMannschaft;
-                            obj6TR.Spieler1ID = item.SpielerID2;
-                            obj6TR.Spieler2ID = item.SpielerID1;
-                        }
-                    }
-
-                    intIndex = lst6TR.FindIndex(f => f.Mannschaft == strMannschaft);
-                    if(intIndex == -1)
-                    {
-                        obj6TR.Anzahl++;
-                        switch (item.Platz)
-                        {
-                            case 1:
-                                obj6TR.Eins++;
-                                break;
-                            case 2:
-                                obj6TR.Zwei++;
-                                break;
-                            case 3:
-                                obj6TR.Drei++;
-                                break;
-                            case 4:
-                                obj6TR.Vier++;
-                                break;
-                            case 5:
-                                obj6TR.Fünf++;
-                                break;
-                            case 6:
-                                obj6TR.Sechs++;
-                                break;
-                        }
-
-                        lst6TR.Add(obj6TR);
-                    }
-                    else
-                    {
-                        lst6TR[intIndex].Anzahl++;
-                        switch (item.Platz)
-                        {
-                            case 1:
-                                lst6TR[intIndex].Eins++;
-                                break;
-                            case 2:
-                                lst6TR[intIndex].Zwei++;
-                                break;
-                            case 3:
-                                lst6TR[intIndex].Drei++;
-                                break;
-                            case 4:
-                                lst6TR[intIndex].Vier++;
-                                break;
-                            case 5:
-                                lst6TR[intIndex].Fünf++;
-                                break;
-                            case 6:
-                                lst6TR[intIndex].Sechs++;
-                                break;
-                        }
-                    }
-                }
-            }
-        }
-        catch(Exception ex)
-        {
-            FrmError objForm = new FrmError("ClsDB", "GetStatistik6TageRennenBesteMannschaft", ex.ToString());
-            objForm.ShowDialog();
-        }
-
-        var lst6TRSort = lst6TR
-            .OrderByDescending(o => o.Eins)
-            .ThenByDescending(t => t.Zwei)
-            .ThenByDescending(t => t.Drei)
-            .ThenByDescending(t => t.Vier)
-            .ThenByDescending(t => t.Fünf)
-            .ThenByDescending(t => t.Sechs)
-            .ToList();
-
-        return lst6TRSort;
-    }
-    */
-
-    /*
-    public Dictionary<string, List<ClsStatistik6TageRennenBesteMannschaft>> GetStatistik6TageRennenMannschaftMitglied(Int32 iZeitbereich, DateTime? dtVon = null, DateTime? dtBis = null)
-    {
-        List<ClsStatistik6TageRennenBesteMannschaft> lstMannschaftA = new List<ClsStatistik6TageRennenBesteMannschaft>();
-        List<ClsStatistik6TageRennenBesteMannschaft> lstMannschaftB = new List<ClsStatistik6TageRennenBesteMannschaft>();
-        Dictionary<string, List<ClsStatistik6TageRennenBesteMannschaft>> dictMannschaft = new Dictionary<string, List<ClsStatistik6TageRennenBesteMannschaft>>();
-
-        try
-        {
-            using (KEPAVerwaltungEntities DBContext = new KEPAVerwaltungEntities())
-            {
-                var list6TR = (DBContext.vwSpiel6TageRennen
-                    .OrderBy(o => o.Spieltag)
-                    .ThenBy(t => t.Spielnummer)
-                    .ThenBy(t => t.Platz)
-                    .Select(s => new { s.MeisterschaftsID, s.Spieltag, s.Spielnummer, s.Runden, s.Punkte, s.Platz, s.SpielerID1, s.Spieler1Nachname, s.Spieler1Vorname, s.SpielerID2, s.Spieler2Nachname, s.Spieler2Vorname }));
-
-                switch (iZeitbereich)
-                {
-                    case 0: //laufende Meisterschaft
-                        list6TR = list6TR.Where(w => w.MeisterschaftsID == Properties.Settings.Default.AktiveMeisterschaft);
-                        break;
-                    case 1: //letzte Meisterschaft
-                        Int32 intID = GetLetzteMeisterschaftsID();
-                        list6TR = list6TR.Where(w => w.MeisterschaftsID == intID);
-                        break;
-                    case 2: //Zeitbereich
-                        list6TR = list6TR.Where(w => w.Spieltag >= dtVon && w.Spieltag <= dtBis);
-                        break;
-                    case 3: //Gesamt
-                        break;
-                }
-
-                Int32 intIndex = -1;
-                string strMannschaftA;
-                string strMannschaftB;
-                string strSpieler1;
-                string strSpieler2;
-                foreach (var item in list6TR.ToList())
-                {
-                    strSpieler1 = item.Spieler1Nachname + ", " + item.Spieler1Vorname;
-                    strSpieler2 = item.Spieler2Nachname + ", " + item.Spieler2Vorname;
-
-                    strMannschaftA = strSpieler1 + " | " + strSpieler2;
-                    if(!dictMannschaft.ContainsKey(strSpieler1))
-                    {
-                        ClsStatistik6TageRennenBesteMannschaft obj6TR_M_A = new ClsStatistik6TageRennenBesteMannschaft();
-                        obj6TR_M_A.Mannschaft = strMannschaftA;
-                        obj6TR_M_A.Spieler1ID = item.SpielerID1;
-                        obj6TR_M_A.Spieler2ID = item.SpielerID2;
-
-                        obj6TR_M_A.Anzahl++;
-                        switch (item.Platz)
-                        {
-                            case 1:
-                                obj6TR_M_A.Eins++;
-                                break;
-                            case 2:
-                                obj6TR_M_A.Zwei++;
-                                break;
-                            case 3:
-                                obj6TR_M_A.Drei++;
-                                break;
-                            case 4:
-                                obj6TR_M_A.Vier++;
-                                break;
-                            case 5:
-                                obj6TR_M_A.Fünf++;
-                                break;
-                            case 6:
-                                obj6TR_M_A.Sechs++;
-                                break;
-                        }
-
-                        List<ClsStatistik6TageRennenBesteMannschaft> lstMannschaft = new List<ClsStatistik6TageRennenBesteMannschaft>();
-                        lstMannschaft.Add(obj6TR_M_A);
-                        dictMannschaft.Add(strSpieler1, lstMannschaft);
-                    }
-                    else
-                    {
-                        intIndex = dictMannschaft[strSpieler1].FindIndex(f => f.Mannschaft == strMannschaftA);
-                        if (intIndex == -1)
-                        {
-                            ClsStatistik6TageRennenBesteMannschaft obj6TR_M_A = new ClsStatistik6TageRennenBesteMannschaft();
-                            obj6TR_M_A.Mannschaft = strMannschaftA;
-                            obj6TR_M_A.Spieler1ID = item.SpielerID1;
-                            obj6TR_M_A.Spieler2ID = item.SpielerID2;
-
-                            obj6TR_M_A.Anzahl++;
-                            switch (item.Platz)
-                            {
-                                case 1:
-                                    obj6TR_M_A.Eins++;
-                                    break;
-                                case 2:
-                                    obj6TR_M_A.Zwei++;
-                                    break;
-                                case 3:
-                                    obj6TR_M_A.Drei++;
-                                    break;
-                                case 4:
-                                    obj6TR_M_A.Vier++;
-                                    break;
-                                case 5:
-                                    obj6TR_M_A.Fünf++;
-                                    break;
-                                case 6:
-                                    obj6TR_M_A.Sechs++;
-                                    break;
-                            }
-
-                            dictMannschaft[strSpieler1].Add(obj6TR_M_A);
-                        }
-                        else
-                        {
-                            dictMannschaft[strSpieler1][intIndex].Anzahl++;
-                            switch (item.Platz)
-                            {
-                                case 1:
-                                    dictMannschaft[strSpieler1][intIndex].Eins++;
-                                    break;
-                                case 2:
-                                    dictMannschaft[strSpieler1][intIndex].Zwei++;
-                                    break;
-                                case 3:
-                                    dictMannschaft[strSpieler1][intIndex].Drei++;
-                                    break;
-                                case 4:
-                                    dictMannschaft[strSpieler1][intIndex].Vier++;
-                                    break;
-                                case 5:
-                                    dictMannschaft[strSpieler1][intIndex].Fünf++;
-                                    break;
-                                case 6:
-                                    dictMannschaft[strSpieler1][intIndex].Sechs++;
-                                    break;
-                            }
-                        }
-                    }
-
-                    if (strSpieler1 != strSpieler2)
-                    {
-                        strMannschaftB = strSpieler2 + " | " + strSpieler1;
-                        if (!dictMannschaft.ContainsKey(strSpieler2))
-                        {
-                            ClsStatistik6TageRennenBesteMannschaft obj6TR_M_B = new ClsStatistik6TageRennenBesteMannschaft();
-                            obj6TR_M_B.Mannschaft = strMannschaftB;
-                            obj6TR_M_B.Spieler1ID = item.SpielerID2;
-                            obj6TR_M_B.Spieler2ID = item.SpielerID1;
-
-                            obj6TR_M_B.Anzahl++;
-                            switch (item.Platz)
-                            {
-                                case 1:
-                                    obj6TR_M_B.Eins++;
-                                    break;
-                                case 2:
-                                    obj6TR_M_B.Zwei++;
-                                    break;
-                                case 3:
-                                    obj6TR_M_B.Drei++;
-                                    break;
-                                case 4:
-                                    obj6TR_M_B.Vier++;
-                                    break;
-                                case 5:
-                                    obj6TR_M_B.Fünf++;
-                                    break;
-                                case 6:
-                                    obj6TR_M_B.Sechs++;
-                                    break;
-                            }
-
-                            List<ClsStatistik6TageRennenBesteMannschaft> lstMannschaft = new List<ClsStatistik6TageRennenBesteMannschaft>();
-                            lstMannschaft.Add(obj6TR_M_B);
-                            dictMannschaft.Add(strSpieler2, lstMannschaft);
-                        }
-                        else
-                        {
-                            intIndex = dictMannschaft[strSpieler2].FindIndex(f => f.Mannschaft == strMannschaftB);
-                            if (intIndex == -1)
-                            {
-                                ClsStatistik6TageRennenBesteMannschaft obj6TR_M_B = new ClsStatistik6TageRennenBesteMannschaft();
-                                obj6TR_M_B.Mannschaft = strMannschaftB;
-                                obj6TR_M_B.Spieler1ID = item.SpielerID2;
-                                obj6TR_M_B.Spieler2ID = item.SpielerID1;
-
-                                obj6TR_M_B.Anzahl++;
-                                switch (item.Platz)
-                                {
-                                    case 1:
-                                        obj6TR_M_B.Eins++;
-                                        break;
-                                    case 2:
-                                        obj6TR_M_B.Zwei++;
-                                        break;
-                                    case 3:
-                                        obj6TR_M_B.Drei++;
-                                        break;
-                                    case 4:
-                                        obj6TR_M_B.Vier++;
-                                        break;
-                                    case 5:
-                                        obj6TR_M_B.Fünf++;
-                                        break;
-                                    case 6:
-                                        obj6TR_M_B.Sechs++;
-                                        break;
-                                }
-
-                                dictMannschaft[strSpieler2].Add(obj6TR_M_B);
-                            }
-                            else
-                            {
-                                dictMannschaft[strSpieler2][intIndex].Anzahl++;
-                                switch (item.Platz)
-                                {
-                                    case 1:
-                                        dictMannschaft[strSpieler2][intIndex].Eins++;
-                                        break;
-                                    case 2:
-                                        dictMannschaft[strSpieler2][intIndex].Zwei++;
-                                        break;
-                                    case 3:
-                                        dictMannschaft[strSpieler2][intIndex].Drei++;
-                                        break;
-                                    case 4:
-                                        dictMannschaft[strSpieler2][intIndex].Vier++;
-                                        break;
-                                    case 5:
-                                        dictMannschaft[strSpieler2][intIndex].Fünf++;
-                                        break;
-                                    case 6:
-                                        dictMannschaft[strSpieler2][intIndex].Sechs++;
-                                        break;
-                                }
-                            }
-                        }
-                    }
-
-
-
-
-                    ////ClsStatistik6TageRennenBesteMannschaft obj6TR_M_A = new ClsStatistik6TageRennenBesteMannschaft();
-                    //obj6TR_M_A.Mannschaft = strSpieler1 + " | " + strSpieler2;
-                    //obj6TR_M_A.Spieler1ID = item.SpielerID1;
-                    //obj6TR_M_A.Spieler2ID = item.SpielerID2;
-
-                    //intIndex = lstMannschaftA.FindIndex(f => f.Mannschaft == obj6TR_M_A.Mannschaft);
-                    //if (intIndex == -1)
-                    //{
-                    //    obj6TR_M_A.Anzahl++;
-                    //    switch (item.Platz)
-                    //    {
-                    //        case 1:
-                    //            obj6TR_M_A.Eins++;
-                    //            break;
-                    //        case 2:
-                    //            obj6TR_M_A.Zwei++;
-                    //            break;
-                    //        case 3:
-                    //            obj6TR_M_A.Drei++;
-                    //            break;
-                    //        case 4:
-                    //            obj6TR_M_A.Vier++;
-                    //            break;
-                    //        case 5:
-                    //            obj6TR_M_A.Fünf++;
-                    //            break;
-                    //        case 6:
-                    //            obj6TR_M_A.Sechs++;
-                    //            break;
-                    //    }
-
-                    //    lstMannschaftA.Add(obj6TR_M_A);
-                    //    if (!dictMannschaft.ContainsKey(strSpieler1))
-                    //    {
-                    //        dictMannschaft.Add(strSpieler1, lstMannschaftA);
-                    //    }
-                    //    else
-                    //    {
-                    //        dictMannschaft[strSpieler1] = lstMannschaftA;
-                    //    }
-                    //}
-                    //else
-                    //{
-                    //    dictMannschaft[strSpieler1][intIndex].Anzahl++;
-                    //    switch (item.Platz)
-                    //    {
-                    //        case 1:
-                    //            dictMannschaft[strSpieler1][intIndex].Eins++;
-                    //            break;
-                    //        case 2:
-                    //            dictMannschaft[strSpieler1][intIndex].Zwei++;
-                    //            break;
-                    //        case 3:
-                    //            dictMannschaft[strSpieler1][intIndex].Drei++;
-                    //            break;
-                    //        case 4:
-                    //            dictMannschaft[strSpieler1][intIndex].Vier++;
-                    //            break;
-                    //        case 5:
-                    //            dictMannschaft[strSpieler1][intIndex].Fünf++;
-                    //            break;
-                    //        case 6:
-                    //            dictMannschaft[strSpieler1][intIndex].Sechs++;
-                    //            break;
-                    //    }
-                    //}
-
-                    //ClsStatistik6TageRennenBesteMannschaft obj6TR_M_B = new ClsStatistik6TageRennenBesteMannschaft();
-                    //obj6TR_M_B.Mannschaft = strSpieler2 + " | " + strSpieler1;
-                    //obj6TR_M_B.Spieler1ID = item.SpielerID2;
-                    //obj6TR_M_B.Spieler2ID = item.SpielerID1;
-
-                    //intIndex = lstMannschaftB.FindIndex(f => f.Mannschaft == obj6TR_M_B.Mannschaft);
-                    //if (intIndex == -1)
-                    //{
-                    //    obj6TR_M_B.Anzahl++;
-                    //    switch (item.Platz)
-                    //    {
-                    //        case 1:
-                    //            obj6TR_M_B.Eins++;
-                    //            break;
-                    //        case 2:
-                    //            obj6TR_M_B.Zwei++;
-                    //            break;
-                    //        case 3:
-                    //            obj6TR_M_B.Drei++;
-                    //            break;
-                    //        case 4:
-                    //            obj6TR_M_B.Vier++;
-                    //            break;
-                    //        case 5:
-                    //            obj6TR_M_B.Fünf++;
-                    //            break;
-                    //        case 6:
-                    //            obj6TR_M_B.Sechs++;
-                    //            break;
-                    //    }
-
-                    //    lstMannschaftB.Add(obj6TR_M_B);
-                    //    if (!dictMannschaft.ContainsKey(strSpieler2))
-                    //    {
-                    //        dictMannschaft.Add(strSpieler2, lstMannschaftB);
-                    //    }
-                    //    else
-                    //    {
-                    //        dictMannschaft[strSpieler2] = lstMannschaftB;
-                    //    }
-                    //}
-                    //else
-                    //{
-                    //    dictMannschaft[strSpieler2][intIndex].Anzahl++;
-                    //    switch (item.Platz)
-                    //    {
-                    //        case 1:
-                    //            dictMannschaft[strSpieler2][intIndex].Eins++;
-                    //            break;
-                    //        case 2:
-                    //            dictMannschaft[strSpieler2][intIndex].Zwei++;
-                    //            break;
-                    //        case 3:
-                    //            dictMannschaft[strSpieler2][intIndex].Drei++;
-                    //            break;
-                    //        case 4:
-                    //            dictMannschaft[strSpieler2][intIndex].Vier++;
-                    //            break;
-                    //        case 5:
-                    //            dictMannschaft[strSpieler2][intIndex].Fünf++;
-                    //            break;
-                    //        case 6:
-                    //            dictMannschaft[strSpieler2][intIndex].Sechs++;
-                    //            break;
-                    //    }
-                    //}
-                }
-            }
-        }
-        catch(Exception ex)
-        {
-            FrmError objForm = new FrmError("ClsDB", "GetStatistik6TageRennenMannschaftMitglied", ex.ToString());
-            objForm.ShowDialog();
-        }
-
-        Dictionary<string, List<ClsStatistik6TageRennenBesteMannschaft>> dictMannschaftTemp = new Dictionary<string, List<ClsStatistik6TageRennenBesteMannschaft>>();
-        foreach (var item in dictMannschaft)
-        {
-            var sort = item.Value.OrderByDescending(o => o.Eins)
-                .ThenByDescending(t => t.Zwei)
-                .ThenByDescending(t => t.Drei)
-                .ThenByDescending(t => t.Vier)
-                .ThenByDescending(t => t.Fünf)
-                .ThenByDescending(t => t.Sechs)
-                .ToList();
-
-            dictMannschaftTemp.Add(item.Key, sort);
-        }
-
-
-        var dictMannschaftSort = dictMannschaftTemp.OrderBy(o => o.Key).ToDictionary(o => o.Key, o => o.Value);
-
-        return dictMannschaftSort;
-    }
-    */
-
 
     #region Hilfsmethoden
+
+    public async Task<Zeitbereich?> GetZeitbereichAsync(int MeisterschaftsID)
+    {
+        var zb = await _localDbContext.TblMeisterschaftens
+            .Where(w => w.Id == MeisterschaftsID)
+            .Select(s => new Zeitbereich { Von = s.Beginn, Bis = s.Ende })
+            .FirstOrDefaultAsync();
+
+        return zb;
+    }
 
     private DataTable CreateDataTable<T>(IEnumerable<T> entities)
     {
@@ -4799,361 +3353,6 @@ public class DBService(
         return lstEMails;
     }
 
-    public async Task<List<StatistikSpielerErgebnisse>> GetStatistikSpielerErgebnisseAsync(Int32 iSpielerID)
-    {
-        List<StatistikSpielerErgebnisse> lstStat = new List<StatistikSpielerErgebnisse>();
-
-        try
-        {
-            var erg = await _localDbContext.TblMeisterschaftens
-                .Join(_localDbContext.TblSpieltags,
-                    m => m.Id,
-                    st => st.MeisterschaftsId,
-                    (m, st) => new
-                    {
-                        m.Bezeichnung,
-                        SpieltagID = st.Id,
-                        st.Spieltag
-                    }).ToListAsync();
-
-            foreach (var item in erg)
-            {
-                StatistikSpielerErgebnisse objErg = new();
-                objErg.Meisterschaft = item.Bezeichnung;
-                objErg.Spieltag = item.Spieltag;
-
-                Boolean bolFound = false;
-
-                //Meisterschaft
-                var sp = await (_localDbContext.VwSpielMeisterschafts
-                    .Where(w => w.SpieltagId == item.SpieltagID &&
-                                (w.SpielerId1 == iSpielerID || w.SpielerId2 == iSpielerID))
-                    .FirstOrDefaultAsync());
-
-                if (sp != null)
-                {
-                    bolFound = true;
-                    if (sp.SpielerId1 == iSpielerID)
-                    {
-                        objErg.Gegenspieler = sp.Spieler2Nachname + ", " + sp.Spieler2Vorname;
-                        objErg.Holz = sp.HolzSpieler1;
-                    }
-                    else
-                    {
-                        objErg.Gegenspieler = sp.Spieler1Nachname + ", " + sp.Spieler1Vorname;
-                        objErg.Holz = sp.HolzSpieler2;
-                    }
-
-                    if (sp.HolzSpieler1 < sp.HolzSpieler2)
-                    {
-                        objErg.Ergebnis = 0;
-                    }
-                    else if (sp.HolzSpieler1 == sp.HolzSpieler2)
-                    {
-                        objErg.Ergebnis = 1;
-                    }
-                    else
-                    {
-                        objErg.Ergebnis = 2;
-                    }
-                }
-
-                //6 Tage Rennen
-                var str = await (_localDbContext.VwSpiel6TageRennens
-                    .Where(w => w.SpieltagId == item.SpieltagID &&
-                                (w.SpielerId1 == iSpielerID || w.SpielerId2 == iSpielerID))
-                    .FirstOrDefaultAsync());
-
-                if (str != null)
-                {
-                    bolFound = true;
-                    objErg.SechsTageRennen_Runden = str.Runden;
-                    objErg.SechsTageRennen_Punkte = str.Punkte;
-                    objErg.SechsTageRennen_Platz = Convert.ToInt64(str.Platz);
-                }
-
-                //Sarg
-                var s = await _localDbContext.VwSpielSargKegelns
-                    .Where(w => w.SpieltagId == item.SpieltagID && w.SpielerId == iSpielerID)
-                    .FirstOrDefaultAsync();
-
-                if (s != null)
-                {
-                    bolFound = true;
-                    objErg.Sarg = s.Platzierung;
-                }
-
-                //Pokal
-                var p = await _localDbContext.VwSpielPokals
-                    .Where(w => w.SpieltagId == item.SpieltagID && w.SpielerId == iSpielerID)
-                    .FirstOrDefaultAsync();
-
-                if (p != null)
-                {
-                    bolFound = true;
-                    objErg.Pokal = p.Platzierung;
-                }
-
-                //9er + Ratten
-                var nr = await _localDbContext.Vw9erRattens
-                    .Where(w => w.SpieltagId == item.SpieltagID && w.SpielerId == iSpielerID)
-                    .FirstOrDefaultAsync();
-
-                if (nr != null)
-                {
-                    bolFound = true;
-                    objErg.Neuner = nr.Neuner;
-                    objErg.Ratten = nr.Ratten;
-                }
-
-                if (bolFound)
-                {
-                    lstStat.Add(objErg);
-                }
-            }
-
-
-            //-----------------
-
-            //Testdaten
-
-            // StatistikSpielerErgebnisse objErg = new();
-            // objErg.Meisterschaft = "Test";
-            // objErg.Spieltag = DateTime.Now;
-            // objErg.Gegenspieler = "Test";
-            // objErg.Holz = -1;
-            // objErg.Ergebnis = -1;
-            //
-            // objErg.SechsTageRennen_Runden = -1;
-            // objErg.SechsTageRennen_Punkte = -1;
-            // objErg.SechsTageRennen_Platz = -1;
-            //
-            // objErg.Sarg = 1;
-            // objErg.Pokal = -1;
-            // objErg.Neuner = -1;
-            // objErg.Ratten = -1;
-            //
-            // lstStat.Add(objErg);
-            // lstStat.Add(objErg);
-            // lstStat.Add(objErg);
-            // lstStat.Add(objErg);
-            // lstStat.Add(objErg);
-            // lstStat.Add(objErg);
-        }
-        catch (Exception ex)
-        {
-            ViewManager.ShowErrorWindow("DBService", "GetStatistikSpielerErgebnisse", ex.ToString());
-        }
-
-        var lstStatSort = lstStat.OrderByDescending(o => o.Spieltag).ToList();
-
-        return lstStatSort;
-    }
-
-    public async Task<List<StatistikSpieler>> GetStatistikSpielerAsync(Int32 iSpielerID)
-    {
-        StatistikSpieler objStat = new();
-
-        try
-        {
-            //Meisterschaft
-
-            //Holz Max
-            var sp1MeisterMax = await _localDbContext.VwSpielMeisterschafts
-                .Where(w => w.SpielerId1 == iSpielerID)
-                .Select(s => s.HolzSpieler1)
-                .DefaultIfEmpty()
-                .MaxAsync(m => m == null ? 0 : m);
-
-            var sp2MeisterMax = await _localDbContext.VwSpielMeisterschafts
-                .Where(w => w.SpielerId2 == iSpielerID)
-                .Select(s => s.HolzSpieler2)
-                .DefaultIfEmpty()
-                .MaxAsync(m => m == null ? 0 : m);
-
-            objStat.HolzMeisterMax = sp1MeisterMax > sp2MeisterMax ? sp1MeisterMax : sp2MeisterMax;
-
-            //Holz Min
-            var sp1MeisterMin = await _localDbContext.VwSpielMeisterschafts
-                .Where(w => w.SpielerId1 == iSpielerID)
-                .Select(s => s.HolzSpieler1)
-                .DefaultIfEmpty()
-                .MinAsync(m => m == null ? 0 : m);
-
-            var sp2MeisterMin = await _localDbContext.VwSpielMeisterschafts
-                .Where(w => w.SpielerId2 == iSpielerID)
-                .Select(s => s.HolzSpieler2)
-                .DefaultIfEmpty()
-                .MinAsync(m => m == null ? 0 : m);
-            objStat.HolzMeisterMin = sp1MeisterMin < sp2MeisterMin ? sp1MeisterMin : sp2MeisterMin;
-
-            var sp1MeisterSum = await _localDbContext.VwSpielMeisterschafts
-                .Where(w => w.SpielerId1 == iSpielerID)
-                .Select(s => s.HolzSpieler1)
-                .DefaultIfEmpty()
-                .SumAsync(m => m == null ? 0 : m);
-
-            var sp2MeisterSum = await _localDbContext.VwSpielMeisterschafts
-                .Where(w => w.SpielerId2 == iSpielerID)
-                .Select(s => s.HolzSpieler2)
-                .DefaultIfEmpty()
-                .SumAsync(m => m == null ? 0 : m);
-
-            var spc1Meister = await _localDbContext.VwSpielMeisterschafts
-                .Where(w => w.SpielerId1 == iSpielerID)
-                .Select(s => s.SpielMeisterschaftId)
-                .CountAsync();
-
-            var spc2Meister = await _localDbContext.VwSpielMeisterschafts
-                .Where(w => w.SpielerId2 == iSpielerID)
-                .Select(s => s.SpielMeisterschaftId)
-                .CountAsync();
-
-            if (spc1Meister == 0 || spc2Meister == 0)
-                objStat.HolzMeisterAVG = 0;
-            else
-                objStat.HolzMeisterAVG = (sp1MeisterSum + sp2MeisterSum) / (spc1Meister + spc2Meister);
-
-            //Blitztunier
-
-            //Holz Max
-            var sp1BlitzMax = await _localDbContext.VwSpielBlitztuniers
-                .Where(w => w.SpielerId1 == iSpielerID)
-                .Select(s => s.SpielerId1)
-                .DefaultIfEmpty()
-                .MaxAsync(m => m == null ? 0 : m);
-
-            var sp2BlitzMax = await _localDbContext.VwSpielBlitztuniers
-                .Where(w => w.SpielerId2 == iSpielerID)
-                .Select(s => s.SpielerId2)
-                .DefaultIfEmpty()
-                .MaxAsync(m => m == null ? 0 : m);
-
-            objStat.HolzBlitzMax = sp1BlitzMax > sp2BlitzMax ? sp1BlitzMax : sp2BlitzMax;
-
-            var sp1BlitzMin = await _localDbContext.VwSpielBlitztuniers
-                .Where(w => w.SpielerId1 == iSpielerID)
-                .Select(s => s.SpielerId1)
-                .DefaultIfEmpty()
-                .MinAsync(m => m == null ? 0 : m);
-
-            var sp2BlitzMin = await _localDbContext.VwSpielBlitztuniers
-                .Where(w => w.SpielerId2 == iSpielerID)
-                .Select(s => s.SpielerId2)
-                .DefaultIfEmpty()
-                .MinAsync(m => m == null ? 0 : m);
-
-            objStat.HolzBlitzMin = sp1BlitzMin < sp2BlitzMin ? sp1BlitzMin : sp2BlitzMin;
-
-            var sp1BlitzSum = await _localDbContext.VwSpielBlitztuniers
-                .Where(w => w.SpielerId1 == iSpielerID)
-                .Select(s => s.SpielerId1)
-                .DefaultIfEmpty()
-                .SumAsync(m => m == null ? 0 : m);
-
-            var sp2BlitzSum = await _localDbContext.VwSpielBlitztuniers
-                .Where(w => w.SpielerId2 == iSpielerID)
-                .Select(s => s.SpielerId2)
-                .DefaultIfEmpty()
-                .SumAsync(m => m == null ? 0 : m);
-
-            var spc1Blitz = await _localDbContext.VwSpielBlitztuniers
-                .Where(w => w.SpielerId1 == iSpielerID)
-                .Select(s => s.SpieltagId)
-                .CountAsync();
-
-            var spc2Blitz = await _localDbContext.VwSpielBlitztuniers
-                .Where(w => w.SpielerId2 == iSpielerID)
-                .Select(s => s.SpieltagId)
-                .CountAsync();
-
-            if (spc1Blitz == 0 || spc2Blitz == 0)
-                objStat.HolzBlitzAVG = 0;
-            else
-                objStat.HolzBlitzAVG = (sp1BlitzSum + sp2BlitzSum) / (spc1Blitz + spc2Blitz);
-
-            //Gesamt
-
-            //Holz Summe
-            objStat.HolzSumme = sp1MeisterSum + sp2MeisterSum + sp1BlitzSum + sp2BlitzSum;
-            objStat.HolzMax = objStat.HolzMeisterMax > objStat.HolzBlitzMax
-                ? objStat.HolzMeisterMax
-                : objStat.HolzBlitzMax;
-            objStat.HolzMin = objStat.HolzMeisterMin < objStat.HolzBlitzMin
-                ? objStat.HolzMeisterMin
-                : objStat.HolzBlitzMin;
-            if (sp1MeisterSum == 0 || sp2MeisterSum == 0 || sp1BlitzSum == 0 || sp2BlitzSum == 0)
-                objStat.HolzAVG = 0;
-            else
-                objStat.HolzAVG = (sp1MeisterSum + sp2MeisterSum + sp1BlitzSum + sp2BlitzSum) /
-                                  (spc1Meister + spc2Meister + spc1Blitz + spc2Blitz);
-
-            var ratten = await _localDbContext.Vw9erRattens
-                .Where(w => w.SpielerId == iSpielerID)
-                .Select(s => s.Ratten)
-                .DefaultIfEmpty()
-                .MaxAsync(m => m == null ? 0 : m);
-
-            objStat.RattenMax = ratten;
-
-            var neuner = await _localDbContext.Vw9erRattens
-                .Where(w => w.SpielerId == iSpielerID)
-                .Select(s => s.Neuner)
-                .DefaultIfEmpty()
-                .MaxAsync(m => m == null ? 0 : m);
-
-            objStat.NeunerMax = neuner;
-
-            var rattenSum = await _localDbContext.Vw9erRattens
-                .Where(w => w.SpielerId == iSpielerID)
-                .Select(s => s.Ratten)
-                .DefaultIfEmpty()
-                .SumAsync(m => m == null ? 0 : m);
-
-            objStat.RattenSumme = rattenSum;
-
-            var neunerSum = await _localDbContext.Vw9erRattens
-                .Where(w => w.SpielerId == iSpielerID)
-                .Select(s => s.Neuner)
-                .DefaultIfEmpty()
-                .SumAsync(m => m == null ? 0 : m);
-
-            objStat.NeunerSumme = neunerSum;
-
-
-            //----------------
-
-            //Testdaten
-            // objStat.HolzMeisterMax = -1;
-            // objStat.HolzMeisterMin = -1;
-            // objStat.HolzMeisterSumme = -1;
-            // objStat.HolzMeisterAVG = -1.0;
-            //
-            // objStat.HolzBlitzMax = -1;
-            // objStat.HolzBlitzMin = -1;
-            // objStat.HolzBlitzSumme = -1;
-            // objStat.HolzBlitzAVG = -1;
-            //
-            // objStat.HolzMax = -1;
-            // objStat.HolzMin = -1;
-            // objStat.HolzSumme = -1;
-            // objStat.HolzAVG = -1;
-            //
-            // objStat.RattenMax = -1;
-            // objStat.RattenSumme = -1;
-            // objStat.NeunerMax = -1;
-            // objStat.NeunerSumme = -1;
-        }
-        catch (Exception ex)
-        {
-            ViewManager.ShowErrorWindow("DBService", "GetStatistikSpieler", ex.ToString());
-        }
-
-        List<StatistikSpieler> objList = new();
-        objList.Add(objStat);
-        return objList;
-    }
-
     #endregion
 
     #region Meisterschaftsverwaltung
@@ -5965,6 +4164,1686 @@ public class DBService(
         }
 
         return intID;
+    }
+
+    #endregion
+
+    #region Statistiken
+
+    public async Task<List<StatistikSpieler>> GetStatistikSpielerAsync(Int32 iSpielerID)
+    {
+        StatistikSpieler objStat = new();
+
+        try
+        {
+            //Meisterschaft
+
+            //Holz Max
+            var sp1MeisterMax = await _localDbContext.VwSpielMeisterschafts
+                .Where(w => w.SpielerId1 == iSpielerID)
+                .Select(s => s.HolzSpieler1)
+                .DefaultIfEmpty()
+                .MaxAsync(m => m == null ? 0 : m);
+
+            var sp2MeisterMax = await _localDbContext.VwSpielMeisterschafts
+                .Where(w => w.SpielerId2 == iSpielerID)
+                .Select(s => s.HolzSpieler2)
+                .DefaultIfEmpty()
+                .MaxAsync(m => m == null ? 0 : m);
+
+            objStat.HolzMeisterMax = sp1MeisterMax > sp2MeisterMax ? sp1MeisterMax : sp2MeisterMax;
+
+            //Holz Min
+            var sp1MeisterMin = await _localDbContext.VwSpielMeisterschafts
+                .Where(w => w.SpielerId1 == iSpielerID)
+                .Select(s => s.HolzSpieler1)
+                .DefaultIfEmpty()
+                .MinAsync(m => m == null ? 0 : m);
+
+            var sp2MeisterMin = await _localDbContext.VwSpielMeisterschafts
+                .Where(w => w.SpielerId2 == iSpielerID)
+                .Select(s => s.HolzSpieler2)
+                .DefaultIfEmpty()
+                .MinAsync(m => m == null ? 0 : m);
+            objStat.HolzMeisterMin = sp1MeisterMin < sp2MeisterMin ? sp1MeisterMin : sp2MeisterMin;
+
+            var sp1MeisterSum = await _localDbContext.VwSpielMeisterschafts
+                .Where(w => w.SpielerId1 == iSpielerID)
+                .Select(s => s.HolzSpieler1)
+                .DefaultIfEmpty()
+                .SumAsync(m => m == null ? 0 : m);
+
+            var sp2MeisterSum = await _localDbContext.VwSpielMeisterschafts
+                .Where(w => w.SpielerId2 == iSpielerID)
+                .Select(s => s.HolzSpieler2)
+                .DefaultIfEmpty()
+                .SumAsync(m => m == null ? 0 : m);
+
+            var spc1Meister = await _localDbContext.VwSpielMeisterschafts
+                .Where(w => w.SpielerId1 == iSpielerID)
+                .Select(s => s.SpielMeisterschaftId)
+                .CountAsync();
+
+            var spc2Meister = await _localDbContext.VwSpielMeisterschafts
+                .Where(w => w.SpielerId2 == iSpielerID)
+                .Select(s => s.SpielMeisterschaftId)
+                .CountAsync();
+
+            if (spc1Meister == 0 || spc2Meister == 0)
+                objStat.HolzMeisterAVG = 0;
+            else
+                objStat.HolzMeisterAVG = (sp1MeisterSum + sp2MeisterSum) / (spc1Meister + spc2Meister);
+
+            //Blitztunier
+
+            //Holz Max
+            var sp1BlitzMax = await _localDbContext.VwSpielBlitztuniers
+                .Where(w => w.SpielerId1 == iSpielerID)
+                .Select(s => s.SpielerId1)
+                .DefaultIfEmpty()
+                .MaxAsync(m => m == null ? 0 : m);
+
+            var sp2BlitzMax = await _localDbContext.VwSpielBlitztuniers
+                .Where(w => w.SpielerId2 == iSpielerID)
+                .Select(s => s.SpielerId2)
+                .DefaultIfEmpty()
+                .MaxAsync(m => m == null ? 0 : m);
+
+            objStat.HolzBlitzMax = sp1BlitzMax > sp2BlitzMax ? sp1BlitzMax : sp2BlitzMax;
+
+            var sp1BlitzMin = await _localDbContext.VwSpielBlitztuniers
+                .Where(w => w.SpielerId1 == iSpielerID)
+                .Select(s => s.SpielerId1)
+                .DefaultIfEmpty()
+                .MinAsync(m => m == null ? 0 : m);
+
+            var sp2BlitzMin = await _localDbContext.VwSpielBlitztuniers
+                .Where(w => w.SpielerId2 == iSpielerID)
+                .Select(s => s.SpielerId2)
+                .DefaultIfEmpty()
+                .MinAsync(m => m == null ? 0 : m);
+
+            objStat.HolzBlitzMin = sp1BlitzMin < sp2BlitzMin ? sp1BlitzMin : sp2BlitzMin;
+
+            var sp1BlitzSum = await _localDbContext.VwSpielBlitztuniers
+                .Where(w => w.SpielerId1 == iSpielerID)
+                .Select(s => s.SpielerId1)
+                .DefaultIfEmpty()
+                .SumAsync(m => m == null ? 0 : m);
+
+            var sp2BlitzSum = await _localDbContext.VwSpielBlitztuniers
+                .Where(w => w.SpielerId2 == iSpielerID)
+                .Select(s => s.SpielerId2)
+                .DefaultIfEmpty()
+                .SumAsync(m => m == null ? 0 : m);
+
+            var spc1Blitz = await _localDbContext.VwSpielBlitztuniers
+                .Where(w => w.SpielerId1 == iSpielerID)
+                .Select(s => s.SpieltagId)
+                .CountAsync();
+
+            var spc2Blitz = await _localDbContext.VwSpielBlitztuniers
+                .Where(w => w.SpielerId2 == iSpielerID)
+                .Select(s => s.SpieltagId)
+                .CountAsync();
+
+            if (spc1Blitz == 0 || spc2Blitz == 0)
+                objStat.HolzBlitzAVG = 0;
+            else
+                objStat.HolzBlitzAVG = (sp1BlitzSum + sp2BlitzSum) / (spc1Blitz + spc2Blitz);
+
+            //Gesamt
+
+            //Holz Summe
+            objStat.HolzSumme = sp1MeisterSum + sp2MeisterSum + sp1BlitzSum + sp2BlitzSum;
+            objStat.HolzMax = objStat.HolzMeisterMax > objStat.HolzBlitzMax
+                ? objStat.HolzMeisterMax
+                : objStat.HolzBlitzMax;
+            objStat.HolzMin = objStat.HolzMeisterMin < objStat.HolzBlitzMin
+                ? objStat.HolzMeisterMin
+                : objStat.HolzBlitzMin;
+            if (sp1MeisterSum == 0 || sp2MeisterSum == 0 || sp1BlitzSum == 0 || sp2BlitzSum == 0)
+                objStat.HolzAVG = 0;
+            else
+                objStat.HolzAVG = (sp1MeisterSum + sp2MeisterSum + sp1BlitzSum + sp2BlitzSum) /
+                                  (spc1Meister + spc2Meister + spc1Blitz + spc2Blitz);
+
+            var ratten = await _localDbContext.Vw9erRattens
+                .Where(w => w.SpielerId == iSpielerID)
+                .Select(s => s.Ratten)
+                .DefaultIfEmpty()
+                .MaxAsync(m => m == null ? 0 : m);
+
+            objStat.RattenMax = ratten;
+
+            var neuner = await _localDbContext.Vw9erRattens
+                .Where(w => w.SpielerId == iSpielerID)
+                .Select(s => s.Neuner)
+                .DefaultIfEmpty()
+                .MaxAsync(m => m == null ? 0 : m);
+
+            objStat.NeunerMax = neuner;
+
+            var rattenSum = await _localDbContext.Vw9erRattens
+                .Where(w => w.SpielerId == iSpielerID)
+                .Select(s => s.Ratten)
+                .DefaultIfEmpty()
+                .SumAsync(m => m == null ? 0 : m);
+
+            objStat.RattenSumme = rattenSum;
+
+            var neunerSum = await _localDbContext.Vw9erRattens
+                .Where(w => w.SpielerId == iSpielerID)
+                .Select(s => s.Neuner)
+                .DefaultIfEmpty()
+                .SumAsync(m => m == null ? 0 : m);
+
+            objStat.NeunerSumme = neunerSum;
+
+
+            //----------------
+
+            //Testdaten
+            // objStat.HolzMeisterMax = -1;
+            // objStat.HolzMeisterMin = -1;
+            // objStat.HolzMeisterSumme = -1;
+            // objStat.HolzMeisterAVG = -1.0;
+            //
+            // objStat.HolzBlitzMax = -1;
+            // objStat.HolzBlitzMin = -1;
+            // objStat.HolzBlitzSumme = -1;
+            // objStat.HolzBlitzAVG = -1;
+            //
+            // objStat.HolzMax = -1;
+            // objStat.HolzMin = -1;
+            // objStat.HolzSumme = -1;
+            // objStat.HolzAVG = -1;
+            //
+            // objStat.RattenMax = -1;
+            // objStat.RattenSumme = -1;
+            // objStat.NeunerMax = -1;
+            // objStat.NeunerSumme = -1;
+        }
+        catch (Exception ex)
+        {
+            ViewManager.ShowErrorWindow("DBService", "GetStatistikSpieler", ex.ToString());
+        }
+
+        List<StatistikSpieler> objList = new();
+        objList.Add(objStat);
+        return objList;
+    }
+
+    public async Task<List<StatistikSpielerErgebnisse>> GetStatistikSpielerErgebnisseAsync(Int32 iSpielerID)
+    {
+        List<StatistikSpielerErgebnisse> lstStat = new List<StatistikSpielerErgebnisse>();
+
+        try
+        {
+            var erg = await _localDbContext.TblMeisterschaftens
+                .Join(_localDbContext.TblSpieltags,
+                    m => m.Id,
+                    st => st.MeisterschaftsId,
+                    (m, st) => new
+                    {
+                        m.Bezeichnung,
+                        SpieltagID = st.Id,
+                        st.Spieltag
+                    }).ToListAsync();
+
+            foreach (var item in erg)
+            {
+                StatistikSpielerErgebnisse objErg = new();
+                objErg.Meisterschaft = item.Bezeichnung;
+                objErg.Spieltag = item.Spieltag;
+
+                Boolean bolFound = false;
+
+                //Meisterschaft
+                var sp = await (_localDbContext.VwSpielMeisterschafts
+                    .Where(w => w.SpieltagId == item.SpieltagID &&
+                                (w.SpielerId1 == iSpielerID || w.SpielerId2 == iSpielerID))
+                    .FirstOrDefaultAsync());
+
+                if (sp != null)
+                {
+                    bolFound = true;
+                    if (sp.SpielerId1 == iSpielerID)
+                    {
+                        objErg.Gegenspieler = sp.Spieler2Nachname + ", " + sp.Spieler2Vorname;
+                        objErg.Holz = sp.HolzSpieler1;
+                    }
+                    else
+                    {
+                        objErg.Gegenspieler = sp.Spieler1Nachname + ", " + sp.Spieler1Vorname;
+                        objErg.Holz = sp.HolzSpieler2;
+                    }
+
+                    if (sp.HolzSpieler1 < sp.HolzSpieler2)
+                    {
+                        objErg.Ergebnis = 0;
+                    }
+                    else if (sp.HolzSpieler1 == sp.HolzSpieler2)
+                    {
+                        objErg.Ergebnis = 1;
+                    }
+                    else
+                    {
+                        objErg.Ergebnis = 2;
+                    }
+                }
+
+                //6 Tage Rennen
+                var str = await (_localDbContext.VwSpiel6TageRennens
+                    .Where(w => w.SpieltagId == item.SpieltagID &&
+                                (w.SpielerId1 == iSpielerID || w.SpielerId2 == iSpielerID))
+                    .FirstOrDefaultAsync());
+
+                if (str != null)
+                {
+                    bolFound = true;
+                    objErg.SechsTageRennen_Runden = str.Runden;
+                    objErg.SechsTageRennen_Punkte = str.Punkte;
+                    objErg.SechsTageRennen_Platz = Convert.ToInt64(str.Platz);
+                }
+
+                //Sarg
+                var s = await _localDbContext.VwSpielSargKegelns
+                    .Where(w => w.SpieltagId == item.SpieltagID && w.SpielerId == iSpielerID)
+                    .FirstOrDefaultAsync();
+
+                if (s != null)
+                {
+                    bolFound = true;
+                    objErg.Sarg = s.Platzierung;
+                }
+
+                //Pokal
+                var p = await _localDbContext.VwSpielPokals
+                    .Where(w => w.SpieltagId == item.SpieltagID && w.SpielerId == iSpielerID)
+                    .FirstOrDefaultAsync();
+
+                if (p != null)
+                {
+                    bolFound = true;
+                    objErg.Pokal = p.Platzierung;
+                }
+
+                //9er + Ratten
+                var nr = await _localDbContext.Vw9erRattens
+                    .Where(w => w.SpieltagId == item.SpieltagID && w.SpielerId == iSpielerID)
+                    .FirstOrDefaultAsync();
+
+                if (nr != null)
+                {
+                    bolFound = true;
+                    objErg.Neuner = nr.Neuner;
+                    objErg.Ratten = nr.Ratten;
+                }
+
+                if (bolFound)
+                {
+                    lstStat.Add(objErg);
+                }
+            }
+
+
+            //-----------------
+
+            //Testdaten
+
+            // StatistikSpielerErgebnisse objErg = new();
+            // objErg.Meisterschaft = "Test";
+            // objErg.Spieltag = DateTime.Now;
+            // objErg.Gegenspieler = "Test";
+            // objErg.Holz = -1;
+            // objErg.Ergebnis = -1;
+            //
+            // objErg.SechsTageRennen_Runden = -1;
+            // objErg.SechsTageRennen_Punkte = -1;
+            // objErg.SechsTageRennen_Platz = -1;
+            //
+            // objErg.Sarg = 1;
+            // objErg.Pokal = -1;
+            // objErg.Neuner = -1;
+            // objErg.Ratten = -1;
+            //
+            // lstStat.Add(objErg);
+            // lstStat.Add(objErg);
+            // lstStat.Add(objErg);
+            // lstStat.Add(objErg);
+            // lstStat.Add(objErg);
+            // lstStat.Add(objErg);
+        }
+        catch (Exception ex)
+        {
+            ViewManager.ShowErrorWindow("DBService", "GetStatistikSpielerErgebnisse", ex.ToString());
+        }
+
+        var lstStatSort = lstStat.OrderByDescending(o => o.Spieltag).ToList();
+
+        return lstStatSort;
+    }
+
+    public async Task<List<Statistik9er>> GetStatistik9erAsync(Int32 iZeitbereich, DateTime? dtVon = null,
+        DateTime? dtBis = null)
+    {
+        List<Statistik9er> lst9er = new();
+
+        try
+        {
+            var list9er = await _localDbContext.VwStatistik9ers
+                .OrderBy(o => o.Spieltag)
+                .Select(s => new { s.MeisterschaftsId, s.Spieltag, s.Neuner, s.Nachname, s.Vorname })
+                .ToListAsync();
+
+            switch (iZeitbereich)
+            {
+                case 0: //laufende Meisterschaft
+                    list9er = list9er.Where(w => w.MeisterschaftsId == _commonService.AktiveMeisterschaft.ID).ToList();
+                    break;
+                case 1: //letzte Meisterschaft
+                    Int32 intID = await GetLetzteMeisterschaftsIDAsync();
+                    list9er = list9er.Where(w => w.MeisterschaftsId == intID).ToList();
+                    break;
+                case 2: //Zeitbereich
+                    list9er = list9er.Where(w => w.Spieltag >= dtVon && w.Spieltag <= dtBis).ToList();
+                    break;
+                case 3: //Gesamt
+                    break;
+            }
+
+            var lst = (from l in list9er
+                group l by new
+                {
+                    l.MeisterschaftsId,
+                    l.Spieltag,
+                    l.Nachname,
+                    l.Vorname
+                }
+                into g
+                select new
+                {
+                    MeisterschaftsID = g.Key.MeisterschaftsId,
+                    Spieltag = g.Key.Spieltag,
+                    Neuner = g.Sum(s => s.Neuner),
+                    Nachname = g.Key.Nachname,
+                    Vorname = g.Key.Vorname
+                }).ToList();
+
+            //var debug = lst.ToList();
+
+            Int32 intIndex = -1;
+            string strSpieler;
+            foreach (var item in lst)
+            {
+                strSpieler = item.Nachname + ", " + item.Vorname;
+                intIndex = lst9er.FindIndex(f => f.Spieler == strSpieler);
+                if (intIndex == -1)
+                {
+                    Statistik9er obj9er = new();
+                    obj9er.Spieler = strSpieler;
+                    obj9er.Gesamt += item.Neuner;
+                    obj9er.AnzTeilnahmen++;
+
+                    switch (item.Neuner)
+                    {
+                        case 10:
+                            obj9er.Zehn++;
+                            break;
+                        case 9:
+                            obj9er.Neun++;
+                            break;
+                        case 8:
+                            obj9er.Acht++;
+                            break;
+                        case 7:
+                            obj9er.Sieben++;
+                            break;
+                        case 6:
+                            obj9er.Sechs++;
+                            break;
+                        case 5:
+                            obj9er.Fünf++;
+                            break;
+                        case 4:
+                            obj9er.Vier++;
+                            break;
+                        case 3:
+                            obj9er.Drei++;
+                            break;
+                        case 2:
+                            obj9er.Zwei++;
+                            break;
+                        case 1:
+                            obj9er.Eins++;
+                            break;
+                    }
+
+                    lst9er.Add(obj9er);
+                }
+                else
+                {
+                    lst9er[intIndex].Gesamt += item.Neuner;
+                    lst9er[intIndex].AnzTeilnahmen++;
+
+                    switch (item.Neuner)
+                    {
+                        case 10:
+                            lst9er[intIndex].Zehn++;
+                            break;
+                        case 9:
+                            lst9er[intIndex].Neun++;
+                            break;
+                        case 8:
+                            lst9er[intIndex].Acht++;
+                            break;
+                        case 7:
+                            lst9er[intIndex].Sieben++;
+                            break;
+                        case 6:
+                            lst9er[intIndex].Sechs++;
+                            break;
+                        case 5:
+                            lst9er[intIndex].Fünf++;
+                            break;
+                        case 4:
+                            lst9er[intIndex].Vier++;
+                            break;
+                        case 3:
+                            lst9er[intIndex].Drei++;
+                            break;
+                        case 2:
+                            lst9er[intIndex].Zwei++;
+                            break;
+                        case 1:
+                            lst9er[intIndex].Eins++;
+                            break;
+                    }
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            ViewManager.ShowErrorWindow("DBService", "GetStatistik9er", ex.ToString());
+        }
+
+        var lst9erSort = lst9er
+            .OrderByDescending(o => o.Gesamt)
+            .ToList();
+
+        return lst9erSort;
+    }
+
+    public async Task<List<StatistikRatten>> GetStatistikRattenAsync(Int32 iZeitbereich, DateTime? dtVon = null,
+        DateTime? dtBis = null)
+    {
+        List<StatistikRatten> lstRatten = new();
+
+        try
+        {
+            var listRatten = await _localDbContext.VwStatistikRattens
+                .OrderBy(o => o.Spieltag)
+                .Select(s => new { s.MeisterschaftsId, s.Spieltag, s.Ratten, s.Nachname, s.Vorname })
+                .ToListAsync();
+
+            switch (iZeitbereich)
+            {
+                case 0: //laufende Meisterschaft
+                    listRatten = listRatten.Where(w =>
+                        w.MeisterschaftsId == _commonService.AktiveMeisterschaft.ID).ToList();
+                    break;
+                case 1: //letzte Meisterschaft
+                    Int32 intID = await GetLetzteMeisterschaftsIDAsync();
+                    listRatten = listRatten.Where(w => w.MeisterschaftsId == intID).ToList();
+                    break;
+                case 2: //Zeitbereich
+                    listRatten = listRatten.Where(w => w.Spieltag >= dtVon && w.Spieltag <= dtBis).ToList();
+                    break;
+                case 3: //Gesamt
+                    break;
+            }
+
+            var lst = (from l in listRatten
+                group l by new
+                {
+                    l.MeisterschaftsId,
+                    l.Spieltag,
+                    l.Nachname,
+                    l.Vorname
+                }
+                into g
+                select new
+                {
+                    MeisterschaftsID = g.Key.MeisterschaftsId,
+                    Spieltag = g.Key.Spieltag,
+                    Ratten = g.Sum(s => s.Ratten),
+                    Nachname = g.Key.Nachname,
+                    Vorname = g.Key.Vorname
+                }).ToList();
+
+            //var debug = lst.ToList();
+
+            Int32 intIndex = -1;
+            string strSpieler;
+            foreach (var item in lst)
+            {
+                strSpieler = item.Nachname + ", " + item.Vorname;
+                intIndex = lstRatten.FindIndex(f => f.Spieler == strSpieler);
+                if (intIndex == -1)
+                {
+                    StatistikRatten objRatten = new();
+                    objRatten.Spieler = strSpieler;
+                    objRatten.Gesamt += item.Ratten;
+                    objRatten.AnzTeilnahmen++;
+
+                    switch (item.Ratten)
+                    {
+                        case 10:
+                            objRatten.Zehn++;
+                            break;
+                        case 9:
+                            objRatten.Neun++;
+                            break;
+                        case 8:
+                            objRatten.Acht++;
+                            break;
+                        case 7:
+                            objRatten.Sieben++;
+                            break;
+                        case 6:
+                            objRatten.Sechs++;
+                            break;
+                        case 5:
+                            objRatten.Fünf++;
+                            break;
+                        case 4:
+                            objRatten.Vier++;
+                            break;
+                        case 3:
+                            objRatten.Drei++;
+                            break;
+                        case 2:
+                            objRatten.Zwei++;
+                            break;
+                        case 1:
+                            objRatten.Eins++;
+                            break;
+                    }
+
+                    lstRatten.Add(objRatten);
+                }
+                else
+                {
+                    lstRatten[intIndex].Gesamt += item.Ratten;
+                    lstRatten[intIndex].AnzTeilnahmen++;
+
+                    switch (item.Ratten)
+                    {
+                        case 10:
+                            lstRatten[intIndex].Zehn++;
+                            break;
+                        case 9:
+                            lstRatten[intIndex].Neun++;
+                            break;
+                        case 8:
+                            lstRatten[intIndex].Acht++;
+                            break;
+                        case 7:
+                            lstRatten[intIndex].Sieben++;
+                            break;
+                        case 6:
+                            lstRatten[intIndex].Sechs++;
+                            break;
+                        case 5:
+                            lstRatten[intIndex].Fünf++;
+                            break;
+                        case 4:
+                            lstRatten[intIndex].Vier++;
+                            break;
+                        case 3:
+                            lstRatten[intIndex].Drei++;
+                            break;
+                        case 2:
+                            lstRatten[intIndex].Zwei++;
+                            break;
+                        case 1:
+                            lstRatten[intIndex].Eins++;
+                            break;
+                    }
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            ViewManager.ShowErrorWindow("DBService", "GetStatistikRattenAsync", ex.ToString());
+        }
+
+        var lstRattenSort = lstRatten
+            .OrderByDescending(o => o.Gesamt)
+            .ToList();
+
+        return lstRattenSort;
+    }
+
+    public async Task<List<StatistikPokal>> GetStatistikPokalAsync(Int32 iZeitbereich, DateTime? dtVon = null,
+        DateTime? dtBis = null)
+    {
+        List<StatistikPokal> lstPokal = new();
+
+        try
+        {
+            var listPokal = await _localDbContext.VwStatistikPokals
+                .OrderBy(o => o.Spieltag)
+                .Select(s => new { s.MeisterschaftsId, s.Spieltag, s.Platzierung, s.Nachname, s.Vorname })
+                .ToListAsync();
+
+            switch (iZeitbereich)
+            {
+                case 0: //laufende Meisterschaft
+                    listPokal = listPokal.Where(w =>
+                        w.MeisterschaftsId == _commonService.AktiveMeisterschaft.ID).ToList();
+                    break;
+                case 1: //letzte Meisterschaft
+                    Int32 intID = await GetLetzteMeisterschaftsIDAsync();
+                    listPokal = listPokal.Where(w => w.MeisterschaftsId == intID).ToList();
+                    break;
+                case 2: //Zeitbereich
+                    listPokal = listPokal.Where(w => w.Spieltag >= dtVon && w.Spieltag <= dtBis).ToList();
+                    break;
+                case 3: //Gesamt
+                    break;
+            }
+
+            //var debug = lst.ToList();
+
+            Int32 intIndex = -1;
+            string strSpieler;
+            foreach (var item in listPokal)
+            {
+                strSpieler = item.Nachname + ", " + item.Vorname;
+                intIndex = lstPokal.FindIndex(f => f.Spieler == strSpieler);
+                if (intIndex == -1)
+                {
+                    StatistikPokal objPokal = new();
+                    objPokal.Spieler = strSpieler;
+                    switch (item.Platzierung)
+                    {
+                        case 1:
+                            objPokal.Eins++;
+                            break;
+                        case 2:
+                            objPokal.Zwei++;
+                            break;
+                    }
+
+                    lstPokal.Add(objPokal);
+                }
+                else
+                {
+                    switch (item.Platzierung)
+                    {
+                        case 1:
+                            lstPokal[intIndex].Eins++;
+                            break;
+                        case 2:
+                            lstPokal[intIndex].Zwei++;
+                            break;
+                    }
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            ViewManager.ShowErrorWindow("DBService", "GetStatistikPokalAsync", ex.ToString());
+        }
+
+        var lstPokalSort = lstPokal
+            .OrderByDescending(o => o.Eins)
+            .ThenByDescending(t => t.Zwei)
+            .ToList();
+
+        return lstPokalSort;
+    }
+
+    public async Task<List<StatistikSarg>> GetStatistikSargAsync(Int32 iZeitbereich, DateTime? dtVon = null,
+        DateTime? dtBis = null)
+    {
+        List<StatistikSarg> lstSarg = new();
+
+        try
+        {
+            var listSarg = await _localDbContext.VwStatistikSargs
+                .OrderBy(o => o.Spieltag)
+                .Select(s => new { s.MeisterschaftsId, s.Spieltag, s.Platzierung, s.Nachname, s.Vorname })
+                .ToListAsync();
+
+            switch (iZeitbereich)
+            {
+                case 0: //laufende Meisterschaft
+                    listSarg = listSarg.Where(
+                        w => w.MeisterschaftsId == _commonService.AktiveMeisterschaft.ID).ToList();
+                    break;
+                case 1: //letzte Meisterschaft
+                    Int32 intID = await GetLetzteMeisterschaftsIDAsync();
+                    listSarg = listSarg.Where(w => w.MeisterschaftsId == intID).ToList();
+                    break;
+                case 2: //Zeitbereich
+                    listSarg = listSarg.Where(w => w.Spieltag >= dtVon && w.Spieltag <= dtBis).ToList();
+                    break;
+                case 3: //Gesamt
+                    break;
+            }
+
+            //var debug = lst.ToList();
+
+            Int32 intIndex = -1;
+            string strSpieler;
+            foreach (var item in listSarg.ToList())
+            {
+                strSpieler = item.Nachname + ", " + item.Vorname;
+                intIndex = lstSarg.FindIndex(f => f.Spieler == strSpieler);
+                if (intIndex == -1)
+                {
+                    StatistikSarg objSarg = new();
+                    objSarg.Spieler = strSpieler;
+                    objSarg.AnzTeilnahmen++;
+                    switch (item.Platzierung)
+                    {
+                        case 1:
+                            objSarg.Eins++;
+                            break;
+                        case 2:
+                            objSarg.Zwei++;
+                            break;
+                        case 3:
+                            objSarg.Drei++;
+                            break;
+                        case 4:
+                            objSarg.Vier++;
+                            break;
+                        case 5:
+                            objSarg.Fünf++;
+                            break;
+                        case 6:
+                            objSarg.Sechs++;
+                            break;
+                        case 7:
+                            objSarg.Sieben++;
+                            break;
+                        case 8:
+                            objSarg.Acht++;
+                            break;
+                        case 9:
+                            objSarg.Neun++;
+                            break;
+                        case 10:
+                            objSarg.Zehn++;
+                            break;
+                    }
+
+                    lstSarg.Add(objSarg);
+                }
+                else
+                {
+                    lstSarg[intIndex].AnzTeilnahmen++;
+                    switch (item.Platzierung)
+                    {
+                        case 1:
+                            lstSarg[intIndex].Eins++;
+                            break;
+                        case 2:
+                            lstSarg[intIndex].Zwei++;
+                            break;
+                        case 3:
+                            lstSarg[intIndex].Drei++;
+                            break;
+                        case 4:
+                            lstSarg[intIndex].Vier++;
+                            break;
+                        case 5:
+                            lstSarg[intIndex].Fünf++;
+                            break;
+                        case 6:
+                            lstSarg[intIndex].Sechs++;
+                            break;
+                        case 7:
+                            lstSarg[intIndex].Sieben++;
+                            break;
+                        case 8:
+                            lstSarg[intIndex].Acht++;
+                            break;
+                        case 9:
+                            lstSarg[intIndex].Neun++;
+                            break;
+                        case 10:
+                            lstSarg[intIndex].Zehn++;
+                            break;
+                    }
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            ViewManager.ShowErrorWindow("DBService", "GetStatistikSargAsync", ex.ToString());
+        }
+
+        var lstSargSort = lstSarg
+            .OrderByDescending(o => o.Eins)
+            .ThenByDescending(t => t.Zwei)
+            .ThenByDescending(t => t.Drei)
+            .ThenByDescending(t => t.Vier)
+            .ThenByDescending(t => t.Fünf)
+            .ThenByDescending(t => t.Sechs)
+            .ThenByDescending(t => t.Sieben)
+            .ThenByDescending(t => t.Acht)
+            .ThenByDescending(t => t.Neun)
+            .ThenByDescending(t => t.Zehn)
+            .ToList();
+
+        return lstSargSort;
+    }
+
+    public async Task<List<Statistik6TageRennenPlatzierung>> GetStatistik6TageRennenPlatzAsync(Int32 iZeitbereich,
+        DateTime? dtVon = null, DateTime? dtBis = null)
+    {
+        List<Statistik6TageRennenPlatzierung> lst6TR = new();
+
+        try
+        {
+            //Teil 1
+            var list6TRS1 = await _localDbContext.VwStatistik6TageRennenSpieler1s
+                .OrderBy(o => o.Spieltag)
+                .ThenBy(t => t.Spielnummer)
+                .ThenBy(t => t.Platz)
+                .Select(s => new
+                {
+                    s.MeisterschaftsId, s.Spieltag, s.Spielnummer, s.Runden, s.Punkte, s.Platz, s.Nachname,
+                    s.Vorname
+                })
+                .ToListAsync();
+
+            switch (iZeitbereich)
+            {
+                case 0: //laufende Meisterschaft
+                    list6TRS1 = list6TRS1.Where(w =>
+                        w.MeisterschaftsId == _commonService.AktiveMeisterschaft.ID).ToList();
+                    break;
+                case 1: //letzte Meisterschaft
+                    Int32 intID = await GetLetzteMeisterschaftsIDAsync();
+                    list6TRS1 = list6TRS1.Where(w => w.MeisterschaftsId == intID).ToList();
+                    break;
+                case 2: //Zeitbereich
+                    list6TRS1 = list6TRS1.Where(w => w.Spieltag >= dtVon && w.Spieltag <= dtBis).ToList();
+                    break;
+                case 3: //Gesamt
+                    break;
+            }
+
+            Int32 intIndex = -1;
+            string strSpieler;
+            foreach (var item in list6TRS1.ToList())
+            {
+                strSpieler = item.Nachname + ", " + item.Vorname;
+                intIndex = lst6TR.FindIndex(f => f.Spieler == strSpieler);
+                if (intIndex == -1)
+                {
+                    Statistik6TageRennenPlatzierung obj6TR = new();
+                    obj6TR.Spieler = strSpieler;
+                    obj6TR.AnzTeilnahmen++;
+
+                    switch (item.Platz)
+                    {
+                        case 1:
+                            obj6TR.Eins++;
+                            break;
+                        case 2:
+                            obj6TR.Zwei++;
+                            break;
+                        case 3:
+                            obj6TR.Drei++;
+                            break;
+                        case 4:
+                            obj6TR.Vier++;
+                            break;
+                        case 5:
+                            obj6TR.Fünf++;
+                            break;
+                        case 6:
+                            obj6TR.Sechs++;
+                            break;
+                    }
+
+                    lst6TR.Add(obj6TR);
+                }
+                else
+                {
+                    lst6TR[intIndex].AnzTeilnahmen++;
+                    switch (item.Platz)
+                    {
+                        case 1:
+                            lst6TR[intIndex].Eins++;
+                            break;
+                        case 2:
+                            lst6TR[intIndex].Zwei++;
+                            break;
+                        case 3:
+                            lst6TR[intIndex].Drei++;
+                            break;
+                        case 4:
+                            lst6TR[intIndex].Vier++;
+                            break;
+                        case 5:
+                            lst6TR[intIndex].Fünf++;
+                            break;
+                        case 6:
+                            lst6TR[intIndex].Sechs++;
+                            break;
+                    }
+                }
+            }
+
+            //Teil 2
+            var list6TRS2 = await _localDbContext.VwStatistik6TageRennenSpieler2s
+                .OrderBy(o => o.Spieltag)
+                .ThenBy(t => t.Spielnummer)
+                .ThenBy(t => t.Platz)
+                .Select(s => new
+                {
+                    s.MeisterschaftsId, s.Spieltag, s.Spielnummer, s.Runden, s.Punkte, s.Platz, s.Nachname,
+                    s.Vorname
+                })
+                .ToListAsync();
+
+            switch (iZeitbereich)
+            {
+                case 0: //laufende Meisterschaft
+                    list6TRS2 = list6TRS2.Where(w =>
+                        w.MeisterschaftsId == _commonService.AktiveMeisterschaft.ID).ToList();
+                    break;
+                case 1: //letzte Meisterschaft
+                    Int32 intID = await GetLetzteMeisterschaftsIDAsync();
+                    list6TRS2 = list6TRS2.Where(w => w.MeisterschaftsId == intID).ToList();
+                    break;
+                case 2: //Zeitbereich
+                    list6TRS2 = list6TRS2.Where(w => w.Spieltag >= dtVon && w.Spieltag <= dtBis).ToList();
+                    break;
+                case 3: //Gesamt
+                    break;
+            }
+
+            intIndex = -1;
+            foreach (var item in list6TRS2.ToList())
+            {
+                strSpieler = item.Nachname + ", " + item.Vorname;
+                intIndex = lst6TR.FindIndex(f => f.Spieler == strSpieler);
+                if (intIndex == -1)
+                {
+                    Statistik6TageRennenPlatzierung obj6TR = new();
+                    obj6TR.Spieler = strSpieler;
+                    obj6TR.AnzTeilnahmen++;
+
+                    switch (item.Platz)
+                    {
+                        case 1:
+                            obj6TR.Eins++;
+                            break;
+                        case 2:
+                            obj6TR.Zwei++;
+                            break;
+                        case 3:
+                            obj6TR.Drei++;
+                            break;
+                        case 4:
+                            obj6TR.Vier++;
+                            break;
+                        case 5:
+                            obj6TR.Fünf++;
+                            break;
+                        case 6:
+                            obj6TR.Sechs++;
+                            break;
+                    }
+
+                    lst6TR.Add(obj6TR);
+                }
+                else
+                {
+                    lst6TR[intIndex].AnzTeilnahmen++;
+                    switch (item.Platz)
+                    {
+                        case 1:
+                            lst6TR[intIndex].Eins++;
+                            break;
+                        case 2:
+                            lst6TR[intIndex].Zwei++;
+                            break;
+                        case 3:
+                            lst6TR[intIndex].Drei++;
+                            break;
+                        case 4:
+                            lst6TR[intIndex].Vier++;
+                            break;
+                        case 5:
+                            lst6TR[intIndex].Fünf++;
+                            break;
+                        case 6:
+                            lst6TR[intIndex].Sechs++;
+                            break;
+                    }
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            ViewManager.ShowErrorWindow("DBService", "GetStatistik6TageRennenPlatzAsync", ex.ToString());
+        }
+
+        var lst6TRSort = lst6TR
+            .OrderByDescending(o => o.Eins)
+            .ThenByDescending(t => t.Zwei)
+            .ThenByDescending(t => t.Drei)
+            .ThenByDescending(t => t.Vier)
+            .ThenByDescending(t => t.Fünf)
+            .ThenByDescending(t => t.Sechs)
+            .ToList();
+
+        return lst6TRSort;
+    }
+
+    public async Task<List<Statistik6TageRennenBesteMannschaft>> GetStatistik6TageRennenBesteMannschaftAsync(
+        Int32 iZeitbereich, DateTime? dtVon = null, DateTime? dtBis = null)
+    {
+        List<Statistik6TageRennenBesteMannschaft> lst6TR = new();
+
+        try
+        {
+            var list6TR = await _localDbContext.VwSpiel6TageRennens
+                .OrderBy(o => o.Spieltag)
+                .ThenBy(t => t.Spielnummer)
+                .ThenBy(t => t.Platz)
+                .Select(s => new
+                {
+                    s.MeisterschaftsId, s.Spieltag, s.Spielnummer, s.Runden, s.Punkte, s.Platz, s.SpielerId1,
+                    s.Spieler1Nachname, s.Spieler1Vorname, s.SpielerId2, s.Spieler2Nachname, s.Spieler2Vorname
+                })
+                .ToListAsync();
+
+            switch (iZeitbereich)
+            {
+                case 0: //laufende Meisterschaft
+                    list6TR = list6TR.Where(w => w.MeisterschaftsId == _commonService.AktiveMeisterschaft.ID).ToList();
+                    break;
+                case 1: //letzte Meisterschaft
+                    Int32 intID = await GetLetzteMeisterschaftsIDAsync();
+                    list6TR = list6TR.Where(w => w.MeisterschaftsId == intID).ToList();
+                    break;
+                case 2: //Zeitbereich
+                    list6TR = list6TR.Where(w => w.Spieltag >= dtVon && w.Spieltag <= dtBis).ToList();
+                    break;
+                case 3: //Gesamt
+                    break;
+            }
+
+            Int32 intIndex = -1;
+            string strMannschaft;
+            string strSpieler1;
+            string strSpieler2;
+            foreach (var item in list6TR.ToList())
+            {
+                strSpieler1 = item.Spieler1Nachname + ", " + item.Spieler1Vorname;
+                strSpieler2 = item.Spieler2Nachname + ", " + item.Spieler2Vorname;
+                Statistik6TageRennenBesteMannschaft obj6TR = new();
+
+                if (string.Compare(item.Spieler1Nachname, item.Spieler2Nachname, true) < 0)
+                {
+                    strMannschaft = strSpieler1 + " | " + strSpieler2;
+                    obj6TR.Mannschaft = strMannschaft;
+                    obj6TR.Spieler1ID = item.SpielerId1;
+                    obj6TR.Spieler2ID = item.SpielerId2;
+                }
+                else
+                {
+                    if (string.Compare(item.Spieler1Nachname, item.Spieler2Nachname, true) == 0)
+                    {
+                        if (string.Compare(item.Spieler1Vorname, item.Spieler2Vorname, true) < 0)
+                        {
+                            strMannschaft = strSpieler1 + " | " + strSpieler2;
+                            obj6TR.Mannschaft = strMannschaft;
+                            obj6TR.Spieler1ID = item.SpielerId1;
+                            obj6TR.Spieler2ID = item.SpielerId2;
+                        }
+                        else
+                        {
+                            strMannschaft = strSpieler2 + " | " + strSpieler1;
+                            obj6TR.Mannschaft = strMannschaft;
+                            obj6TR.Spieler1ID = item.SpielerId2;
+                            obj6TR.Spieler2ID = item.SpielerId1;
+                        }
+                    }
+                    else
+                    {
+                        strMannschaft = strSpieler2 + " | " + strSpieler1;
+                        obj6TR.Mannschaft = strMannschaft;
+                        obj6TR.Spieler1ID = item.SpielerId2;
+                        obj6TR.Spieler2ID = item.SpielerId1;
+                    }
+                }
+
+                intIndex = lst6TR.FindIndex(f => f.Mannschaft == strMannschaft);
+                if (intIndex == -1)
+                {
+                    obj6TR.Anzahl++;
+                    switch (item.Platz)
+                    {
+                        case 1:
+                            obj6TR.Eins++;
+                            break;
+                        case 2:
+                            obj6TR.Zwei++;
+                            break;
+                        case 3:
+                            obj6TR.Drei++;
+                            break;
+                        case 4:
+                            obj6TR.Vier++;
+                            break;
+                        case 5:
+                            obj6TR.Fünf++;
+                            break;
+                        case 6:
+                            obj6TR.Sechs++;
+                            break;
+                    }
+
+                    lst6TR.Add(obj6TR);
+                }
+                else
+                {
+                    lst6TR[intIndex].Anzahl++;
+                    switch (item.Platz)
+                    {
+                        case 1:
+                            lst6TR[intIndex].Eins++;
+                            break;
+                        case 2:
+                            lst6TR[intIndex].Zwei++;
+                            break;
+                        case 3:
+                            lst6TR[intIndex].Drei++;
+                            break;
+                        case 4:
+                            lst6TR[intIndex].Vier++;
+                            break;
+                        case 5:
+                            lst6TR[intIndex].Fünf++;
+                            break;
+                        case 6:
+                            lst6TR[intIndex].Sechs++;
+                            break;
+                    }
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            ViewManager.ShowErrorWindow("DBService", "GetStatistik6TageRennenBesteMannschaftAsync", ex.ToString());
+        }
+
+        var lst6TRSort = lst6TR
+            .OrderByDescending(o => o.Eins)
+            .ThenByDescending(t => t.Zwei)
+            .ThenByDescending(t => t.Drei)
+            .ThenByDescending(t => t.Vier)
+            .ThenByDescending(t => t.Fünf)
+            .ThenByDescending(t => t.Sechs)
+            .ToList();
+
+        return lst6TRSort;
+    }
+
+    public async Task<Dictionary<string, List<Statistik6TageRennenBesteMannschaft>>>
+        GetStatistik6TageRennenMannschaftMitgliedAsync(Int32 iZeitbereich, DateTime? dtVon = null,
+            DateTime? dtBis = null)
+    {
+        List<Statistik6TageRennenBesteMannschaft> lstMannschaftA = new();
+        List<Statistik6TageRennenBesteMannschaft> lstMannschaftB = new();
+        Dictionary<string, List<Statistik6TageRennenBesteMannschaft>> dictMannschaft =
+            new Dictionary<string, List<Statistik6TageRennenBesteMannschaft>>();
+
+        try
+        {
+            var list6TR = await _localDbContext.VwSpiel6TageRennens
+                .OrderBy(o => o.Spieltag)
+                .ThenBy(t => t.Spielnummer)
+                .ThenBy(t => t.Platz)
+                .Select(s => new
+                {
+                    s.MeisterschaftsId, s.Spieltag, s.Spielnummer, s.Runden, s.Punkte, s.Platz, s.SpielerId1,
+                    s.Spieler1Nachname, s.Spieler1Vorname, s.SpielerId2, s.Spieler2Nachname, s.Spieler2Vorname
+                })
+                .ToListAsync();
+
+            switch (iZeitbereich)
+            {
+                case 0: //laufende Meisterschaft
+                    list6TR = list6TR.Where(w => w.MeisterschaftsId == _commonService.AktiveMeisterschaft.ID).ToList();
+                    break;
+                case 1: //letzte Meisterschaft
+                    Int32 intID = await GetLetzteMeisterschaftsIDAsync();
+                    list6TR = list6TR.Where(w => w.MeisterschaftsId == intID).ToList();
+                    break;
+                case 2: //Zeitbereich
+                    list6TR = list6TR.Where(w => w.Spieltag >= dtVon && w.Spieltag <= dtBis).ToList();
+                    break;
+                case 3: //Gesamt
+                    break;
+            }
+
+            Int32 intIndex = -1;
+            string strMannschaftA;
+            string strMannschaftB;
+            string strSpieler1;
+            string strSpieler2;
+            foreach (var item in list6TR.ToList())
+            {
+                strSpieler1 = item.Spieler1Nachname + ", " + item.Spieler1Vorname;
+                strSpieler2 = item.Spieler2Nachname + ", " + item.Spieler2Vorname;
+
+                strMannschaftA = strSpieler1 + " | " + strSpieler2;
+                if (!dictMannschaft.ContainsKey(strSpieler1))
+                {
+                    Statistik6TageRennenBesteMannschaft obj6TR_M_A = new();
+                    obj6TR_M_A.Mannschaft = strMannschaftA;
+                    obj6TR_M_A.Spieler1ID = item.SpielerId1;
+                    obj6TR_M_A.Spieler2ID = item.SpielerId2;
+
+                    obj6TR_M_A.Anzahl++;
+                    switch (item.Platz)
+                    {
+                        case 1:
+                            obj6TR_M_A.Eins++;
+                            break;
+                        case 2:
+                            obj6TR_M_A.Zwei++;
+                            break;
+                        case 3:
+                            obj6TR_M_A.Drei++;
+                            break;
+                        case 4:
+                            obj6TR_M_A.Vier++;
+                            break;
+                        case 5:
+                            obj6TR_M_A.Fünf++;
+                            break;
+                        case 6:
+                            obj6TR_M_A.Sechs++;
+                            break;
+                    }
+
+                    List<Statistik6TageRennenBesteMannschaft> lstMannschaft = new();
+                    lstMannschaft.Add(obj6TR_M_A);
+                    dictMannschaft.Add(strSpieler1, lstMannschaft);
+                }
+                else
+                {
+                    intIndex = dictMannschaft[strSpieler1].FindIndex(f => f.Mannschaft == strMannschaftA);
+                    if (intIndex == -1)
+                    {
+                        Statistik6TageRennenBesteMannschaft obj6TR_M_A = new();
+                        obj6TR_M_A.Mannschaft = strMannschaftA;
+                        obj6TR_M_A.Spieler1ID = item.SpielerId1;
+                        obj6TR_M_A.Spieler2ID = item.SpielerId2;
+
+                        obj6TR_M_A.Anzahl++;
+                        switch (item.Platz)
+                        {
+                            case 1:
+                                obj6TR_M_A.Eins++;
+                                break;
+                            case 2:
+                                obj6TR_M_A.Zwei++;
+                                break;
+                            case 3:
+                                obj6TR_M_A.Drei++;
+                                break;
+                            case 4:
+                                obj6TR_M_A.Vier++;
+                                break;
+                            case 5:
+                                obj6TR_M_A.Fünf++;
+                                break;
+                            case 6:
+                                obj6TR_M_A.Sechs++;
+                                break;
+                        }
+
+                        dictMannschaft[strSpieler1].Add(obj6TR_M_A);
+                    }
+                    else
+                    {
+                        dictMannschaft[strSpieler1][intIndex].Anzahl++;
+                        switch (item.Platz)
+                        {
+                            case 1:
+                                dictMannschaft[strSpieler1][intIndex].Eins++;
+                                break;
+                            case 2:
+                                dictMannschaft[strSpieler1][intIndex].Zwei++;
+                                break;
+                            case 3:
+                                dictMannschaft[strSpieler1][intIndex].Drei++;
+                                break;
+                            case 4:
+                                dictMannschaft[strSpieler1][intIndex].Vier++;
+                                break;
+                            case 5:
+                                dictMannschaft[strSpieler1][intIndex].Fünf++;
+                                break;
+                            case 6:
+                                dictMannschaft[strSpieler1][intIndex].Sechs++;
+                                break;
+                        }
+                    }
+                }
+
+                if (strSpieler1 != strSpieler2)
+                {
+                    strMannschaftB = strSpieler2 + " | " + strSpieler1;
+                    if (!dictMannschaft.ContainsKey(strSpieler2))
+                    {
+                        Statistik6TageRennenBesteMannschaft obj6TR_M_B = new();
+                        obj6TR_M_B.Mannschaft = strMannschaftB;
+                        obj6TR_M_B.Spieler1ID = item.SpielerId2;
+                        obj6TR_M_B.Spieler2ID = item.SpielerId1;
+
+                        obj6TR_M_B.Anzahl++;
+                        switch (item.Platz)
+                        {
+                            case 1:
+                                obj6TR_M_B.Eins++;
+                                break;
+                            case 2:
+                                obj6TR_M_B.Zwei++;
+                                break;
+                            case 3:
+                                obj6TR_M_B.Drei++;
+                                break;
+                            case 4:
+                                obj6TR_M_B.Vier++;
+                                break;
+                            case 5:
+                                obj6TR_M_B.Fünf++;
+                                break;
+                            case 6:
+                                obj6TR_M_B.Sechs++;
+                                break;
+                        }
+
+                        List<Statistik6TageRennenBesteMannschaft> lstMannschaft = new();
+                        lstMannschaft.Add(obj6TR_M_B);
+                        dictMannschaft.Add(strSpieler2, lstMannschaft);
+                    }
+                    else
+                    {
+                        intIndex = dictMannschaft[strSpieler2].FindIndex(f => f.Mannschaft == strMannschaftB);
+                        if (intIndex == -1)
+                        {
+                            Statistik6TageRennenBesteMannschaft obj6TR_M_B = new();
+                            obj6TR_M_B.Mannschaft = strMannschaftB;
+                            obj6TR_M_B.Spieler1ID = item.SpielerId2;
+                            obj6TR_M_B.Spieler2ID = item.SpielerId1;
+
+                            obj6TR_M_B.Anzahl++;
+                            switch (item.Platz)
+                            {
+                                case 1:
+                                    obj6TR_M_B.Eins++;
+                                    break;
+                                case 2:
+                                    obj6TR_M_B.Zwei++;
+                                    break;
+                                case 3:
+                                    obj6TR_M_B.Drei++;
+                                    break;
+                                case 4:
+                                    obj6TR_M_B.Vier++;
+                                    break;
+                                case 5:
+                                    obj6TR_M_B.Fünf++;
+                                    break;
+                                case 6:
+                                    obj6TR_M_B.Sechs++;
+                                    break;
+                            }
+
+                            dictMannschaft[strSpieler2].Add(obj6TR_M_B);
+                        }
+                        else
+                        {
+                            dictMannschaft[strSpieler2][intIndex].Anzahl++;
+                            switch (item.Platz)
+                            {
+                                case 1:
+                                    dictMannschaft[strSpieler2][intIndex].Eins++;
+                                    break;
+                                case 2:
+                                    dictMannschaft[strSpieler2][intIndex].Zwei++;
+                                    break;
+                                case 3:
+                                    dictMannschaft[strSpieler2][intIndex].Drei++;
+                                    break;
+                                case 4:
+                                    dictMannschaft[strSpieler2][intIndex].Vier++;
+                                    break;
+                                case 5:
+                                    dictMannschaft[strSpieler2][intIndex].Fünf++;
+                                    break;
+                                case 6:
+                                    dictMannschaft[strSpieler2][intIndex].Sechs++;
+                                    break;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            ViewManager.ShowErrorWindow("DBService", "GetStatistik6TageRennenMannschaftMitgliedAsync", ex.ToString());
+        }
+
+        Dictionary<string, List<Statistik6TageRennenBesteMannschaft>> dictMannschaftTemp =
+            new Dictionary<string, List<Statistik6TageRennenBesteMannschaft>>();
+        foreach (var item in dictMannschaft)
+        {
+            var sort = item.Value.OrderByDescending(o => o.Eins)
+                .ThenByDescending(t => t.Zwei)
+                .ThenByDescending(t => t.Drei)
+                .ThenByDescending(t => t.Vier)
+                .ThenByDescending(t => t.Fünf)
+                .ThenByDescending(t => t.Sechs)
+                .ToList();
+
+            dictMannschaftTemp.Add(item.Key, sort);
+        }
+
+
+        var dictMannschaftSort = dictMannschaftTemp.OrderBy(o => o.Key).ToDictionary(o => o.Key, o => o.Value);
+
+        return dictMannschaftSort;
+    }
+
+    public async Task<StatistikNeunerRattenKoenig> GetStatistik9erRattenAsync(Int32 iZeitbereich, DateTime? dtVon = null,
+        DateTime? dtBis = null)
+    {
+        StatistikNeunerRattenKoenig objNRK = new();
+        
+        List<Statistik9erRatten> lst9erRatten = new();
+        List<Statistik9erRatten> lst9erRattenSortiert = new();
+        Dictionary<string, int> dicNeunerkönig = new Dictionary<string, int>();
+        Dictionary<string, int> dicRattenkönig = new Dictionary<string, int>();
+
+        try
+        {
+            var list9er = await _localDbContext.VwStatistik9ers
+                .OrderBy(o => o.Spieltag)
+                .ThenByDescending(t => t.Neuner)
+                .Select(s => s)
+                .ToListAsync();
+
+            var listRatten = await _localDbContext.VwStatistikRattens
+                .OrderBy(o => o.Spieltag)
+                .ThenByDescending(t => t.Ratten)
+                .Select(s => s)
+                .ToListAsync();
+
+            switch (iZeitbereich)
+            {
+                case 0: //laufende Meisterschaft
+                    list9er = list9er.Where(w => w.MeisterschaftsId == _commonService.AktiveMeisterschaft.ID).ToList();
+                    listRatten = listRatten.Where(w =>
+                        w.MeisterschaftsId == _commonService.AktiveMeisterschaft.ID).ToList();
+                    break;
+                case 1: //letzte Meisterschaft
+                    Int32 intID = await GetLetzteMeisterschaftsIDAsync();
+                    list9er = list9er.Where(w => w.MeisterschaftsId == intID).ToList();
+                    listRatten = listRatten.Where(w => w.MeisterschaftsId == intID).ToList();
+                    break;
+                case 2: //Zeitbereich
+                    list9er = list9er.Where(w => w.Spieltag >= dtVon && w.Spieltag <= dtBis).ToList();
+                    listRatten = listRatten.Where(w => w.Spieltag >= dtVon && w.Spieltag <= dtBis).ToList();
+                    break;
+                case 3: //Gesamt
+                    break;
+            }
+
+            Int32 intIndex;
+            //erst 9er
+            foreach (var item in list9er.ToList())
+            {
+                intIndex = lst9erRatten.FindIndex(f => f.Spieltag == item.Spieltag);
+                if (intIndex == -1)
+                {
+                    Statistik9erRatten objNR = new ();
+                    objNR.MeisterschaftsID = item.MeisterschaftsId;
+                    objNR.Bezeichnung = item.Bezeichnung;
+                    objNR.Beginn = item.Beginn;
+                    objNR.Ende = item.Ende;
+                    objNR.Spieltag = item.Spieltag;
+                    objNR.Neuner = item.Neuner;
+                    objNR.Neunerkönig = item.Nachname + ", " + item.Vorname;
+                    lst9erRatten.Add(objNR);
+
+                    if (!dicNeunerkönig.ContainsKey(objNR.Neunerkönig))
+                    {
+                        dicNeunerkönig.Add(objNR.Neunerkönig, 1);
+                    }
+                    else
+                    {
+                        dicNeunerkönig[objNR.Neunerkönig]++;
+                    }
+                }
+                else
+                {
+                    if (lst9erRatten[intIndex].Neuner == item.Neuner)
+                    {
+                        string strName = item.Nachname + ", " + item.Vorname;
+                        lst9erRatten[intIndex].Neunerkönig += "\n" + strName;
+
+                        if (!dicNeunerkönig.ContainsKey(strName))
+                        {
+                            dicNeunerkönig.Add(strName, 1);
+                        }
+                        else
+                        {
+                            dicNeunerkönig[strName]++;
+                        }
+                    }
+                }
+            }
+
+            //jetzt die Ratten
+            foreach (var item in listRatten.ToList())
+            {
+                intIndex = lst9erRatten.FindIndex(f => f.Spieltag == item.Spieltag);
+                if (intIndex == -1)
+                {
+                    if (item.Ratten > 0)
+                    {
+                        Statistik9erRatten objNR = new ();
+                        objNR.MeisterschaftsID = item.MeisterschaftsId;
+                        objNR.Bezeichnung = item.Bezeichnung;
+                        objNR.Beginn = item.Beginn;
+                        objNR.Ende = item.Ende;
+                        objNR.Spieltag = item.Spieltag;
+                        objNR.Ratten = item.Ratten;
+                        objNR.Rattenorden = item.Nachname + ", " + item.Vorname;
+                        lst9erRatten.Add(objNR);
+
+                        if (!dicRattenkönig.ContainsKey(objNR.Rattenorden))
+                        {
+                            dicRattenkönig.Add(objNR.Rattenorden, 1);
+                        }
+                        else
+                        {
+                            dicRattenkönig[objNR.Rattenorden]++;
+                        }
+                    }
+                }
+                else
+                {
+                    if (item.Ratten > 0)
+                    {
+                        if (lst9erRatten[intIndex].Ratten == 0)
+                        {
+                            lst9erRatten[intIndex].Ratten = item.Ratten;
+                            string strName = item.Nachname + ", " + item.Vorname;
+                            lst9erRatten[intIndex].Rattenorden += strName;
+
+                            if (!dicRattenkönig.ContainsKey(strName))
+                            {
+                                dicRattenkönig.Add(strName, 1);
+                            }
+                            else
+                            {
+                                dicRattenkönig[strName]++;
+                            }
+                        }
+                        else
+                        {
+                            if (lst9erRatten[intIndex].Ratten == item.Ratten)
+                            {
+                                lst9erRatten[intIndex].Ratten = item.Ratten;
+                                string strName = item.Nachname + ", " + item.Vorname;
+                                lst9erRatten[intIndex].Rattenorden += "\n" + strName;
+
+                                if (!dicRattenkönig.ContainsKey(strName))
+                                {
+                                    dicRattenkönig.Add(strName, 1);
+                                }
+                                else
+                                {
+                                    dicRattenkönig[strName]++;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+
+            lst9erRattenSortiert = lst9erRatten.OrderBy(o => o.Spieltag).ToList();
+        }
+        catch (Exception ex)
+        {
+            ViewManager.ShowErrorWindow("DBService", "GetStatistik9erRattenAsync", ex.ToString());
+        }
+
+        objNRK.lstStatistik9erRatten = lst9erRattenSortiert;
+        objNRK.dictNeunerkönig = dicNeunerkönig;
+        objNRK.dictRattenkönig = dicRattenkönig;
+        return objNRK;
     }
 
     #endregion

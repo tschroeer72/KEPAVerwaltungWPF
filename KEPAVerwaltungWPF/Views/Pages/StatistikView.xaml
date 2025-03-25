@@ -110,11 +110,11 @@
                                     </RadioButton>
                                     <RadioButton GroupName="Auswahl" 
                                                  Content="Beste Mannschaft 6-Tage-Rennen"
-                                                 IsChecked="{Binding AuswahlBesteMannschaft6TageREnnen}"
+                                                 IsChecked="{Binding AuswahlBesteMannschaft6TageRennen}"
                                                  Margin="0 5">
                                     </RadioButton>
                                     <RadioButton GroupName="Auswahl" 
-                                                 Content="Mannschaft/Mitglied 6-Tage-Rennen"
+                                                 Content="Mannschaft / Mitglied 6-Tage-Rennen"
                                                  IsChecked="{Binding AuswahlMannschaftMitglied6TageRennen}"
                                                  Margin="0 5">
                                     </RadioButton>

@@ -3,6 +3,7 @@ using System.IO;
 using System.Reflection;
 using KEPAVerwaltungWPF.DTOs;
 using KEPAVerwaltungWPF.DTOs.Ergebnisse;
+using KEPAVerwaltungWPF.DTOs.Statistik;
 using KEPAVerwaltungWPF.Helper;
 using KEPAVerwaltungWPF.Views;
 using MigraDoc.DocumentObjectModel;
@@ -16,7 +17,7 @@ using PdfSharp.Quality;
 
 namespace KEPAVerwaltungWPF.Services;
 
-public class PrintService(DBService _dbService)
+public class PrintService(DBService _dbService, CommonService _commonService)
 {
     #region Vorlagen
 
@@ -817,7 +818,7 @@ public class PrintService(DBService _dbService)
             //*****************
             //* Bild zeichnen *
             //*****************
-            
+
             // Bild aus den Ressourcen laden
             string resourceName = "KEPAVerwaltungWPF.Images.Weihnachtsbaumkegeln.jpg";
 
@@ -830,7 +831,7 @@ public class PrintService(DBService _dbService)
 
             XImage img = XImage.FromStream(stream);
             gfx.DrawImage(img, 0.2 * cm, 0.2 * cm);
-            
+
             //******************
             //* Texte zeichnen *
             //******************
@@ -844,95 +845,95 @@ public class PrintService(DBService _dbService)
             //Tabellenkopf
             XRect rectLinks = new XRect(17 * cm, 4 * cm, 1.3 * cm, 1.1 * cm);
             XRect rectRechts = new XRect(rectLinks.X + rectLinks.Width, rectLinks.Y, 1.3 * cm, 1.1 * cm);
-            
+
             gfx.DrawRectangle(pen, rectLinks.X, rectLinks.Y, rectLinks.Width, rectLinks.Height);
             font = new XFont("Arial", 10);
             XTextFormatter tf = new XTextFormatter(gfx);
             tf.DrawString("Wert je Wurf", font, XBrushes.Black, rectLinks, XStringFormats.TopLeft);
-            
+
             gfx.DrawRectangle(pen, rectRechts.X, rectRechts.Y, rectRechts.Width, rectRechts.Height);
             font = new XFont("Arial", 10);
             tf.DrawString("Wert je Reihe", font, XBrushes.Black, rectRechts, XStringFormats.TopLeft);
-            
+
             //Zeile 1
             rectLinks.Y = rectLinks.Y + rectLinks.Height;
             rectLinks.Height = 2.5 * cm;
             gfx.DrawRectangle(pen, rectLinks.X, rectLinks.Y, rectLinks.Width, rectLinks.Height);
             font = new XFont("Arial", 20);
             tf.DrawString("10", font, XBrushes.Black, rectLinks, XStringFormats.TopLeft);
-            
+
             rectRechts.Y = rectRechts.Y + rectRechts.Height;
             rectRechts.Height = 2.5 * cm;
             gfx.DrawRectangle(pen, rectRechts.X, rectRechts.Y, rectRechts.Width, rectRechts.Height);
             font = new XFont("Arial", 14);
             tf.DrawString(" ", font, XBrushes.Black, rectRechts, XStringFormats.TopLeft);
-            
+
             //Zeile 2
             rectLinks.Y = rectLinks.Y + rectLinks.Height;
             gfx.DrawRectangle(pen, rectLinks.X, rectLinks.Y, rectLinks.Width, rectLinks.Height);
             font = new XFont("Arial", 20);
             tf.DrawString("7", font, XBrushes.Black, rectLinks, XStringFormats.TopLeft);
-            
+
             rectRechts.Y = rectRechts.Y + rectRechts.Height;
             gfx.DrawRectangle(pen, rectRechts.X, rectRechts.Y, rectRechts.Width, rectRechts.Height);
             font = new XFont("Arial", 14);
             tf.DrawString(" ", font, XBrushes.Black, rectRechts, XStringFormats.TopLeft);
-            
+
             //Zeile 3
             rectLinks.Y = rectLinks.Y + rectLinks.Height;
             gfx.DrawRectangle(pen, rectLinks.X, rectLinks.Y, rectLinks.Width, rectLinks.Height);
             font = new XFont("Arial", 20);
             tf.DrawString("4", font, XBrushes.Black, rectLinks, XStringFormats.TopLeft);
-            
+
             rectRechts.Y = rectRechts.Y + rectRechts.Height;
             gfx.DrawRectangle(pen, rectRechts.X, rectRechts.Y, rectRechts.Width, rectRechts.Height);
             font = new XFont("Arial", 14);
             tf.DrawString(" ", font, XBrushes.Black, rectRechts, XStringFormats.TopLeft);
-            
+
             //Zeile 4
             rectLinks.Y = rectLinks.Y + rectLinks.Height;
             gfx.DrawRectangle(pen, rectLinks.X, rectLinks.Y, rectLinks.Width, rectLinks.Height);
             font = new XFont("Arial", 20);
             tf.DrawString("3", font, XBrushes.Black, rectLinks, XStringFormats.TopLeft);
-            
+
             rectRechts.Y = rectRechts.Y + rectRechts.Height;
             gfx.DrawRectangle(pen, rectRechts.X, rectRechts.Y, rectRechts.Width, rectRechts.Height);
             font = new XFont("Arial", 14);
             tf.DrawString(" ", font, XBrushes.Black, rectRechts, XStringFormats.TopLeft);
-            
+
             //Zeile 5
             rectLinks.Y = rectLinks.Y + rectLinks.Height;
             gfx.DrawRectangle(pen, rectLinks.X, rectLinks.Y, rectLinks.Width, rectLinks.Height);
             font = new XFont("Arial", 20);
             tf.DrawString("2", font, XBrushes.Black, rectLinks, XStringFormats.TopLeft);
-            
+
             rectRechts.Y = rectRechts.Y + rectRechts.Height;
             gfx.DrawRectangle(pen, rectRechts.X, rectRechts.Y, rectRechts.Width, rectRechts.Height);
             font = new XFont("Arial", 14);
             tf.DrawString(" ", font, XBrushes.Black, rectRechts, XStringFormats.TopLeft);
-            
+
             //Zeile 6
             rectLinks.Y = rectLinks.Y + rectLinks.Height;
             gfx.DrawRectangle(pen, rectLinks.X, rectLinks.Y, rectLinks.Width, rectLinks.Height);
             font = new XFont("Arial", 20);
             tf.DrawString("5", font, XBrushes.Black, rectLinks, XStringFormats.TopLeft);
-            
+
             rectRechts.Y = rectRechts.Y + rectRechts.Height;
             gfx.DrawRectangle(pen, rectRechts.X, rectRechts.Y, rectRechts.Width, rectRechts.Height);
             font = new XFont("Arial", 14);
             tf.DrawString(" ", font, XBrushes.Black, rectRechts, XStringFormats.TopLeft);
-            
+
             //Zeile 7
             rectLinks.Y = rectLinks.Y + rectLinks.Height;
             gfx.DrawRectangle(pen, rectLinks.X, rectLinks.Y, rectLinks.Width, rectLinks.Height);
             font = new XFont("Arial", 20);
             tf.DrawString("8", font, XBrushes.Black, rectLinks, XStringFormats.TopLeft);
-            
+
             rectRechts.Y = rectRechts.Y + rectRechts.Height;
             gfx.DrawRectangle(pen, rectRechts.X, rectRechts.Y, rectRechts.Width, rectRechts.Height);
             font = new XFont("Arial", 14);
             tf.DrawString(" ", font, XBrushes.Black, rectRechts, XStringFormats.TopLeft);
-            
+
             //*******************
             //* Linien zeichnen *
             //*******************
@@ -945,18 +946,18 @@ public class PrintService(DBService _dbService)
             gfx.DrawLine(pen, 15.8 * cm, 15.4 * cm, 16.8 * cm, 15.4 * cm);
             gfx.DrawLine(pen, 15.6 * cm, 19 * cm, 16.8 * cm, 18 * cm);
             gfx.DrawLine(pen, 14.5 * cm, 21.4 * cm, 16.8 * cm, 20.5 * cm);
-            
+
             //**********
             //* Gesamt *
             //**********
             font = new XFont("Arial", 20);
             rect = new XRect(16 * cm, 24 * cm, 4 * cm, 1.5 * cm);
             gfx.DrawString("Gesamt:", font, XBrushes.Black, rect, XStringFormats.Center);
-            
+
             pen.DashStyle = XDashStyle.Solid;
             rect = new XRect(16.5 * cm, 25.5 * cm, 3 * cm, 3 * cm);
             gfx.DrawEllipse(pen, rect);
-            
+
             //****************
             //* PDF erzeugen *
             //****************
@@ -974,7 +975,7 @@ public class PrintService(DBService _dbService)
             ViewManager.ShowErrorWindow("PrintService", "DruckVorlageWeihnachtsbaum", ex.Message);
         }
     }
-    
+
     public void DruckvorlageAbrechnung(string PDFFilename = "")
     {
         Int32 x;
@@ -1355,6 +1356,1322 @@ public class PrintService(DBService _dbService)
             // FrmError objForm = new FrmError("FrmMitglieder", "DruckSpielerErgebnisseStatistik", ex.ToString());
             // objForm.ShowDialog();
             ViewManager.ShowErrorWindow("PrintService", "DruckSpielerErgebnisseStatistik", ex.ToString());
+        }
+    }
+
+    public async Task DruckStatistikNeunerAsync(Int32 iZeitbereich, DateTime? dtVon = null,
+        DateTime? dtBis = null, string PDFFilename = "")
+    {
+        string strText = string.Empty;
+        DateTime? datVon = dtVon;
+        DateTime? datBis = dtBis;
+       
+        try
+        {
+            //Anfang
+            VpeToPdfSharp vpe = new();
+            vpe.FileName = "Druck_Statistik_Neuner";
+            vpe.OpenDoc();
+            vpe.OpenProgressBar();
+            vpe.PageOrientation = PageOrientation.Landscape;
+            vpe.SetMargins(2, 2, 2, 2);
+
+            //Überschrift
+            vpe.SelectFont("Arial", 18);
+            vpe.SetFontAttr(TextAlignment.Center, true, false, false, false);
+            vpe.Write(vpe.nLeftMargin, vpe.nTopMargin, vpe.nRightMargin, -1, "Neuner");
+
+            //Zeitraum
+            switch (iZeitbereich)
+            {
+                case 1: // Laufende Meisterschaft
+                    var intMeisterschaftsID = _commonService.AktiveMeisterschaft.ID;
+                    if (intMeisterschaftsID == 0) strText = "n/a";
+
+                    Zeitbereich? objBereichAktuell = await _dbService.GetZeitbereichAsync(intMeisterschaftsID);
+                    if (objBereichAktuell == null) strText = "n/a";
+
+                    datVon = objBereichAktuell!.Von;
+
+                    if (objBereichAktuell.Bis.HasValue)
+                    {
+                        datBis = objBereichAktuell!.Bis;
+                    }
+                    else if (datVon < DateTime.Now)
+                    {
+                        datBis = DateTime.Now;
+                    }
+                    else
+                    {
+                        datBis = datVon;
+                    }
+
+                    strText = datVon.Value.ToShortDateString() + " - " + datBis.Value.ToShortDateString();
+
+                    break;
+                case 2: // Letzte Meisterschaft
+                    var intLetzteMeisterschaftsID = await _dbService.GetLetzteMeisterschaftsIDAsync();
+                    if (intLetzteMeisterschaftsID == 0) strText = "n/a";
+
+                    Zeitbereich? objBereichLast = await _dbService.GetZeitbereichAsync(intLetzteMeisterschaftsID);
+                    if (objBereichLast == null) strText = "n/a";
+
+                    datVon = objBereichLast.Von;
+                    datBis = objBereichLast.Bis;
+                    strText = datVon.Value.ToShortDateString() + " - " + datBis.Value.ToShortDateString();
+
+                    break;
+                case 3: // Zeitbereich
+                    strText = datVon.Value.ToShortDateString() + " - " + datBis.Value.ToShortDateString();
+                    break;
+                case 4: // Gesamt
+                    strText = "Gesamt";
+                    break;
+            }
+
+            vpe.Write(vpe.nLeftMargin, vpe.nBottom + 1, vpe.nRightMargin, -1, strText);
+
+            List<Statistik9er> lst9er = await _dbService.GetStatistik9erAsync(iZeitbereich, datVon, datBis);
+            Int32 intCount = lst9er.Count;
+
+            //Kopfzeile
+            vpe.SelectFont("Arial", 14);
+            vpe.SetFontAttr(TextAlignment.Center, true, false, false, false);
+            vpe.Write(vpe.nLeftMargin, vpe.nBottom + 1, -1.5, -1, "Pos.");
+            vpe.SetFontAttr(TextAlignment.Left, true, false, false, false);
+            vpe.Line(vpe.nRight, vpe.nTop, vpe.nRight, vpe.nTop + 1.5 + intCount * 0.7);
+            vpe.Write(vpe.nRight, vpe.nTop, -6, -1, "Spieler");
+            vpe.Line(vpe.nRight, vpe.nTop, vpe.nRight, vpe.nTop + 1.5 + intCount * 0.7);
+            vpe.SetFontAttr(TextAlignment.Center, true, false, false, false);
+            vpe.Write(vpe.nRight, vpe.nTop, -1.5, -1, "Ges.");
+            vpe.Line(vpe.nRight, vpe.nTop, vpe.nRight, vpe.nTop + 1.5 + intCount * 0.7);
+            vpe.Write(vpe.nRight, vpe.nTop, -1.5, -1.5, "Anz. TN.");
+            double dblY = vpe.nBottom;
+            vpe.Line(vpe.nRight, vpe.nTop, vpe.nRight, vpe.nTop + 1.5 + intCount * 0.7);
+            vpe.SetFontAttr(TextAlignment.Center, true, false, false, false);
+            for (Int32 i = 10; i > 0; i--)
+            {
+                vpe.Write(vpe.nRight, vpe.nTop, -1, vpe.nBottom, i.ToString());
+                vpe.Line(vpe.nRight, vpe.nTop, vpe.nRight, vpe.nTop + 1.5 + intCount * 0.7);
+            }
+
+            vpe.Line(vpe.nLeftMargin, dblY, vpe.nRight, dblY);
+
+            //Daten
+            vpe.SelectFont("Arial", 12);
+            vpe.SetFontAttr(TextAlignment.Left, false, false, false, false);
+
+            for (Int32 i = 0; i < lst9er.Count; i++)
+            {
+                vpe.SetFontAttr(TextAlignment.Center, true, false, false, false);
+                vpe.Write(vpe.nLeftMargin, vpe.nBottom, -1.5, -0.7, (i + 1).ToString());
+                vpe.SetFontAttr(TextAlignment.Left, true, false, false, false);
+                vpe.Write(vpe.nRight, vpe.nTop, -6, -0.7, lst9er[i].Spieler);
+                vpe.SetFontAttr(TextAlignment.Center, true, false, false, false);
+                vpe.Write(vpe.nRight, vpe.nTop, -1.5, -0.7, lst9er[i].Gesamt.ToString());
+                vpe.Write(vpe.nRight, vpe.nTop, -1.5, -0.7, lst9er[i].AnzTeilnahmen.ToString());
+                vpe.SetFontAttr(TextAlignment.Center, true, false, false, false);
+                for (Int32 j = 10; j > 0; j--)
+                {
+                    strText = string.Empty;
+                    switch (j)
+                    {
+                        case 10:
+                            if (lst9er[i].Zehn > 0) strText = lst9er[i].Zehn.ToString();
+                            break;
+                        case 9:
+                            if (lst9er[i].Neun > 0) strText = lst9er[i].Neun.ToString();
+                            break;
+                        case 8:
+                            if (lst9er[i].Acht > 0) strText = lst9er[i].Acht.ToString();
+                            break;
+                        case 7:
+                            if (lst9er[i].Sieben > 0) strText = lst9er[i].Sieben.ToString();
+                            break;
+                        case 6:
+                            if (lst9er[i].Sechs > 0) strText = lst9er[i].Sechs.ToString();
+                            break;
+                        case 5:
+                            if (lst9er[i].Fünf > 0) strText = lst9er[i].Fünf.ToString();
+                            break;
+                        case 4:
+                            if (lst9er[i].Vier > 0) strText = lst9er[i].Vier.ToString();
+                            break;
+                        case 3:
+                            if (lst9er[i].Drei > 0) strText = lst9er[i].Drei.ToString();
+                            break;
+                        case 2:
+                            if (lst9er[i].Zwei > 0) strText = lst9er[i].Zwei.ToString();
+                            break;
+                        case 1:
+                            if (lst9er[i].Eins > 0) strText = lst9er[i].Eins.ToString();
+                            break;
+                    }
+
+                    vpe.Write(vpe.nRight, vpe.nTop, -1, -0.7, strText);
+                }
+
+                vpe.Line(vpe.nLeftMargin, vpe.nBottom, vpe.nRight, vpe.nBottom);
+            }
+
+            //Ende
+            vpe.CloseProgressBar();
+
+            if (PDFFilename == string.Empty)
+                vpe.Preview();
+            else
+                vpe.PDFExport(PDFFilename);
+        }
+        catch (Exception ex)
+        {
+            ViewManager.ShowErrorWindow("PrintService", "DruckStatistikNeuner", ex.ToString());
+        }
+    }
+
+    public async Task DruckStatistikRattenAsync(Int32 iZeitbereich, DateTime? dtVon = null,
+        DateTime? dtBis = null, string PDFFilename = "")
+    {
+        string strText = string.Empty;
+        DateTime? datVon = dtVon;
+        DateTime? datBis = dtBis;
+        Int32 intZeitbereich = 0;
+
+        try
+        {
+            //Anfang
+            VpeToPdfSharp vpe = new();
+            vpe.FileName = "Druck_Statistik_Ratten";
+            vpe.OpenDoc();
+            vpe.OpenProgressBar();
+            vpe.PageOrientation = PageOrientation.Landscape;
+            vpe.SetMargins(2, 2, 2, 2);
+
+            //Überschrift
+            vpe.SelectFont("Arial", 18);
+            vpe.SetFontAttr(TextAlignment.Center, true, false, false, false);
+            vpe.Write(vpe.nLeftMargin, vpe.nTopMargin, vpe.nRightMargin, -1, "Ratten");
+
+            //Zeitraum
+            switch (iZeitbereich)
+            {
+                case 1: // Laufende Meisterschaft
+                    var intMeisterschaftsID = _commonService.AktiveMeisterschaft.ID;
+                    if (intMeisterschaftsID == 0) strText = "n/a";
+
+                    Zeitbereich? objBereichAktuell = await _dbService.GetZeitbereichAsync(intMeisterschaftsID);
+                    if (objBereichAktuell == null) strText = "n/a";
+
+                    datVon = objBereichAktuell!.Von;
+
+                    if (objBereichAktuell.Bis.HasValue)
+                    {
+                        datBis = objBereichAktuell!.Bis;
+                    }
+                    else if (datVon < DateTime.Now)
+                    {
+                        datBis = DateTime.Now;
+                    }
+                    else
+                    {
+                        datBis = datVon;
+                    }
+
+                    strText = datVon.Value.ToShortDateString() + " - " + datBis.Value.ToShortDateString();
+
+                    break;
+                case 2: // Letzte Meisterschaft
+                    var intLetzteMeisterschaftsID = await _dbService.GetLetzteMeisterschaftsIDAsync();
+                    if (intLetzteMeisterschaftsID == 0) strText = "n/a";
+
+                    Zeitbereich? objBereichLast = await _dbService.GetZeitbereichAsync(intLetzteMeisterschaftsID);
+                    if (objBereichLast == null) strText = "n/a";
+
+                    datVon = objBereichLast.Von;
+                    datBis = objBereichLast.Bis;
+                    strText = datVon.Value.ToShortDateString() + " - " + datBis.Value.ToShortDateString();
+
+                    break;
+                case 3: // Zeitbereich
+                    strText = datVon.Value.ToShortDateString() + " - " + datBis.Value.ToShortDateString();
+                    break;
+                case 4: // Gesamt
+                    strText = "Gesamt";
+                    break;
+            }
+
+            vpe.Write(vpe.nLeftMargin, vpe.nBottom + 1, vpe.nRightMargin, -1, strText);
+
+            List<StatistikRatten> lstRatten = await _dbService.GetStatistikRattenAsync(intZeitbereich, datVon, datBis);
+            Int32 intCount = lstRatten.Count;
+
+            //Kopfzeile
+            vpe.SelectFont("Arial", 14);
+            vpe.SetFontAttr(TextAlignment.Center, true, false, false, false);
+            vpe.Write(vpe.nLeftMargin, vpe.nBottom + 1, -1.5, -1, "Pos.");
+            vpe.SetFontAttr(TextAlignment.Left, true, false, false, false);
+            vpe.Line(vpe.nRight, vpe.nTop, vpe.nRight, vpe.nTop + 1.5 + intCount * 0.7);
+            vpe.Write(vpe.nRight, vpe.nTop, -6, -1, "Spieler");
+            vpe.Line(vpe.nRight, vpe.nTop, vpe.nRight, vpe.nTop + 1.5 + intCount * 0.7);
+            vpe.SetFontAttr(TextAlignment.Center, true, false, false, false);
+            vpe.Write(vpe.nRight, vpe.nTop, -1.5, -1, "Ges.");
+            vpe.Line(vpe.nRight, vpe.nTop, vpe.nRight, vpe.nTop + 1.5 + intCount * 0.7);
+            vpe.Write(vpe.nRight, vpe.nTop, -1.5, -1.5, "Anz. TN.");
+            double dblY = vpe.nBottom;
+            vpe.Line(vpe.nRight, vpe.nTop, vpe.nRight, vpe.nTop + 1.5 + intCount * 0.7);
+            vpe.SetFontAttr(TextAlignment.Center, true, false, false, false);
+            for (Int32 i = 10; i > 0; i--)
+            {
+                vpe.Write(vpe.nRight, vpe.nTop, -1, vpe.nBottom, i.ToString());
+                vpe.Line(vpe.nRight, vpe.nTop, vpe.nRight, vpe.nTop + 1.5 + intCount * 0.7);
+            }
+
+            vpe.Line(vpe.nLeftMargin, dblY, vpe.nRight, dblY);
+
+            //Daten
+            vpe.SelectFont("Arial", 12);
+            vpe.SetFontAttr(TextAlignment.Left, false, false, false, false);
+
+            for (Int32 i = 0; i < lstRatten.Count; i++)
+            {
+                vpe.SetFontAttr(TextAlignment.Center, true, false, false, false);
+                vpe.Write(vpe.nLeftMargin, vpe.nBottom, -1.5, -0.7, (i + 1).ToString());
+                vpe.SetFontAttr(TextAlignment.Left, true, false, false, false);
+                vpe.Write(vpe.nRight, vpe.nTop, -6, -0.7, lstRatten[i].Spieler);
+                vpe.SetFontAttr(TextAlignment.Center, true, false, false, false);
+                vpe.Write(vpe.nRight, vpe.nTop, -1.5, -0.7, lstRatten[i].Gesamt.ToString());
+                vpe.Write(vpe.nRight, vpe.nTop, -1.5, -0.7, lstRatten[i].AnzTeilnahmen.ToString());
+                vpe.SetFontAttr(TextAlignment.Center, true, false, false, false);
+                for (Int32 j = 10; j > 0; j--)
+                {
+                    strText = string.Empty;
+                    switch (j)
+                    {
+                        case 10:
+                            if (lstRatten[i].Zehn > 0) strText = lstRatten[i].Zehn.ToString();
+                            break;
+                        case 9:
+                            if (lstRatten[i].Neun > 0) strText = lstRatten[i].Neun.ToString();
+                            break;
+                        case 8:
+                            if (lstRatten[i].Acht > 0) strText = lstRatten[i].Acht.ToString();
+                            break;
+                        case 7:
+                            if (lstRatten[i].Sieben > 0) strText = lstRatten[i].Sieben.ToString();
+                            break;
+                        case 6:
+                            if (lstRatten[i].Sechs > 0) strText = lstRatten[i].Sechs.ToString();
+                            break;
+                        case 5:
+                            if (lstRatten[i].Fünf > 0) strText = lstRatten[i].Fünf.ToString();
+                            break;
+                        case 4:
+                            if (lstRatten[i].Vier > 0) strText = lstRatten[i].Vier.ToString();
+                            break;
+                        case 3:
+                            if (lstRatten[i].Drei > 0) strText = lstRatten[i].Drei.ToString();
+                            break;
+                        case 2:
+                            if (lstRatten[i].Zwei > 0) strText = lstRatten[i].Zwei.ToString();
+                            break;
+                        case 1:
+                            if (lstRatten[i].Eins > 0) strText = lstRatten[i].Eins.ToString();
+                            break;
+                    }
+
+                    vpe.Write(vpe.nRight, vpe.nTop, -1, vpe.nBottom, strText);
+                }
+
+                vpe.Line(vpe.nLeftMargin, vpe.nBottom, vpe.nRight, vpe.nBottom);
+            }
+
+            //Ende
+            vpe.CloseProgressBar();
+
+            if (PDFFilename == string.Empty)
+                vpe.Preview();
+            else
+                vpe.PDFExport(PDFFilename);
+        }
+        catch (Exception ex)
+        {
+            ViewManager.ShowErrorWindow("PrintService", "DruckStatistikRattenAsync", ex.ToString());
+        }
+    }
+
+    public async Task DruckStatistikPokalAsync(Int32 iZeitbereich, DateTime? dtVon = null,
+        DateTime? dtBis = null, string PDFFilename = "")
+    {
+        string strText = string.Empty;
+        DateTime? datVon = dtVon;
+        DateTime? datBis = dtBis;
+        Int32 intZeitbereich = 0;
+
+        try
+        {
+            //Anfang
+            VpeToPdfSharp vpe = new();
+            vpe.FileName = "Druck_Statistik_Pokal";
+            vpe.OpenDoc();
+            vpe.OpenProgressBar();
+            vpe.PageOrientation = PageOrientation.Portrait;
+            vpe.SetMargins(2, 2, 2, 2);
+
+            //Überschrift
+            vpe.SelectFont("Arial", 18);
+            vpe.SetFontAttr(TextAlignment.Center, true, false, false, false);
+            vpe.Write(vpe.nLeftMargin, vpe.nTopMargin, vpe.nRightMargin, -1, "Pokal");
+
+            //Zeitraum
+            switch (iZeitbereich)
+            {
+                case 1: // Laufende Meisterschaft
+                    var intMeisterschaftsID = _commonService.AktiveMeisterschaft.ID;
+                    if (intMeisterschaftsID == 0) strText = "n/a";
+
+                    Zeitbereich? objBereichAktuell = await _dbService.GetZeitbereichAsync(intMeisterschaftsID);
+                    if (objBereichAktuell == null) strText = "n/a";
+
+                    datVon = objBereichAktuell!.Von;
+
+                    if (objBereichAktuell.Bis.HasValue)
+                    {
+                        datBis = objBereichAktuell!.Bis;
+                    }
+                    else if (datVon < DateTime.Now)
+                    {
+                        datBis = DateTime.Now;
+                    }
+                    else
+                    {
+                        datBis = datVon;
+                    }
+
+                    strText = datVon.Value.ToShortDateString() + " - " + datBis.Value.ToShortDateString();
+
+                    break;
+                case 2: // Letzte Meisterschaft
+                    var intLetzteMeisterschaftsID = await _dbService.GetLetzteMeisterschaftsIDAsync();
+                    if (intLetzteMeisterschaftsID == 0) strText = "n/a";
+
+                    Zeitbereich? objBereichLast = await _dbService.GetZeitbereichAsync(intLetzteMeisterschaftsID);
+                    if (objBereichLast == null) strText = "n/a";
+
+                    datVon = objBereichLast.Von;
+                    datBis = objBereichLast.Bis;
+                    strText = datVon.Value.ToShortDateString() + " - " + datBis.Value.ToShortDateString();
+
+                    break;
+                case 3: // Zeitbereich
+                    strText = datVon.Value.ToShortDateString() + " - " + datBis.Value.ToShortDateString();
+                    break;
+                case 4: // Gesamt
+                    strText = "Gesamt";
+                    break;
+            }
+
+            vpe.Write(vpe.nLeftMargin, vpe.nBottom + 1, vpe.nRightMargin, -1, strText);
+
+            List<StatistikPokal> lstPokal = await _dbService.GetStatistikPokalAsync(intZeitbereich, datVon, datBis);
+            Int32 intCount = lstPokal.Count;
+
+            //Kopfzeile
+            vpe.SelectFont("Arial", 14);
+            vpe.SetFontAttr(TextAlignment.Center, true, false, false, false);
+            vpe.Write(vpe.nLeftMargin, vpe.nBottom + 1, -1.5, -1, "Pos.");
+            vpe.SetFontAttr(TextAlignment.Left, true, false, false, false);
+            vpe.Line(vpe.nRight, vpe.nTop, vpe.nRight, vpe.nTop + 1.5 + intCount * 0.7);
+            vpe.Write(vpe.nRight, vpe.nTop, -6, -1, "Spieler");
+            double dblY = vpe.nBottom;
+            vpe.Line(vpe.nRight, vpe.nTop, vpe.nRight, vpe.nTop + 1.5 + intCount * 0.7);
+            vpe.SetFontAttr(TextAlignment.Center, true, false, false, false);
+            vpe.SelectFont("Arial", 13);
+            for (Int32 i = 1; i <= 2; i++)
+            {
+                vpe.Write(vpe.nRight, vpe.nTop, -1, vpe.nBottom, "Plz. " + i.ToString());
+                vpe.Line(vpe.nRight, vpe.nTop, vpe.nRight, vpe.nTop + 1.5 + intCount * 0.7);
+            }
+
+            vpe.Line(vpe.nLeftMargin, dblY, vpe.nRight, dblY);
+
+            //Daten
+            vpe.SelectFont("Arial", 12);
+            vpe.SetFontAttr(TextAlignment.Left, false, false, false, false);
+
+            for (Int32 i = 0; i < lstPokal.Count; i++)
+            {
+                vpe.SetFontAttr(TextAlignment.Center, true, false, false, false);
+                vpe.Write(vpe.nLeftMargin, vpe.nBottom, -1.5, -0.7, (i + 1).ToString());
+                vpe.SetFontAttr(TextAlignment.Left, true, false, false, false);
+                vpe.Write(vpe.nRight, vpe.nTop, -6, -0.7, lstPokal[i].Spieler);
+                vpe.SetFontAttr(TextAlignment.Center, true, false, false, false);
+                for (Int32 j = 1; j <= 2; j++)
+                {
+                    strText = string.Empty;
+                    switch (j)
+                    {
+                        case 1:
+                            if (lstPokal[i].Eins > 0) strText = lstPokal[i].Eins.ToString();
+                            break;
+                        case 2:
+                            if (lstPokal[i].Zwei > 0) strText = lstPokal[i].Zwei.ToString();
+                            break;
+                    }
+
+                    vpe.Write(vpe.nRight, vpe.nTop, -1, vpe.nBottom, strText);
+                }
+
+                vpe.Line(vpe.nLeftMargin, vpe.nBottom, vpe.nRight, vpe.nBottom);
+            }
+
+            //Ende
+            vpe.CloseProgressBar();
+
+            if (PDFFilename == string.Empty)
+                vpe.Preview();
+            else
+                vpe.PDFExport(PDFFilename);
+        }
+        catch (Exception ex)
+        {
+            ViewManager.ShowErrorWindow("PrintService", "DruckStatistikPokalAsync", ex.ToString());
+        }
+    }
+
+    public async Task DruckStatistikSargAsync(Int32 iZeitbereich, DateTime? dtVon = null,
+        DateTime? dtBis = null, string PDFFilename = "")
+    {
+        string strText = string.Empty;
+        DateTime? datVon = dtVon;
+        DateTime? datBis = dtBis;
+        Int32 intZeitbereich = 0;
+
+        try
+        {
+            //Anfang
+            VpeToPdfSharp vpe = new();
+            vpe.FileName = "Druck_Statistik_Sarg";
+            vpe.OpenDoc();
+            vpe.OpenProgressBar();
+            vpe.PageOrientation = PageOrientation.Landscape;
+            vpe.SetMargins(2, 2, 2, 2);
+
+            //Überschrift
+            vpe.SelectFont("Arial", 18);
+            vpe.SetFontAttr(TextAlignment.Center, true, false, false, false);
+            vpe.Write(vpe.nLeftMargin, vpe.nTopMargin, vpe.nRightMargin, -1, "Sarg");
+
+            //Zeitraum
+            switch (iZeitbereich)
+            {
+                case 1: // Laufende Meisterschaft
+                    var intMeisterschaftsID = _commonService.AktiveMeisterschaft.ID;
+                    if (intMeisterschaftsID == 0) strText = "n/a";
+
+                    Zeitbereich? objBereichAktuell = await _dbService.GetZeitbereichAsync(intMeisterschaftsID);
+                    if (objBereichAktuell == null) strText = "n/a";
+
+                    datVon = objBereichAktuell!.Von;
+
+                    if (objBereichAktuell.Bis.HasValue)
+                    {
+                        datBis = objBereichAktuell!.Bis;
+                    }
+                    else if (datVon < DateTime.Now)
+                    {
+                        datBis = DateTime.Now;
+                    }
+                    else
+                    {
+                        datBis = datVon;
+                    }
+
+                    strText = datVon.Value.ToShortDateString() + " - " + datBis.Value.ToShortDateString();
+
+                    break;
+                case 2: // Letzte Meisterschaft
+                    var intLetzteMeisterschaftsID = await _dbService.GetLetzteMeisterschaftsIDAsync();
+                    if (intLetzteMeisterschaftsID == 0) strText = "n/a";
+
+                    Zeitbereich? objBereichLast = await _dbService.GetZeitbereichAsync(intLetzteMeisterschaftsID);
+                    if (objBereichLast == null) strText = "n/a";
+
+                    datVon = objBereichLast.Von;
+                    datBis = objBereichLast.Bis;
+                    strText = datVon.Value.ToShortDateString() + " - " + datBis.Value.ToShortDateString();
+
+                    break;
+                case 3: // Zeitbereich
+                    strText = datVon.Value.ToShortDateString() + " - " + datBis.Value.ToShortDateString();
+                    break;
+                case 4: // Gesamt
+                    strText = "Gesamt";
+                    break;
+            }
+
+            vpe.Write(vpe.nLeftMargin, vpe.nBottom + 1, vpe.nRightMargin, -1, strText);
+
+            List<StatistikSarg> lstSarg = await _dbService.GetStatistikSargAsync(intZeitbereich, datVon, datBis);
+            Int32 intCount = lstSarg.Count;
+
+            //Kopfzeile
+            vpe.SelectFont("Arial", 14);
+            vpe.SetFontAttr(TextAlignment.Center, true, false, false, false);
+            vpe.Write(vpe.nLeftMargin, vpe.nBottom + 1, -1.5, -1, "Pos.");
+            vpe.SetFontAttr(TextAlignment.Left, true, false, false, false);
+            vpe.Line(vpe.nRight, vpe.nTop, vpe.nRight, vpe.nTop + 1.5 + intCount * 0.7);
+            vpe.Write(vpe.nRight, vpe.nTop, -6, -1, "Spieler");
+            vpe.Line(vpe.nRight, vpe.nTop, vpe.nRight, vpe.nTop + 1.5 + intCount * 0.7);
+            vpe.SetFontAttr(TextAlignment.Center, true, false, false, false);
+            vpe.Write(vpe.nRight, vpe.nTop, -1.5, -1.5, "Anz. TN.");
+            double dblY = vpe.nBottom;
+            vpe.Line(vpe.nRight, vpe.nTop, vpe.nRight, vpe.nTop + 1.5 + intCount * 0.7);
+            vpe.SetFontAttr(TextAlignment.Center, true, false, false, false);
+            vpe.SelectFont("Arial", 13);
+            for (Int32 i = 1; i <= 10; i++)
+            {
+                vpe.Write(vpe.nRight, vpe.nTop, -1, vpe.nBottom, "Plz. " + i.ToString());
+                vpe.Line(vpe.nRight, vpe.nTop, vpe.nRight, vpe.nTop + 1.5 + intCount * 0.7);
+            }
+
+            vpe.Line(vpe.nLeftMargin, dblY, vpe.nRight, dblY);
+
+            //Daten
+            vpe.SelectFont("Arial", 12);
+            vpe.SetFontAttr(TextAlignment.Left, false, false, false, false);
+
+            for (Int32 i = 0; i < lstSarg.Count; i++)
+            {
+                vpe.SetFontAttr(TextAlignment.Center, true, false, false, false);
+                vpe.Write(vpe.nLeftMargin, vpe.nBottom, -1.5, -0.7, (i + 1).ToString());
+                vpe.SetFontAttr(TextAlignment.Left, true, false, false, false);
+                vpe.Write(vpe.nRight, vpe.nTop, -6, -0.7, lstSarg[i].Spieler);
+                vpe.SetFontAttr(TextAlignment.Center, true, false, false, false);
+                vpe.Write(vpe.nRight, vpe.nTop, -1.5, -0.7, lstSarg[i].AnzTeilnahmen.ToString());
+                vpe.SetFontAttr(TextAlignment.Center, true, false, false, false);
+                for (Int32 j = 1; j <= 10; j++)
+                {
+                    strText = string.Empty;
+                    switch (j)
+                    {
+                        case 1:
+                            if (lstSarg[i].Eins > 0) strText = lstSarg[i].Eins.ToString();
+                            break;
+                        case 2:
+                            if (lstSarg[i].Zwei > 0) strText = lstSarg[i].Zwei.ToString();
+                            break;
+                        case 3:
+                            if (lstSarg[i].Drei > 0) strText = lstSarg[i].Drei.ToString();
+                            break;
+                        case 4:
+                            if (lstSarg[i].Vier > 0) strText = lstSarg[i].Vier.ToString();
+                            break;
+                        case 5:
+                            if (lstSarg[i].Fünf > 0) strText = lstSarg[i].Fünf.ToString();
+                            break;
+                        case 6:
+                            if (lstSarg[i].Sechs > 0) strText = lstSarg[i].Sechs.ToString();
+                            break;
+                        case 7:
+                            if (lstSarg[i].Sieben > 0) strText = lstSarg[i].Sieben.ToString();
+                            break;
+                        case 8:
+                            if (lstSarg[i].Acht > 0) strText = lstSarg[i].Acht.ToString();
+                            break;
+                        case 9:
+                            if (lstSarg[i].Neun > 0) strText = lstSarg[i].Neun.ToString();
+                            break;
+                        case 10:
+                            if (lstSarg[i].Zehn > 0) strText = lstSarg[i].Zehn.ToString();
+                            break;
+                    }
+
+                    vpe.Write(vpe.nRight, vpe.nTop, -1, vpe.nBottom, strText);
+                }
+
+                vpe.Line(vpe.nLeftMargin, vpe.nBottom, vpe.nRight, vpe.nBottom);
+            }
+
+            //Ende
+            vpe.CloseProgressBar();
+
+            if (PDFFilename == string.Empty)
+                vpe.Preview();
+            else
+                vpe.PDFExport(PDFFilename);
+        }
+        catch (Exception ex)
+        {
+            ViewManager.ShowErrorWindow("PrintService", "DruckStatistikSargAsync", ex.ToString());
+        }
+    }
+
+    public void DruckStatistikSpielerSpieler(Int32 iZeitbereich, DateTime? dtVon = null,
+        DateTime? dtBis = null, string PDFFilename = "")
+    {
+        try
+        {
+            //Anfang
+            VpeToPdfSharp vpe = new();
+            vpe.FileName = "Druck_Statistik_Spieler_Spieler";
+            vpe.OpenDoc();
+            vpe.OpenProgressBar();
+            vpe.PageOrientation = PageOrientation.Portrait;
+            vpe.SetMargins(2, 2, 2, 2);
+
+            //Überschrift
+            vpe.SelectFont("Arial", 18);
+            vpe.SetFontAttr(TextAlignment.Center, true, false, false, false);
+            vpe.Write(vpe.nLeftMargin, vpe.nTopMargin, vpe.nRightMargin, -1, "Spieler / Spieler");
+
+
+            //Ende
+            vpe.CloseProgressBar();
+
+            if (PDFFilename == string.Empty)
+                vpe.Preview();
+            else
+                vpe.PDFExport(PDFFilename);
+        }
+        catch (Exception ex)
+        {
+            ViewManager.ShowErrorWindow("PrintService", "DruckStatistikSpielerSpieler", ex.ToString());
+        }
+    }
+
+    public async Task DruckStatistik6TageRennenPlatzAsync(Int32 iZeitbereich, DateTime? dtVon = null,
+        DateTime? dtBis = null, string PDFFilename = "")
+    {
+        string strText = string.Empty;
+        DateTime? datVon = dtVon;
+        DateTime? datBis = dtBis;
+        Int32 intZeitbereich = 0;
+
+        try
+        {
+            //Anfang
+            VpeToPdfSharp vpe = new();
+            vpe.FileName = "Druck_Statistik_6TageRennen_Platzierung";
+            vpe.OpenDoc();
+            vpe.OpenProgressBar();
+            vpe.PageOrientation = PageOrientation.Portrait;
+            vpe.SetMargins(2, 2, 2, 2);
+
+            //Überschrift
+            vpe.SelectFont("Arial", 18);
+            vpe.SetFontAttr(TextAlignment.Center, true, false, false, false);
+            vpe.Write(vpe.nLeftMargin, vpe.nTopMargin, vpe.nRightMargin, -1, "6 Tage Rennen Platzierung");
+
+            //Zeitraum
+            switch (iZeitbereich)
+            {
+                case 1: // Laufende Meisterschaft
+                    var intMeisterschaftsID = _commonService.AktiveMeisterschaft.ID;
+                    if (intMeisterschaftsID == 0) strText = "n/a";
+
+                    Zeitbereich? objBereichAktuell = await _dbService.GetZeitbereichAsync(intMeisterschaftsID);
+                    if (objBereichAktuell == null) strText = "n/a";
+
+                    datVon = objBereichAktuell!.Von;
+
+                    if (objBereichAktuell.Bis.HasValue)
+                    {
+                        datBis = objBereichAktuell!.Bis;
+                    }
+                    else if (datVon < DateTime.Now)
+                    {
+                        datBis = DateTime.Now;
+                    }
+                    else
+                    {
+                        datBis = datVon;
+                    }
+
+                    strText = datVon.Value.ToShortDateString() + " - " + datBis.Value.ToShortDateString();
+
+                    break;
+                case 2: // Letzte Meisterschaft
+                    var intLetzteMeisterschaftsID = await _dbService.GetLetzteMeisterschaftsIDAsync();
+                    if (intLetzteMeisterschaftsID == 0) strText = "n/a";
+
+                    Zeitbereich? objBereichLast = await _dbService.GetZeitbereichAsync(intLetzteMeisterschaftsID);
+                    if (objBereichLast == null) strText = "n/a";
+
+                    datVon = objBereichLast.Von;
+                    datBis = objBereichLast.Bis;
+                    strText = datVon.Value.ToShortDateString() + " - " + datBis.Value.ToShortDateString();
+
+                    break;
+                case 3: // Zeitbereich
+                    strText = datVon.Value.ToShortDateString() + " - " + datBis.Value.ToShortDateString();
+                    break;
+                case 4: // Gesamt
+                    strText = "Gesamt";
+                    break;
+            }
+
+            vpe.Write(vpe.nLeftMargin, vpe.nBottom + 1, vpe.nRightMargin, -1, strText);
+
+            List<Statistik6TageRennenPlatzierung> lst6TR = await _dbService.GetStatistik6TageRennenPlatzAsync(
+                intZeitbereich,
+                datVon, datBis);
+            Int32 intCount = lst6TR.Count;
+
+            //Kopfzeile
+            vpe.SelectFont("Arial", 14);
+            vpe.SetFontAttr(TextAlignment.Center, true, false, false, false);
+            vpe.Write(vpe.nLeftMargin, vpe.nBottom + 1, -1.5, -1, "Pos.");
+            vpe.SetFontAttr(TextAlignment.Left, true, false, false, false);
+            vpe.Line(vpe.nRight, vpe.nTop, vpe.nRight, vpe.nTop + 1.5 + intCount * 0.7);
+            vpe.Write(vpe.nRight, vpe.nTop, -6, -1, "Spieler");
+            vpe.Line(vpe.nRight, vpe.nTop, vpe.nRight, vpe.nTop + 1.5 + intCount * 0.7);
+            vpe.SetFontAttr(TextAlignment.Center, true, false, false, false);
+            vpe.Write(vpe.nRight, vpe.nTop, -1.5, -1.5, "Anz. TN.");
+            double dblY = vpe.nBottom;
+            vpe.Line(vpe.nRight, vpe.nTop, vpe.nRight, vpe.nTop + 1.5 + intCount * 0.7);
+            vpe.SetFontAttr(TextAlignment.Center, true, false, false, false);
+            vpe.SelectFont("Arial", 13);
+            for (Int32 i = 1; i <= 6; i++)
+            {
+                vpe.Write(vpe.nRight, vpe.nTop, -1, vpe.nBottom, "Plz. " + i.ToString());
+                vpe.Line(vpe.nRight, vpe.nTop, vpe.nRight, vpe.nTop + 1.5 + intCount * 0.7);
+            }
+
+            vpe.Line(vpe.nLeftMargin, dblY, vpe.nRight, dblY);
+
+            //Daten
+            vpe.SelectFont("Arial", 12);
+            vpe.SetFontAttr(TextAlignment.Left, false, false, false, false);
+
+            for (Int32 i = 0; i < lst6TR.Count; i++)
+            {
+                vpe.SetFontAttr(TextAlignment.Center, true, false, false, false);
+                vpe.Write(vpe.nLeftMargin, vpe.nBottom, -1.5, -0.7, (i + 1).ToString());
+                vpe.SetFontAttr(TextAlignment.Left, true, false, false, false);
+                vpe.Write(vpe.nRight, vpe.nTop, -6, -0.7, lst6TR[i].Spieler);
+                vpe.SetFontAttr(TextAlignment.Center, true, false, false, false);
+                vpe.Write(vpe.nRight, vpe.nTop, -1.5, -0.7, lst6TR[i].AnzTeilnahmen.ToString());
+                vpe.SetFontAttr(TextAlignment.Center, true, false, false, false);
+                for (Int32 j = 1; j <= 6; j++)
+                {
+                    strText = string.Empty;
+                    switch (j)
+                    {
+                        case 1:
+                            if (lst6TR[i].Eins > 0) strText = lst6TR[i].Eins.ToString();
+                            break;
+                        case 2:
+                            if (lst6TR[i].Zwei > 0) strText = lst6TR[i].Zwei.ToString();
+                            break;
+                        case 3:
+                            if (lst6TR[i].Drei > 0) strText = lst6TR[i].Drei.ToString();
+                            break;
+                        case 4:
+                            if (lst6TR[i].Vier > 0) strText = lst6TR[i].Vier.ToString();
+                            break;
+                        case 5:
+                            if (lst6TR[i].Fünf > 0) strText = lst6TR[i].Fünf.ToString();
+                            break;
+                        case 6:
+                            if (lst6TR[i].Sechs > 0) strText = lst6TR[i].Sechs.ToString();
+                            break;
+                    }
+
+                    vpe.Write(vpe.nRight, vpe.nTop, -1, vpe.nBottom, strText);
+                }
+
+                vpe.Line(vpe.nLeftMargin, vpe.nBottom, vpe.nRight, vpe.nBottom);
+            }
+
+            //Ende
+            vpe.CloseProgressBar();
+
+            if (PDFFilename == string.Empty)
+                vpe.Preview();
+            else
+                vpe.PDFExport(PDFFilename);
+        }
+        catch (Exception ex)
+        {
+            ViewManager.ShowErrorWindow("PrintService", "DruckStatistik6TageRennenPlatzAsync", ex.ToString());
+        }
+    }
+
+    public async Task DruckStatistik6TageRennenBesteAsync(Int32 iZeitbereich, DateTime? dtVon = null,
+        DateTime? dtBis = null, string PDFFilename = "")
+    {
+        string strText = string.Empty;
+        DateTime? datVon = dtVon;
+        DateTime? datBis = dtBis;
+        Int32 intZeitbereich = 0;
+
+        try
+        {
+            //Anfang
+            VpeToPdfSharp vpe = new();
+            vpe.FileName = "Druck_Statistik_6TageRennen_Beste";
+            vpe.OpenDoc();
+            vpe.OpenProgressBar();
+            vpe.PageOrientation = PageOrientation.Portrait;
+            vpe.SetMargins(2, 2, 2, 2);
+
+            //Überschrift
+            vpe.SelectFont("Arial", 18);
+            vpe.SetFontAttr(TextAlignment.Center, true, false, false, false);
+            vpe.Write(vpe.nLeftMargin, vpe.nTopMargin, vpe.nRightMargin, -1, "6 Tage Rennen Beste Mannschaft");
+
+            //Zeitraum
+            switch (iZeitbereich)
+            {
+                case 1: // Laufende Meisterschaft
+                    var intMeisterschaftsID = _commonService.AktiveMeisterschaft.ID;
+                    if (intMeisterschaftsID == 0) strText = "n/a";
+
+                    Zeitbereich? objBereichAktuell = await _dbService.GetZeitbereichAsync(intMeisterschaftsID);
+                    if (objBereichAktuell == null) strText = "n/a";
+
+                    datVon = objBereichAktuell!.Von;
+
+                    if (objBereichAktuell.Bis.HasValue)
+                    {
+                        datBis = objBereichAktuell!.Bis;
+                    }
+                    else if (datVon < DateTime.Now)
+                    {
+                        datBis = DateTime.Now;
+                    }
+                    else
+                    {
+                        datBis = datVon;
+                    }
+
+                    strText = datVon.Value.ToShortDateString() + " - " + datBis.Value.ToShortDateString();
+
+                    break;
+                case 2: // Letzte Meisterschaft
+                    var intLetzteMeisterschaftsID = await _dbService.GetLetzteMeisterschaftsIDAsync();
+                    if (intLetzteMeisterschaftsID == 0) strText = "n/a";
+
+                    Zeitbereich? objBereichLast = await _dbService.GetZeitbereichAsync(intLetzteMeisterschaftsID);
+                    if (objBereichLast == null) strText = "n/a";
+
+                    datVon = objBereichLast.Von;
+                    datBis = objBereichLast.Bis;
+                    strText = datVon.Value.ToShortDateString() + " - " + datBis.Value.ToShortDateString();
+
+                    break;
+                case 3: // Zeitbereich
+                    strText = datVon.Value.ToShortDateString() + " - " + datBis.Value.ToShortDateString();
+                    break;
+                case 4: // Gesamt
+                    strText = "Gesamt";
+                    break;
+            }
+
+            vpe.Write(vpe.nLeftMargin, vpe.nBottom + 1, vpe.nRightMargin, -1, strText);
+
+            List<Statistik6TageRennenBesteMannschaft> lst6TR =
+                await _dbService.GetStatistik6TageRennenBesteMannschaftAsync(intZeitbereich, datVon, datBis);
+            Int32 intCount = lst6TR.Count;
+
+            //Kopfzeile
+            vpe.SelectFont("Arial", 12);
+            vpe.SetFontAttr(TextAlignment.Center, true, false, false, false);
+            vpe.Write(vpe.nLeftMargin, vpe.nBottom + 1, -1, -1, "Pos.");
+            vpe.SetFontAttr(TextAlignment.Left, true, false, false, false);
+            vpe.Line(vpe.nRight, vpe.nTop, vpe.nRight, vpe.nTop + 1.5 + intCount * 0.7);
+            vpe.Write(vpe.nRight, vpe.nTop, -7, -1, "Mannschaft");
+            vpe.Line(vpe.nRight, vpe.nTop, vpe.nRight, vpe.nTop + 1.5 + intCount * 0.7);
+            vpe.SetFontAttr(TextAlignment.Center, true, false, false, false);
+            vpe.Write(vpe.nRight, vpe.nTop, -1, -1, "Anz.");
+            double dblY = vpe.nBottom;
+            vpe.Line(vpe.nRight, vpe.nTop, vpe.nRight, vpe.nTop + 1.5 + intCount * 0.7);
+            vpe.SetFontAttr(TextAlignment.Center, true, false, false, false);
+            vpe.SelectFont("Arial", 11);
+            for (Int32 i = 1; i <= 6; i++)
+            {
+                vpe.Write(vpe.nRight, vpe.nTop, -1, vpe.nBottom, "Plz.  " + i.ToString());
+                vpe.Line(vpe.nRight, vpe.nTop, vpe.nRight, vpe.nTop + 1.5 + intCount * 0.7);
+            }
+
+            vpe.Line(vpe.nLeftMargin, dblY, vpe.nRight, dblY);
+
+            //Daten
+            vpe.SelectFont("Arial", 10);
+            vpe.SetFontAttr(TextAlignment.Left, false, false, false, false);
+            for (Int32 i = 0; i < lst6TR.Count; i++)
+            {
+                vpe.SetFontAttr(TextAlignment.Center, true, false, false, false);
+                vpe.Write(vpe.nLeftMargin, vpe.nBottom, -1, -0.7, (i + 1).ToString());
+                vpe.SetFontAttr(TextAlignment.Left, true, false, false, false);
+                vpe.Write(vpe.nRight, vpe.nTop, -7, -0.7, lst6TR[i].Mannschaft);
+                vpe.SetFontAttr(TextAlignment.Center, true, false, false, false);
+                vpe.Write(vpe.nRight, vpe.nTop, -1, -0.7, lst6TR[i].Anzahl.ToString());
+                vpe.SetFontAttr(TextAlignment.Center, true, false, false, false);
+                for (Int32 j = 1; j <= 6; j++)
+                {
+                    strText = string.Empty;
+                    switch (j)
+                    {
+                        case 1:
+                            if (lst6TR[i].Eins > 0) strText = lst6TR[i].Eins.ToString();
+                            break;
+                        case 2:
+                            if (lst6TR[i].Zwei > 0) strText = lst6TR[i].Zwei.ToString();
+                            break;
+                        case 3:
+                            if (lst6TR[i].Drei > 0) strText = lst6TR[i].Drei.ToString();
+                            break;
+                        case 4:
+                            if (lst6TR[i].Vier > 0) strText = lst6TR[i].Vier.ToString();
+                            break;
+                        case 5:
+                            if (lst6TR[i].Fünf > 0) strText = lst6TR[i].Fünf.ToString();
+                            break;
+                        case 6:
+                            if (lst6TR[i].Sechs > 0) strText = lst6TR[i].Sechs.ToString();
+                            break;
+                    }
+
+                    vpe.Write(vpe.nRight, vpe.nTop, -1, vpe.nBottom, strText);
+                }
+            }
+
+            //Ende
+            vpe.CloseProgressBar();
+
+            if (PDFFilename == string.Empty)
+                vpe.Preview();
+            else
+                vpe.PDFExport(PDFFilename);
+        }
+        catch (Exception ex)
+        {
+            ViewManager.ShowErrorWindow("PrintService", "DruckStatistik6TageRennenBesteAsync", ex.ToString());
+        }
+    }
+
+    public async Task DruckStatistik6TageRennenMannschaftAsync(Int32 iZeitbereich, DateTime? dtVon = null,
+        DateTime? dtBis = null, string PDFFilename = "")
+    {
+        string strText = string.Empty;
+        DateTime? datVon = dtVon;
+        DateTime? datBis = dtVon;
+        Int32 intZeitbereich = 0;
+
+        try
+        {
+            //Anfang
+            VpeToPdfSharp vpe = new();
+            vpe.FileName = "Druck_Statistik_6TageRennen_Mannschaft";
+            vpe.OpenDoc();
+            vpe.OpenProgressBar();
+            vpe.PageOrientation = PageOrientation.Portrait;
+            vpe.SetMargins(2, 2, 2, 2);
+
+            //Überschrift
+            vpe.SelectFont("Arial", 18);
+            vpe.SetFontAttr(TextAlignment.Center, true, false, false, false);
+            vpe.Write(vpe.nLeftMargin, vpe.nTopMargin, vpe.nRightMargin, -1,
+                "6 Tage Rennen Mannschaft / Mitglied");
+
+            //Zeitraum
+            switch (iZeitbereich)
+            {
+                case 1: // Laufende Meisterschaft
+                    var intMeisterschaftsID = _commonService.AktiveMeisterschaft.ID;
+                    if (intMeisterschaftsID == 0) strText = "n/a";
+
+                    Zeitbereich? objBereichAktuell = await _dbService.GetZeitbereichAsync(intMeisterschaftsID);
+                    if (objBereichAktuell == null) strText = "n/a";
+
+                    datVon = objBereichAktuell!.Von;
+
+                    if (objBereichAktuell.Bis.HasValue)
+                    {
+                        datBis = objBereichAktuell!.Bis;
+                    }
+                    else if (datVon < DateTime.Now)
+                    {
+                        datBis = DateTime.Now;
+                    }
+                    else
+                    {
+                        datBis = datVon;
+                    }
+
+                    strText = datVon.Value.ToShortDateString() + " - " + datBis.Value.ToShortDateString();
+
+                    break;
+                case 2: // Letzte Meisterschaft
+                    var intLetzteMeisterschaftsID = await _dbService.GetLetzteMeisterschaftsIDAsync();
+                    if (intLetzteMeisterschaftsID == 0) strText = "n/a";
+
+                    Zeitbereich? objBereichLast = await _dbService.GetZeitbereichAsync(intLetzteMeisterschaftsID);
+                    if (objBereichLast == null) strText = "n/a";
+
+                    datVon = objBereichLast.Von;
+                    datBis = objBereichLast.Bis;
+                    strText = datVon.Value.ToShortDateString() + " - " + datBis.Value.ToShortDateString();
+
+                    break;
+                case 3: // Zeitbereich
+                    strText = datVon.Value.ToShortDateString() + " - " + datBis.Value.ToShortDateString();
+                    break;
+                case 4: // Gesamt
+                    strText = "Gesamt";
+                    break;
+            }
+
+            vpe.Write(vpe.nLeftMargin, vpe.nBottom + 1, vpe.nRightMargin, -1, strText);
+
+            Dictionary<string, List<Statistik6TageRennenBesteMannschaft>> dict6TR =
+                await _dbService.GetStatistik6TageRennenMannschaftMitgliedAsync(intZeitbereich, datVon, datBis);
+            //Int32 intCount = dict6TR.Count;
+
+            foreach (var item in dict6TR)
+            {
+                Int32 intCount = item.Value.Count;
+
+                //Passt Tabelle noch auf Seite?
+                if (vpe.nBottomMargin - vpe.nBottom < 1 + intCount * 0.5)
+                {
+                    vpe.PageBreak();
+                }
+
+                //Kopfzeile
+                vpe.SelectFont("Arial", 12);
+                vpe.SetFontAttr(TextAlignment.Center, true, false, false, false);
+                vpe.Write(vpe.nLeftMargin, vpe.nBottom + 1, -1, -1, "Pos.");
+                vpe.SetFontAttr(TextAlignment.Left, true, false, false, false);
+                vpe.Line(vpe.nRight, vpe.nTop, vpe.nRight, vpe.nTop + 1 + intCount * 0.5);
+                vpe.Write(vpe.nRight + 0.2, vpe.nTop, -7, -1, "Mannschaft");
+                vpe.Line(vpe.nRight, vpe.nTop, vpe.nRight, vpe.nTop + 1 + intCount * 0.5);
+                vpe.SetFontAttr(TextAlignment.Center, true, false, false, false);
+                vpe.Write(vpe.nRight, vpe.nTop, -1, -1, "Anz.");
+                double dblY = vpe.nBottom;
+                vpe.Line(vpe.nRight, vpe.nTop, vpe.nRight, vpe.nTop + 1 + intCount * 0.5);
+                vpe.SetFontAttr(TextAlignment.Center, true, false, false, false);
+                vpe.SelectFont("Arial", 11);
+                for (Int32 i = 1; i <= 6; i++)
+                {
+                    vpe.Write(vpe.nRight, vpe.nTop, -1, -1, "Plz.  " + i.ToString());
+                    vpe.Line(vpe.nRight, vpe.nTop, vpe.nRight, vpe.nTop + 1 + intCount * 0.5);
+                }
+
+                vpe.Line(vpe.nLeftMargin, dblY, vpe.nRight, dblY);
+
+                //Daten
+                vpe.SelectFont("Arial", 10);
+                vpe.SetFontAttr(TextAlignment.Left, false, false, false, false);
+                for (Int32 i = 0; i < intCount; i++)
+                {
+                    vpe.SetFontAttr(TextAlignment.Center, true, false, false, false);
+                    vpe.Write(vpe.nLeftMargin, vpe.nBottom, -1, -0.5, (i + 1).ToString());
+                    vpe.SetFontAttr(TextAlignment.Left, true, false, false, false);
+                    vpe.Write(vpe.nRight + 0.2, vpe.nTop, -7, -0.5, dict6TR[item.Key][i].Mannschaft);
+                    vpe.SetFontAttr(TextAlignment.Center, true, false, false, false);
+                    vpe.Write(vpe.nRight, vpe.nTop, -1, -0.5, dict6TR[item.Key][i].Anzahl.ToString());
+                    vpe.SetFontAttr(TextAlignment.Center, true, false, false, false);
+                    for (Int32 j = 1; j <= 6; j++)
+                    {
+                        strText = string.Empty;
+                        switch (j)
+                        {
+                            case 1:
+                                if (dict6TR[item.Key][i].Eins > 0) strText = dict6TR[item.Key][i].Eins.ToString();
+                                break;
+                            case 2:
+                                if (dict6TR[item.Key][i].Zwei > 0) strText = dict6TR[item.Key][i].Zwei.ToString();
+                                break;
+                            case 3:
+                                if (dict6TR[item.Key][i].Drei > 0) strText = dict6TR[item.Key][i].Drei.ToString();
+                                break;
+                            case 4:
+                                if (dict6TR[item.Key][i].Vier > 0) strText = dict6TR[item.Key][i].Vier.ToString();
+                                break;
+                            case 5:
+                                if (dict6TR[item.Key][i].Fünf > 0) strText = dict6TR[item.Key][i].Fünf.ToString();
+                                break;
+                            case 6:
+                                if (dict6TR[item.Key][i].Sechs > 0) strText = dict6TR[item.Key][i].Sechs.ToString();
+                                break;
+                        }
+
+                        vpe.Write(vpe.nRight, vpe.nTop, -1, -0.5, strText);
+                    }
+                }
+            }
+
+            //Ende
+            vpe.CloseProgressBar();
+            vpe.Preview();
+        }
+        catch (Exception ex)
+        {
+            ViewManager.ShowErrorWindow("PrintService", "DruckStatistik6TageRennenMannschaftAsync", ex.ToString());
+        }
+    }
+
+    public async Task DruckStatistikNeunerRattenAsync(Int32 iZeitbereich, DateTime? dtVon = null,
+        DateTime? dtBis = null, string PDFFilename = "")
+    {
+        try
+        {
+            string strText = string.Empty;
+            DateTime? datVon = dtVon;
+            DateTime? datBis = dtBis;
+            Int32 intZeitbereich = 0;
+
+            StatistikNeunerRattenKoenig obj9erRatten = await _dbService.GetStatistik9erRattenAsync(intZeitbereich, datVon,
+                datBis);
+
+            //Anfang
+            VpeToPdfSharp vpe = new ();
+            vpe.FileName = "Druck_Statistik_NeunerRatten";
+            vpe.OpenDoc();
+            vpe.OpenProgressBar();
+            vpe.PageOrientation = PageOrientation.Portrait;
+            vpe.SetMargins(2,2,2,2);
+            //vpe.AutoBreakMode = AutoBreakMode.Off;
+
+            //Überschrift
+            vpe.SelectFont("Arial", 18);
+            vpe.SetFontAttr(TextAlignment.Center, true, false, false, false);
+            vpe.Write(vpe.nLeftMargin, vpe.nTopMargin, vpe.nRightMargin, -1, "Neunerkönig / Rattenorden");
+
+            //Zeitraum
+            switch (iZeitbereich)
+            {
+                case 1: // Laufende Meisterschaft
+                    var intMeisterschaftsID = _commonService.AktiveMeisterschaft.ID;
+                    if (intMeisterschaftsID == 0) strText = "n/a";
+
+                    Zeitbereich? objBereichAktuell = await _dbService.GetZeitbereichAsync(intMeisterschaftsID);
+                    if (objBereichAktuell == null) strText = "n/a";
+
+                    datVon = objBereichAktuell!.Von;
+
+                    if (objBereichAktuell.Bis.HasValue)
+                    {
+                        datBis = objBereichAktuell!.Bis;
+                    }
+                    else if (datVon < DateTime.Now)
+                    {
+                        datBis = DateTime.Now;
+                    }
+                    else
+                    {
+                        datBis = datVon;
+                    }
+
+                    strText = datVon.Value.ToShortDateString() + " - " + datBis.Value.ToShortDateString();
+
+                    break;
+                case 2: // Letzte Meisterschaft
+                    var intLetzteMeisterschaftsID = await _dbService.GetLetzteMeisterschaftsIDAsync();
+                    if (intLetzteMeisterschaftsID == 0) strText = "n/a";
+
+                    Zeitbereich? objBereichLast = await _dbService.GetZeitbereichAsync(intLetzteMeisterschaftsID);
+                    if (objBereichLast == null) strText = "n/a";
+
+                    datVon = objBereichLast.Von;
+                    datBis = objBereichLast.Bis;
+                    strText = datVon.Value.ToShortDateString() + " - " + datBis.Value.ToShortDateString();
+
+                    break;
+                case 3: // Zeitbereich
+                    strText = datVon.Value.ToShortDateString() + " - " + datBis.Value.ToShortDateString();
+                    break;
+                case 4: // Gesamt
+                    strText = "Gesamt";
+                    break;
+            }
+
+            vpe.Write(vpe.nLeftMargin, vpe.nBottom + 1, vpe.nRightMargin, -1, strText);
+
+            //Kopfzeile
+            vpe.SelectFont("Arial", 14);
+            vpe.SetFontAttr(TextAlignment.Left, true, false, false, false);
+            vpe.Write(vpe.nLeftMargin, vpe.nBottom + 1, -3, -0.7, "Spieltag");
+            vpe.Write(vpe.nRight + 1, vpe.nTop, -6, -0.7, "Neunerkönig");
+            vpe.Write(vpe.nRight + 1, vpe.nTop, -6, -0.7, "Rattenorden");
+
+            vpe.Write(vpe.nLeftMargin, vpe.nBottom, -3, -0.3, "");
+
+            //Daten
+            vpe.SelectFont("Arial", 12);
+            vpe.SetFontAttr(TextAlignment.Left, false, false, false, false);
+
+            double dblTop = vpe.nBottom;
+            double dblLeft = vpe.nLeftMargin;
+            foreach (var item in obj9erRatten.lstStatistik9erRatten)
+            {
+                //vpe.Write(vpe.nLeftMargin, vpe.nBottom, -3, vpe.nFree, item.Spieltag.ToShortDateString());
+                vpe.Write(dblLeft, dblTop, -3, -0.7, item.Spieltag.ToShortDateString());
+
+                strText = string.IsNullOrEmpty(item.Neunerkönig) ? "---" : item.Neunerkönig;
+                vpe.Write(vpe.nRight + 1, vpe.nTop, -6, -0.7, strText);
+
+                dblTop = vpe.nBottom + 0.3;
+                strText = string.IsNullOrEmpty(item.Rattenorden) ? "---" : item.Rattenorden;
+                vpe.Write(vpe.nRight + 1, vpe.nTop, -6, -0.7, strText);
+
+                if (dblTop < vpe.nBottom) dblTop = vpe.nBottom + 0.3;
+            }
+
+            //Überschrift
+            vpe.SelectFont("Arial", 18);
+            vpe.SetFontAttr(TextAlignment.Left, true, false, false, false);
+            vpe.Write(vpe.nLeftMargin, vpe.nBottom + 2, -6, -0.7, "Neunerkönig");
+            vpe.StorePos();
+
+            vpe.SelectFont("Arial", 12);
+            vpe.SetFontAttr(TextAlignment.Left, false, false, false, false);
+            if (obj9erRatten.dictNeunerkönig.Count == 0)
+            {
+                vpe.Write(vpe.nLeftMargin, vpe.nBottom, -1, -0.7, "-");
+                vpe.Write(vpe.nRight, vpe.nTop, -5, -0.7, "---");
+            }
+            else
+            {
+                foreach (KeyValuePair<string, int> item in obj9erRatten.dictNeunerkönig.OrderByDescending(o => o.Value)
+                             .ThenBy(t => t.Key))
+                {
+                    vpe.Write(vpe.nLeftMargin, vpe.nBottom, -1, -0.7, item.Value.ToString());
+                    vpe.Write(vpe.nRight, vpe.nTop, -5, -0.7, item.Key);
+                }
+            }
+
+            vpe.RestorePos();
+            vpe.SelectFont("Arial", 18);
+            vpe.SetFontAttr(TextAlignment.Left, true, false, false, false);
+            vpe.Write(vpe.nRight, vpe.nTop, -6, -0.7, "Rattenorden");
+            dblLeft = vpe.nLeft;
+
+            vpe.SelectFont("Arial", 12);
+            vpe.SetFontAttr(TextAlignment.Left, false, false, false, false);
+            if (obj9erRatten.dictRattenkönig.Count == 0)
+            {
+                vpe.Write(dblLeft, vpe.nBottom, -1, -0.7, "-");
+                vpe.Write(vpe.nRight, vpe.nTop, -5, -0.7, "---");
+            }
+            else
+            {
+                foreach (KeyValuePair<string, int> item in obj9erRatten.dictRattenkönig.OrderByDescending(o => o.Value)
+                             .ThenBy(t => t.Key))
+                {
+                    vpe.Write(dblLeft, vpe.nBottom, -1, -0.7, item.Value.ToString());
+                    vpe.Write(vpe.nRight, vpe.nTop, -5, -0.7, item.Key);
+                }
+            }
+
+            //Ende
+            vpe.CloseProgressBar();
+            vpe.Preview();
+        }
+        catch (Exception ex)
+        {
+            ViewManager.ShowErrorWindow("PrintService", "DruckStatistikNeunerRattenAsync", ex.ToString());
         }
     }
 
