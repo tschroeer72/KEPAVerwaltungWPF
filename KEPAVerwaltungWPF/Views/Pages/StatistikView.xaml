@@ -139,6 +139,16 @@
                     </StackPanel>
                 </StackPanel>
             </md:Card>
+            
+            <!--ProgressRing-->
+            <mw:ProgressRing
+                IsActive="True"
+                Visibility="{Binding IsPageBusy, Converter={StaticResource BoolToVisConverter}}"
+                VerticalAlignment="Center"
+                HorizontalAlignment="Center"
+                Foreground="{DynamicResource PrimaryBrush}"
+                Height="100" Width="100">
+            </mw:ProgressRing>
         </Grid>
     </Grid>
 </UserControl>

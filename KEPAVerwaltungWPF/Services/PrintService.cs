@@ -14,11 +14,14 @@ using PdfSharp.Drawing;
 using PdfSharp.Drawing.Layout;
 using PdfSharp.Pdf;
 using PdfSharp.Quality;
+using Font = MigraDoc.DocumentObjectModel.Font;
 
 namespace KEPAVerwaltungWPF.Services;
 
 public class PrintService(DBService _dbService, CommonService _commonService)
 {
+    private double cm = 28.35; // 1 cm in Punkten
+
     #region Vorlagen
 
     public void DruckVorlage6TageRennen(string PDFFilename = "")
@@ -32,7 +35,7 @@ public class PrintService(DBService _dbService, CommonService _commonService)
         vpe.SetMargins(2, 2, 2, 2);
 
         //Überschrift
-        vpe.SelectFont("Arial", 14);
+        vpe.SelectFont("Arial", 12);
         vpe.SetFontAttr(TextAlignment.Center, false, false, false, false);
         vpe.Write((vpe.nLeftMargin + vpe.nRightMargin) / 2 - 2, vpe.nTopMargin, -4, -1, "6 Tage Rennen");
 
@@ -119,7 +122,7 @@ public class PrintService(DBService _dbService, CommonService _commonService)
         {
             //1. Mannschaft
             vpe.SetFontAttr(TextAlignment.Center, false, false, false, false);
-            vpe.SelectFont("Arial", 14);
+            vpe.SelectFont("Arial", 12);
             vpe.Write(vpe.nLeftMargin, vpe.nTop + 0.5, -1, -1, i.ToString());
             vpe.Line(vpe.nRight, vpe.nTop - 0.5, vpe.nRight, vpe.nBottom);
 
@@ -282,7 +285,7 @@ public class PrintService(DBService _dbService, CommonService _commonService)
         vpe.SetFontAttr(TextAlignment.Center, true, false, false, false);
         vpe.Write(vpe.nLeftMargin, vpe.nTopMargin, vpe.nLeftMargin + 1.7 + AnzahlTeilnehmer * 2.4 + 3 * 0.8, -1,
             strMeisterschaft);
-        vpe.SelectFont("Arial", 14);
+        vpe.SelectFont("Arial", 12);
         vpe.Write(vpe.nLeftMargin, vpe.nBottom, vpe.nLeftMargin + 1.7 + AnzahlTeilnehmer * 2.4 + 3 * 0.8, -1,
             strMeisterschaftstyp);
 
@@ -560,7 +563,7 @@ public class PrintService(DBService _dbService, CommonService _commonService)
         //vpe.Write(vpe.nLeftMargin, vpe.nTopMargin, vpe.nLeftMargin + 1.7 + lstTeilnehmer.Count * 2.4 + 3 * 0.8, -1, "KOMBI-Meisterschaft");
         vpe.Write(vpe.nLeftMargin, vpe.nTopMargin, vpe.nLeftMargin + 1.7 + AnzahlTeilnehmer * 2.4 + 3 * 0.8, -1,
             strMeisterschaft);
-        vpe.SelectFont("Arial", 14);
+        vpe.SelectFont("Arial", 12);
         vpe.Write(vpe.nLeftMargin, vpe.nBottom, vpe.nLeftMargin + 1.7 + AnzahlTeilnehmer * 2.4 + 3 * 0.8, -1,
             strMeisterschaftstyp);
 
@@ -865,7 +868,7 @@ public class PrintService(DBService _dbService, CommonService _commonService)
             rectRechts.Y = rectRechts.Y + rectRechts.Height;
             rectRechts.Height = 2.5 * cm;
             gfx.DrawRectangle(pen, rectRechts.X, rectRechts.Y, rectRechts.Width, rectRechts.Height);
-            font = new XFont("Arial", 14);
+            font = new XFont("Arial", 12);
             tf.DrawString(" ", font, XBrushes.Black, rectRechts, XStringFormats.TopLeft);
 
             //Zeile 2
@@ -876,7 +879,7 @@ public class PrintService(DBService _dbService, CommonService _commonService)
 
             rectRechts.Y = rectRechts.Y + rectRechts.Height;
             gfx.DrawRectangle(pen, rectRechts.X, rectRechts.Y, rectRechts.Width, rectRechts.Height);
-            font = new XFont("Arial", 14);
+            font = new XFont("Arial", 12);
             tf.DrawString(" ", font, XBrushes.Black, rectRechts, XStringFormats.TopLeft);
 
             //Zeile 3
@@ -887,7 +890,7 @@ public class PrintService(DBService _dbService, CommonService _commonService)
 
             rectRechts.Y = rectRechts.Y + rectRechts.Height;
             gfx.DrawRectangle(pen, rectRechts.X, rectRechts.Y, rectRechts.Width, rectRechts.Height);
-            font = new XFont("Arial", 14);
+            font = new XFont("Arial", 12);
             tf.DrawString(" ", font, XBrushes.Black, rectRechts, XStringFormats.TopLeft);
 
             //Zeile 4
@@ -898,7 +901,7 @@ public class PrintService(DBService _dbService, CommonService _commonService)
 
             rectRechts.Y = rectRechts.Y + rectRechts.Height;
             gfx.DrawRectangle(pen, rectRechts.X, rectRechts.Y, rectRechts.Width, rectRechts.Height);
-            font = new XFont("Arial", 14);
+            font = new XFont("Arial", 12);
             tf.DrawString(" ", font, XBrushes.Black, rectRechts, XStringFormats.TopLeft);
 
             //Zeile 5
@@ -909,7 +912,7 @@ public class PrintService(DBService _dbService, CommonService _commonService)
 
             rectRechts.Y = rectRechts.Y + rectRechts.Height;
             gfx.DrawRectangle(pen, rectRechts.X, rectRechts.Y, rectRechts.Width, rectRechts.Height);
-            font = new XFont("Arial", 14);
+            font = new XFont("Arial", 12);
             tf.DrawString(" ", font, XBrushes.Black, rectRechts, XStringFormats.TopLeft);
 
             //Zeile 6
@@ -920,7 +923,7 @@ public class PrintService(DBService _dbService, CommonService _commonService)
 
             rectRechts.Y = rectRechts.Y + rectRechts.Height;
             gfx.DrawRectangle(pen, rectRechts.X, rectRechts.Y, rectRechts.Width, rectRechts.Height);
-            font = new XFont("Arial", 14);
+            font = new XFont("Arial", 12);
             tf.DrawString(" ", font, XBrushes.Black, rectRechts, XStringFormats.TopLeft);
 
             //Zeile 7
@@ -931,7 +934,7 @@ public class PrintService(DBService _dbService, CommonService _commonService)
 
             rectRechts.Y = rectRechts.Y + rectRechts.Height;
             gfx.DrawRectangle(pen, rectRechts.X, rectRechts.Y, rectRechts.Width, rectRechts.Height);
-            font = new XFont("Arial", 14);
+            font = new XFont("Arial", 12);
             tf.DrawString(" ", font, XBrushes.Black, rectRechts, XStringFormats.TopLeft);
 
             //*******************
@@ -942,10 +945,10 @@ public class PrintService(DBService _dbService, CommonService _commonService)
             gfx.DrawLine(pen, 9.5 * cm, 5 * cm, 16.8 * cm, 5.5 * cm);
             gfx.DrawLine(pen, 10.8 * cm, 8.5 * cm, 16.8 * cm, 8 * cm);
             gfx.DrawLine(pen, 12.5 * cm, 10.6 * cm, 16.8 * cm, 10.5 * cm);
-            gfx.DrawLine(pen, 14.2 * cm, 13.4 * cm, 16.8 * cm, 12.9 * cm);
+            gfx.DrawLine(pen, 12.2 * cm, 13.4 * cm, 16.8 * cm, 12.9 * cm);
             gfx.DrawLine(pen, 15.8 * cm, 15.4 * cm, 16.8 * cm, 15.4 * cm);
             gfx.DrawLine(pen, 15.6 * cm, 19 * cm, 16.8 * cm, 18 * cm);
-            gfx.DrawLine(pen, 14.5 * cm, 21.4 * cm, 16.8 * cm, 20.5 * cm);
+            gfx.DrawLine(pen, 12.5 * cm, 21.4 * cm, 16.8 * cm, 20.5 * cm);
 
             //**********
             //* Gesamt *
@@ -1104,7 +1107,7 @@ public class PrintService(DBService _dbService, CommonService _commonService)
 
         //Linke Hälfte
         //vpe.TextAlignment = TextAlignment.Center;
-        vpe.SelectFont("Arial", 14);
+        vpe.SelectFont("Arial", 12);
         vpe.SetFontAttr(TextAlignment.Center, false, false, false, false);
         vpe.Write(vpe.nLeftMargin, vpe.nTopMargin, -11.5, -0.5, "Spielverluste");
 
@@ -1147,7 +1150,7 @@ public class PrintService(DBService _dbService, CommonService _commonService)
 
         //Rechte Hälfte
         //vpe.TextAlignment = TextAlignment.Center;
-        vpe.SelectFont("Arial", 14);
+        vpe.SelectFont("Arial", 12);
         vpe.SetFontAttr(TextAlignment.Center, false, false, false, false);
         vpe.Write(vpe.nLeftMargin + (vpe.nLeftMargin + vpe.nRightMargin) / 2, vpe.nTopMargin, -11.5, -0.5,
             "Spielverluste");
@@ -1365,7 +1368,7 @@ public class PrintService(DBService _dbService, CommonService _commonService)
         string strText = string.Empty;
         DateTime? datVon = dtVon;
         DateTime? datBis = dtBis;
-       
+
         try
         {
             //Anfang
@@ -1435,7 +1438,7 @@ public class PrintService(DBService _dbService, CommonService _commonService)
             Int32 intCount = lst9er.Count;
 
             //Kopfzeile
-            vpe.SelectFont("Arial", 14);
+            vpe.SelectFont("Arial", 12);
             vpe.SetFontAttr(TextAlignment.Center, true, false, false, false);
             vpe.Write(vpe.nLeftMargin, vpe.nBottom + 1, -1.5, -1, "Pos.");
             vpe.SetFontAttr(TextAlignment.Left, true, false, false, false);
@@ -1605,7 +1608,7 @@ public class PrintService(DBService _dbService, CommonService _commonService)
             Int32 intCount = lstRatten.Count;
 
             //Kopfzeile
-            vpe.SelectFont("Arial", 14);
+            vpe.SelectFont("Arial", 12);
             vpe.SetFontAttr(TextAlignment.Center, true, false, false, false);
             vpe.Write(vpe.nLeftMargin, vpe.nBottom + 1, -1.5, -1, "Pos.");
             vpe.SetFontAttr(TextAlignment.Left, true, false, false, false);
@@ -1775,7 +1778,7 @@ public class PrintService(DBService _dbService, CommonService _commonService)
             Int32 intCount = lstPokal.Count;
 
             //Kopfzeile
-            vpe.SelectFont("Arial", 14);
+            vpe.SelectFont("Arial", 12);
             vpe.SetFontAttr(TextAlignment.Center, true, false, false, false);
             vpe.Write(vpe.nLeftMargin, vpe.nBottom + 1, -1.5, -1, "Pos.");
             vpe.SetFontAttr(TextAlignment.Left, true, false, false, false);
@@ -1914,7 +1917,7 @@ public class PrintService(DBService _dbService, CommonService _commonService)
             Int32 intCount = lstSarg.Count;
 
             //Kopfzeile
-            vpe.SelectFont("Arial", 14);
+            vpe.SelectFont("Arial", 12);
             vpe.SetFontAttr(TextAlignment.Center, true, false, false, false);
             vpe.Write(vpe.nLeftMargin, vpe.nBottom + 1, -1.5, -1, "Pos.");
             vpe.SetFontAttr(TextAlignment.Left, true, false, false, false);
@@ -2005,32 +2008,358 @@ public class PrintService(DBService _dbService, CommonService _commonService)
         }
     }
 
-    public void DruckStatistikSpielerSpieler(Int32 iZeitbereich, DateTime? dtVon = null,
+    private Table AddTableHeader(string Spielername, Table table)
+    {
+        //16 Spalten erzeugen
+        var colSpieler = table.AddColumn(4.5 * cm);
+        colSpieler.Format.Alignment = ParagraphAlignment.Left;
+        colSpieler.Format.Font = new Font("Arial", 12);
+
+        var colMeister = table.AddColumn(1.2 * cm);
+        colMeister.Format.Alignment = ParagraphAlignment.Center;
+        colMeister.Format.Font = new Font("Arial", 12);
+        colMeister = table.AddColumn(1.2 * cm);
+        colMeister.Format.Alignment = ParagraphAlignment.Center;
+        colMeister.Format.Font = new Font("Arial", 12);
+        colMeister = table.AddColumn(1.2 * cm);
+        colMeister.Format.Alignment = ParagraphAlignment.Center;
+        colMeister.Format.Font = new Font("Arial", 12);
+
+        var colBlitz = table.AddColumn(1.2 * cm);
+        colBlitz.Format.Alignment = ParagraphAlignment.Center;
+        colBlitz.Format.Font = new Font("Arial", 12);
+        colBlitz = table.AddColumn(1.2 * cm);
+        colBlitz.Format.Alignment = ParagraphAlignment.Center;
+        colBlitz.Format.Font = new Font("Arial", 12);
+        colBlitz = table.AddColumn(1.2 * cm);
+        colBlitz.Format.Alignment = ParagraphAlignment.Center;
+        colBlitz.Format.Font = new Font("Arial", 12);
+
+        var colKombi = table.AddColumn(1 * cm);
+        colKombi.Format.Alignment = ParagraphAlignment.Center;
+        colKombi.Format.Font = new Font("Arial", 12);
+        colKombi = table.AddColumn(1 * cm);
+        colKombi.Format.Alignment = ParagraphAlignment.Center;
+        colKombi.Format.Font = new Font("Arial", 12);
+        colKombi = table.AddColumn(1 * cm);
+        colKombi.Format.Alignment = ParagraphAlignment.Center;
+        colKombi.Format.Font = new Font("Arial", 12);
+        colKombi = table.AddColumn(1 * cm);
+        colKombi.Format.Alignment = ParagraphAlignment.Center;
+        colKombi.Format.Font = new Font("Arial", 12);
+        colKombi = table.AddColumn(1 * cm);
+        colKombi.Format.Alignment = ParagraphAlignment.Center;
+        colKombi.Format.Font = new Font("Arial", 12);
+        colKombi = table.AddColumn(1 * cm);
+        colKombi.Format.Alignment = ParagraphAlignment.Center;
+        colKombi.Format.Font = new Font("Arial", 12);
+        colKombi = table.AddColumn(1 * cm);
+        colKombi.Format.Alignment = ParagraphAlignment.Center;
+        colKombi.Format.Font = new Font("Arial", 12);
+        colKombi = table.AddColumn(1 * cm);
+        colKombi.Format.Alignment = ParagraphAlignment.Center;
+        colKombi.Format.Font = new Font("Arial", 12);
+        colKombi = table.AddColumn(1 * cm);
+        colKombi.Format.Alignment = ParagraphAlignment.Center;
+        colKombi.Format.Font = new Font("Arial", 12);
+
+        // Erste Zeile
+        // Spieler | Meisterschaft | Blitztunier | Kombimeisterschaft
+        var row = table.AddRow();
+        row.Shading.Color = Colors.LightGray;
+        row.HeadingFormat = true;
+        var cell = row.Cells[0];
+        cell.MergeDown = 1;
+        var para = cell.AddParagraph();
+        para.AddFormattedText(Spielername, TextFormat.Bold);
+        cell = row.Cells[1];
+        cell.MergeDown = 1;
+        para = cell.AddParagraph();
+        para.AddFormattedText("Meisterschaft", TextFormat.Bold);
+        cell.MergeRight = 2;
+        cell = row.Cells[4];
+        cell.MergeDown = 1;
+        para = cell.AddParagraph();
+        para.AddFormattedText("Blitztunier", TextFormat.Bold);
+        cell.MergeRight = 2;
+        cell = row.Cells[7];
+        para = cell.AddParagraph();
+        para.AddFormattedText("Kombimeisterschaft", TextFormat.Bold);
+        cell.MergeRight = 8;
+
+        // Zweite Zeile
+        // | | | | | |3 bis 8 | | | 5 Kugeln | | | Gesamt | | |
+        row = table.AddRow();
+        row.Shading.Color = Colors.LightGray;
+        row.HeadingFormat = true;
+        cell = row.Cells[1];
+        cell.MergeRight = 2;
+        cell = row.Cells[4];
+        cell.MergeRight = 2;
+        cell = row.Cells[7];
+        para = cell.AddParagraph();
+        para.AddFormattedText("3 bis 8", TextFormat.Bold);
+        cell.MergeRight = 2;
+        cell = row.Cells[10];
+        para = cell.AddParagraph();
+        para.AddFormattedText("5 Kugeln", TextFormat.Bold);
+        cell.MergeRight = 2;
+        cell = row.Cells[13];
+        para = cell.AddParagraph();
+        para.AddFormattedText("Gesamt", TextFormat.Bold);
+        cell.MergeRight = 2;
+
+        //dritte Zeile
+        // va. | G | U | V | G | U | V | G | U | V | G | U | V | G | U | V
+        row = table.AddRow();
+        row.Shading.Color = Colors.LightGray;
+        row.HeadingFormat = true;
+        cell = row.Cells[0];
+        cell.AddParagraph("vs.");
+        cell.Format.Alignment = ParagraphAlignment.Center;
+        cell.Format.Font = new Font("Arial", 12);
+        cell.Format.Font.Bold = true;
+        cell = row.Cells[1];
+        cell.AddParagraph("G");
+        cell.Format.Font = new Font("Arial", 12);
+        cell.Format.Font.Bold = true;
+        cell = row.Cells[2];
+        cell.AddParagraph("U");
+        cell.Format.Font = new Font("Arial", 12);
+        cell.Format.Font.Bold = true;
+        cell = row.Cells[3];
+        cell.AddParagraph("V");
+        cell.Format.Font = new Font("Arial", 12);
+        cell.Format.Font.Bold = true;
+        cell = row.Cells[4];
+        cell.AddParagraph("G");
+        cell.Format.Font = new Font("Arial", 12);
+        cell.Format.Font.Bold = true;
+        cell = row.Cells[5];
+        cell.AddParagraph("U");
+        cell.Format.Font = new Font("Arial", 12);
+        cell.Format.Font.Bold = true;
+        cell = row.Cells[6];
+        cell.AddParagraph("V");
+        cell.Format.Font = new Font("Arial", 12);
+        cell.Format.Font.Bold = true;
+        cell = row.Cells[7];
+        cell.AddParagraph("G");
+        cell.Format.Font = new Font("Arial", 12);
+        cell.Format.Font.Bold = true;
+        cell = row.Cells[8];
+        cell.AddParagraph("U");
+        cell.Format.Font = new Font("Arial", 12);
+        cell.Format.Font.Bold = true;
+        cell = row.Cells[9];
+        cell.AddParagraph("V");
+        cell.Format.Font = new Font("Arial", 12);
+        cell.Format.Font.Bold = true;
+        cell = row.Cells[10];
+        cell.AddParagraph("G");
+        cell.Format.Font = new Font("Arial", 12);
+        cell.Format.Font.Bold = true;
+        cell = row.Cells[11];
+        cell.AddParagraph("U");
+        cell.Format.Font = new Font("Arial", 12);
+        cell.Format.Font.Bold = true;
+        cell = row.Cells[12];
+        cell.AddParagraph("V");
+        cell.Format.Font = new Font("Arial", 12);
+        cell.Format.Font.Bold = true;
+        cell = row.Cells[13];
+        cell.AddParagraph("G");
+        cell.Format.Font = new Font("Arial", 12);
+        cell.Format.Font.Bold = true;
+        cell = row.Cells[14];
+        cell.AddParagraph("U");
+        cell.Format.Font = new Font("Arial", 12);
+        cell.Format.Font.Bold = true;
+        cell = row.Cells[15];
+        cell.AddParagraph("V");
+        cell.Format.Font = new Font("Arial", 12);
+        cell.Format.Font.Bold = true;
+        
+        return table;
+    }
+
+    private Table AddRows(StatistikSpielerSpieler stat, Table table)
+    {
+        var allKeys = stat.dictMeisterschaft.Keys
+            .Concat(stat.dictBlitztunier.Keys)
+            .Concat(stat.dictKombimeisterschaft.Keys).Distinct().OrderBy(key => key).ToList();
+
+        foreach (var key in allKeys)
+        {
+            var row = table.AddRow();
+            
+            //vs. Name
+            var cell = row.Cells[0];
+            cell.AddParagraph(key);
+            cell.Format.Alignment = ParagraphAlignment.Left;
+            
+            //Meisterschaft
+            cell = row.Cells[1];
+            cell.AddParagraph(stat.dictMeisterschaft.ContainsKey(key) ? stat.dictMeisterschaft[key].Gewonnen.ToString() : "-");
+            cell = row.Cells[2];
+            cell.AddParagraph(stat.dictMeisterschaft.ContainsKey(key) ? stat.dictMeisterschaft[key].Unentschieden.ToString() : "-");
+            cell = row.Cells[3];
+            cell.AddParagraph(stat.dictMeisterschaft.ContainsKey(key) ? stat.dictMeisterschaft[key].Verloren.ToString() : "-");
+            
+            //Blitztunier
+            cell = row.Cells[4];
+            cell.AddParagraph(stat.dictBlitztunier.ContainsKey(key) ? stat.dictBlitztunier[key].Gewonnen.ToString() : "-");
+            cell = row.Cells[5];
+            cell.AddParagraph(stat.dictBlitztunier.ContainsKey(key) ? stat.dictBlitztunier[key].Unentschieden.ToString() : "-");
+            cell = row.Cells[6];
+            cell.AddParagraph(stat.dictBlitztunier.ContainsKey(key) ? stat.dictBlitztunier[key].Verloren.ToString() : "-");
+            
+            //Kombimeisterschaft
+            cell = row.Cells[7];
+            cell.AddParagraph(stat.dictKombimeisterschaft.ContainsKey(key) ? stat.dictKombimeisterschaft[key].dict3bis8.ContainsKey(key) ? stat.dictKombimeisterschaft[key].dict3bis8[key].Gewonnen.ToString() : "-" : "-");
+            cell = row.Cells[8];
+            cell.AddParagraph(stat.dictKombimeisterschaft.ContainsKey(key) ? stat.dictKombimeisterschaft[key].dict3bis8.ContainsKey(key) ? stat.dictKombimeisterschaft[key].dict3bis8[key].Unentschieden.ToString() : "-" : "-");
+            cell = row.Cells[9];
+            cell.AddParagraph(stat.dictKombimeisterschaft.ContainsKey(key) ? stat.dictKombimeisterschaft[key].dict3bis8.ContainsKey(key) ? stat.dictKombimeisterschaft[key].dict3bis8[key].Verloren.ToString() : "-" : "-");
+
+            cell = row.Cells[10];
+            cell.AddParagraph(stat.dictKombimeisterschaft.ContainsKey(key) ? stat.dictKombimeisterschaft[key].dict5Kugeln.ContainsKey(key) ? stat.dictKombimeisterschaft[key].dict5Kugeln[key].Gewonnen.ToString() : "-" : "-");
+            cell = row.Cells[11];
+            cell.AddParagraph(stat.dictKombimeisterschaft.ContainsKey(key) ? stat.dictKombimeisterschaft[key].dict5Kugeln.ContainsKey(key) ? stat.dictKombimeisterschaft[key].dict5Kugeln[key].Unentschieden.ToString() : "-" : "-");
+            cell = row.Cells[12];
+            cell.AddParagraph(stat.dictKombimeisterschaft.ContainsKey(key) ? stat.dictKombimeisterschaft[key].dict5Kugeln.ContainsKey(key) ? stat.dictKombimeisterschaft[key].dict5Kugeln[key].Verloren.ToString() : "-" : "-");
+
+            cell = row.Cells[13];
+            cell.AddParagraph(stat.dictKombimeisterschaft.ContainsKey(key) ? stat.dictKombimeisterschaft[key].dictGesamt.ContainsKey(key) ? stat.dictKombimeisterschaft[key].dictGesamt[key].Gewonnen.ToString() : "-" : "-");
+            cell = row.Cells[14];
+            cell.AddParagraph(stat.dictKombimeisterschaft.ContainsKey(key) ? stat.dictKombimeisterschaft[key].dictGesamt.ContainsKey(key) ? stat.dictKombimeisterschaft[key].dictGesamt[key].Unentschieden.ToString() : "-" : "-");
+            cell = row.Cells[15];
+            cell.AddParagraph(stat.dictKombimeisterschaft.ContainsKey(key) ? stat.dictKombimeisterschaft[key].dictGesamt.ContainsKey(key) ? stat.dictKombimeisterschaft[key].dictGesamt[key].Verloren.ToString() : "-" : "-");
+        }
+        
+        return table;
+    }
+
+    public async Task DruckStatistikSpielerSpielerAsync(Int32 iZeitbereich, DateTime? dtVon = null,
         DateTime? dtBis = null, string PDFFilename = "")
     {
+        string strText = string.Empty;
+        DateTime? datVon = dtVon;
+        DateTime? datBis = dtBis;
+        Int32 intZeitbereich = 0;
+        
         try
         {
+            //Daten holen    
+            //Zeitraum
+            switch (iZeitbereich)
+            {
+                case 1: // Laufende Meisterschaft
+                    var intMeisterschaftsID = _commonService.AktiveMeisterschaft.ID;
+                    if (intMeisterschaftsID == 0) strText = "n/a";
+
+                    Zeitbereich? objBereichAktuell = await _dbService.GetZeitbereichAsync(intMeisterschaftsID);
+                    if (objBereichAktuell == null) strText = "n/a";
+
+                    datVon = objBereichAktuell!.Von;
+
+                    if (objBereichAktuell.Bis.HasValue)
+                    {
+                        datBis = objBereichAktuell!.Bis;
+                    }
+                    else if (datVon < DateTime.Now)
+                    {
+                        datBis = DateTime.Now;
+                    }
+                    else
+                    {
+                        datBis = datVon;
+                    }
+
+                    strText = datVon.Value.ToShortDateString() + " - " + datBis.Value.ToShortDateString();
+
+                    break;
+                case 2: // Letzte Meisterschaft
+                    var intLetzteMeisterschaftsID = await _dbService.GetLetzteMeisterschaftsIDAsync();
+                    if (intLetzteMeisterschaftsID == 0) strText = "n/a";
+
+                    Zeitbereich? objBereichLast = await _dbService.GetZeitbereichAsync(intLetzteMeisterschaftsID);
+                    if (objBereichLast == null) strText = "n/a";
+
+                    datVon = objBereichLast.Von;
+                    datBis = objBereichLast.Bis;
+                    strText = datVon.Value.ToShortDateString() + " - " + datBis.Value.ToShortDateString();
+
+                    break;
+                case 3: // Zeitbereich
+                    strText = datVon.Value.ToShortDateString() + " - " + datBis.Value.ToShortDateString();
+                    break;
+                case 4: // Gesamt
+                    strText = "Gesamt";
+                    break;
+            }
+            
+            List<StatistikSpielerSpieler> lstSpielerSpieler =
+                await _dbService.GetStatistikSpielerSpielerAsync(iZeitbereich, dtVon, dtBis);
+
             //Anfang
-            VpeToPdfSharp vpe = new();
-            vpe.FileName = "Druck_Statistik_Spieler_Spieler";
-            vpe.OpenDoc();
-            vpe.OpenProgressBar();
-            vpe.PageOrientation = PageOrientation.Portrait;
-            vpe.SetMargins(2, 2, 2, 2);
+            Document document = new Document();
+            Section section = document.AddSection();
+            section.PageSetup.Orientation = Orientation.Landscape;
+            section.PageSetup.LeftMargin = Unit.FromCentimeter(2);
+            section.PageSetup.TopMargin = Unit.FromCentimeter(1);
+            section.PageSetup.RightMargin = Unit.FromCentimeter(2);
+            section.PageSetup.BottomMargin = Unit.FromCentimeter(2);
 
             //Überschrift
-            vpe.SelectFont("Arial", 18);
-            vpe.SetFontAttr(TextAlignment.Center, true, false, false, false);
-            vpe.Write(vpe.nLeftMargin, vpe.nTopMargin, vpe.nRightMargin, -1, "Spieler / Spieler");
+            Paragraph title = section.AddParagraph("Spieler / Spieler", "Heading1");
+            title.Format.Font = new Font("Arial", 20);
+            title.Format.Font.Bold = true;
+            title.Format.SpaceAfter = 0.5 * cm;
+            title.Format.Alignment = ParagraphAlignment.Center;
+            
+            Paragraph subTitle = section.AddParagraph(strText, "Heading1");
+            subTitle.Format.Font = new Font("Arial", 20);
+            subTitle.Format.Font.Bold = true;
+            subTitle.Format.SpaceAfter = 1 * cm;
+            subTitle.Format.Alignment = ParagraphAlignment.Center;
+            
+            foreach (var sp in lstSpielerSpieler.OrderBy(o => o.Spielername).ToList())
+            {
+                //Tabelle erzeugen
+                Table table = new Table
+                {
+                    Borders =
+                    {
+                        Width = 0.75
+                    }
+                };
 
+                //Tabellenheader erzeugen
+                table = AddTableHeader(sp.Spielername, table);
+                table = AddRows(sp, table);
+
+                //Tabelle zum Dokument hinzufügen
+                document.LastSection.AddParagraph();
+                document.LastSection.Add(table);
+            }
 
             //Ende
-            vpe.CloseProgressBar();
+            PdfDocumentRenderer pdfRenderer = new PdfDocumentRenderer();
+            pdfRenderer.Document = document;
+            pdfRenderer.RenderDocument();
 
             if (PDFFilename == string.Empty)
-                vpe.Preview();
+            {
+                var filename = PdfFileUtility.GetTempPdfFullFileName("Statistik_Spieler_Spieler");
+                pdfRenderer.PdfDocument.Save(filename);
+                // ...and start a viewer.
+                PdfFileUtility.ShowDocument(filename);
+            }
             else
-                vpe.PDFExport(PDFFilename);
+            {
+                pdfRenderer.PdfDocument.Save(PDFFilename);
+            }
         }
         catch (Exception ex)
         {
@@ -2117,7 +2446,7 @@ public class PrintService(DBService _dbService, CommonService _commonService)
             Int32 intCount = lst6TR.Count;
 
             //Kopfzeile
-            vpe.SelectFont("Arial", 14);
+            vpe.SelectFont("Arial", 12);
             vpe.SetFontAttr(TextAlignment.Center, true, false, false, false);
             vpe.Write(vpe.nLeftMargin, vpe.nBottom + 1, -1.5, -1, "Pos.");
             vpe.SetFontAttr(TextAlignment.Left, true, false, false, false);
@@ -2504,7 +2833,11 @@ public class PrintService(DBService _dbService, CommonService _commonService)
 
             //Ende
             vpe.CloseProgressBar();
-            vpe.Preview();
+
+            if (PDFFilename == string.Empty)
+                vpe.Preview();
+            else
+                vpe.PDFExport(PDFFilename);
         }
         catch (Exception ex)
         {
@@ -2522,16 +2855,17 @@ public class PrintService(DBService _dbService, CommonService _commonService)
             DateTime? datBis = dtBis;
             Int32 intZeitbereich = 0;
 
-            StatistikNeunerRattenKoenig obj9erRatten = await _dbService.GetStatistik9erRattenAsync(intZeitbereich, datVon,
+            StatistikNeunerRattenKoenig obj9erRatten = await _dbService.GetStatistik9erRattenAsync(intZeitbereich,
+                datVon,
                 datBis);
 
             //Anfang
-            VpeToPdfSharp vpe = new ();
+            VpeToPdfSharp vpe = new();
             vpe.FileName = "Druck_Statistik_NeunerRatten";
             vpe.OpenDoc();
             vpe.OpenProgressBar();
             vpe.PageOrientation = PageOrientation.Portrait;
-            vpe.SetMargins(2,2,2,2);
+            vpe.SetMargins(2, 2, 2, 2);
             //vpe.AutoBreakMode = AutoBreakMode.Off;
 
             //Überschrift
@@ -2590,7 +2924,7 @@ public class PrintService(DBService _dbService, CommonService _commonService)
             vpe.Write(vpe.nLeftMargin, vpe.nBottom + 1, vpe.nRightMargin, -1, strText);
 
             //Kopfzeile
-            vpe.SelectFont("Arial", 14);
+            vpe.SelectFont("Arial", 12);
             vpe.SetFontAttr(TextAlignment.Left, true, false, false, false);
             vpe.Write(vpe.nLeftMargin, vpe.nBottom + 1, -3, -0.7, "Spieltag");
             vpe.Write(vpe.nRight + 1, vpe.nTop, -6, -0.7, "Neunerkönig");
@@ -2667,7 +3001,11 @@ public class PrintService(DBService _dbService, CommonService _commonService)
 
             //Ende
             vpe.CloseProgressBar();
-            vpe.Preview();
+
+            if (PDFFilename == string.Empty)
+                vpe.Preview();
+            else
+                vpe.PDFExport(PDFFilename);
         }
         catch (Exception ex)
         {
@@ -2798,7 +3136,7 @@ public class PrintService(DBService _dbService, CommonService _commonService)
             //vpe.Write(vpe.nLeftMargin, vpe.nTopMargin, vpe.nLeftMargin + 1.7 + lstTeilnehmer.Count * 2.4 + 3 * 0.8, -1, "KOMBI-Meisterschaft");
             vpe.Write(vpe.nLeftMargin, vpe.nTopMargin, vpe.nLeftMargin + 1.7 + lstTeilnehmer.Count * 2.4 + 3 * 0.8, -1,
                 strMeisterschaft);
-            vpe.SelectFont("Arial", 14);
+            vpe.SelectFont("Arial", 12);
             vpe.Write(vpe.nLeftMargin, vpe.nBottom, vpe.nLeftMargin + 1.7 + lstTeilnehmer.Count * 2.4 + 3 * 0.8, -1,
                 strMeisterschaftstyp);
 
@@ -3385,7 +3723,7 @@ public class PrintService(DBService _dbService, CommonService _commonService)
             //vpe.Write(vpe.nLeftMargin, vpe.nTopMargin, vpe.nLeftMargin + 1.7 + lstTeilnehmer.Count * 2.4 + 3 * 0.8, -1, "KOMBI-Meisterschaft");
             vpe.Write(vpe.nLeftMargin, vpe.nTopMargin, vpe.nLeftMargin + 1.7 + lstTeilnehmer.Count * 2.4 + 3 * 0.8, -1,
                 strMeisterschaft);
-            vpe.SelectFont("Arial", 14);
+            vpe.SelectFont("Arial", 12);
             vpe.Write(vpe.nLeftMargin, vpe.nBottom, vpe.nLeftMargin + 1.7 + lstTeilnehmer.Count * 2.4 + 3 * 0.8, -1,
                 strMeisterschaftstyp);
 
@@ -3741,7 +4079,7 @@ public class PrintService(DBService _dbService, CommonService _commonService)
             //vpe.Write(vpe.nLeftMargin, vpe.nTopMargin, vpe.nLeftMargin + 1.7 + lstTeilnehmer.Count * 2.4 + 3 * 0.8, -1, "KOMBI-Meisterschaft");
             vpe.Write(vpe.nLeftMargin, vpe.nTopMargin, vpe.nLeftMargin + 1.7 + lstTeilnehmer.Count * 2.4 + 3 * 0.8, -1,
                 strMeisterschaft);
-            vpe.SelectFont("Arial", 14);
+            vpe.SelectFont("Arial", 12);
             vpe.Write(vpe.nLeftMargin, vpe.nBottom, vpe.nLeftMargin + 1.7 + lstTeilnehmer.Count * 2.4 + 3 * 0.8, -1,
                 strMeisterschaftstyp);
 
@@ -4002,7 +4340,7 @@ public class PrintService(DBService _dbService, CommonService _commonService)
         vpe.PageOrientation = PageOrientation.Portrait;
         vpe.SetMargins(2, 2, 2, 2);
 
-        vpe.SelectFont("Arial", 14);
+        vpe.SelectFont("Arial", 12);
         vpe.SetFontAttr(TextAlignment.Center, true, false, false, false);
 
         // if (dblHeightHeader == 0)

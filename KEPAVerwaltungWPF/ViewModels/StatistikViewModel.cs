@@ -45,23 +45,40 @@ public partial class StatistikViewModel : BaseViewModel
         if (ZeitLetzteMeisterschaft) intZeitbereich = 2;
         if (ZeitBereich) intZeitbereich = 3;
         if (ZeitGesamt) intZeitbereich = 4;
-        
-        if (AuswahlNeuner) await _printService.DruckStatistikNeunerAsync(intZeitbereich, ZeitBereichVon, ZeitBereichBis);
-        
-        if (AuswahlRatten) await _printService.DruckStatistikRattenAsync(intZeitbereich, ZeitBereichVon, ZeitBereichBis);
-        
-        if (AuswahlPokal) await _printService.DruckStatistikPokalAsync(intZeitbereich, ZeitBereichVon, ZeitBereichBis);
-        
-        if (AuswahlSarg) await _printService.DruckStatistikSargAsync(intZeitbereich, ZeitBereichVon, ZeitBereichBis);
-        
-        if (AuswahlErgebnisseSpielerSpieler) _printService.DruckStatistikSpielerSpieler(intZeitbereich, ZeitBereichVon, ZeitBereichBis);
-        
-        if (AuswahlPlatzierung6TageRennen) await _printService.DruckStatistik6TageRennenPlatzAsync(intZeitbereich, ZeitBereichVon, ZeitBereichBis);
-        
-        if (AuswahlBesteMannschaft6TageRennen) await _printService.DruckStatistik6TageRennenBesteAsync(intZeitbereich, ZeitBereichVon, ZeitBereichBis);
-        
-        if (AuswahlMannschaftMitglied6TageRennen) await _printService.DruckStatistik6TageRennenMannschaftAsync(intZeitbereich, ZeitBereichVon, ZeitBereichBis);
-        
-        if (AuswahlNeunerkoenigRattenorden) await _printService.DruckStatistikNeunerRattenAsync(intZeitbereich, ZeitBereichVon, ZeitBereichBis);
+
+        if (IsPageNotBusy)
+        {
+            IsPageBusy = true;
+            
+            if (AuswahlNeuner)
+                await _printService.DruckStatistikNeunerAsync(intZeitbereich, ZeitBereichVon, ZeitBereichBis);
+
+            if (AuswahlRatten)
+                await _printService.DruckStatistikRattenAsync(intZeitbereich, ZeitBereichVon, ZeitBereichBis);
+
+            if (AuswahlPokal)
+                await _printService.DruckStatistikPokalAsync(intZeitbereich, ZeitBereichVon, ZeitBereichBis);
+
+            if (AuswahlSarg)
+                await _printService.DruckStatistikSargAsync(intZeitbereich, ZeitBereichVon, ZeitBereichBis);
+
+            if (AuswahlErgebnisseSpielerSpieler)
+                _printService.DruckStatistikSpielerSpielerAsync(intZeitbereich, ZeitBereichVon, ZeitBereichBis);
+
+            if (AuswahlPlatzierung6TageRennen)
+                await _printService.DruckStatistik6TageRennenPlatzAsync(intZeitbereich, ZeitBereichVon, ZeitBereichBis);
+
+            if (AuswahlBesteMannschaft6TageRennen)
+                await _printService.DruckStatistik6TageRennenBesteAsync(intZeitbereich, ZeitBereichVon, ZeitBereichBis);
+
+            if (AuswahlMannschaftMitglied6TageRennen)
+                await _printService.DruckStatistik6TageRennenMannschaftAsync(intZeitbereich, ZeitBereichVon,
+                    ZeitBereichBis);
+
+            if (AuswahlNeunerkoenigRattenorden)
+                await _printService.DruckStatistikNeunerRattenAsync(intZeitbereich, ZeitBereichVon, ZeitBereichBis);
+            
+            IsPageBusy = false;
+        }
     }
 }

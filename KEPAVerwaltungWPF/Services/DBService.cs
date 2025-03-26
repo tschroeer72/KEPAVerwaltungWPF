@@ -5832,7 +5832,6 @@ public class DBService(
                 }
             }
 
-
             lst9erRattenSortiert = lst9erRatten.OrderBy(o => o.Spieltag).ToList();
         }
         catch (Exception ex)
@@ -5846,5 +5845,328 @@ public class DBService(
         return objNRK;
     }
 
+    public async Task<List<StatistikSpielerSpieler>> GetStatistikSpielerSpielerAsync(Int32 iZeitbereich, DateTime? dtVon = null,
+        DateTime? dtBis = null)
+    {
+        List<StatistikSpielerSpieler> lstStat = new();
+        Dictionary<string, StatistikGUV> dicMeister = new Dictionary<string, StatistikGUV>();
+        Dictionary<string, StatistikGUV> dicBlitz = new Dictionary<string, StatistikGUV>();
+
+        var mitgliederList = await _localDbContext.TblMitglieders
+            .Select(s => new { s.Id, s.Nachname, s.Vorname })
+            .ToListAsync();
+
+        foreach (var mitglied in mitgliederList)
+        {
+            StatistikSpielerSpieler objStat = new();
+            objStat.Spielername = mitglied.Nachname + ", " + mitglied.Vorname;
+
+            var meister = await _localDbContext.VwErgebnisMeisterschafts
+                .Where(w => w.SpielerId1 == mitglied.Id || w.SpielerId2 == mitglied.Id)
+                .ToListAsync();
+
+            var blitz = await _localDbContext.VwErgebnisKurztuniers
+                .Where(w => w.SpielerId1 == mitglied.Id || w.SpielerId2 == mitglied.Id)
+                .ToListAsync();
+
+            var kombi = await _localDbContext.VwErgebnisKombimeisterschafts
+                .Where(w => w.SpielerId1 == mitglied.Id || w.SpielerId2 == mitglied.Id)
+                .ToListAsync();
+
+            foreach (var itemMeister in meister)
+            {
+                if (mitglied.Id != itemMeister.SpielerId1)
+                {
+                    string strKeySpieler1 = itemMeister.Spieler1Nachname + ", " + itemMeister.Spieler1Vorname;
+
+                    if (objStat.dictMeisterschaft.ContainsKey(strKeySpieler1))
+                    {
+                        if (itemMeister.HolzSpieler1 > itemMeister.HolzSpieler2)
+                            objStat.dictMeisterschaft[strKeySpieler1].Gewonnen++;
+
+                        if (itemMeister.HolzSpieler1 == itemMeister.HolzSpieler2)
+                            objStat.dictMeisterschaft[strKeySpieler1].Unentschieden++;
+
+                        if (itemMeister.HolzSpieler1 < itemMeister.HolzSpieler2)
+                            objStat.dictMeisterschaft[strKeySpieler1].Verloren++;
+                    }
+                    else
+                    {
+                        StatistikGUV objGUV = new();
+                        objStat.dictMeisterschaft.Add(strKeySpieler1, objGUV);
+
+                        if (itemMeister.HolzSpieler1 > itemMeister.HolzSpieler2)
+                            objStat.dictMeisterschaft[strKeySpieler1].Gewonnen++;
+
+                        if (itemMeister.HolzSpieler1 == itemMeister.HolzSpieler2)
+                            objStat.dictMeisterschaft[strKeySpieler1].Unentschieden++;
+
+                        if (itemMeister.HolzSpieler1 < itemMeister.HolzSpieler2)
+                            objStat.dictMeisterschaft[strKeySpieler1].Verloren++;
+                    }
+                }
+
+                if (mitglied.Id != itemMeister.SpielerId2)
+                {
+                    string strKeySpieler2 = itemMeister.Spieler2Nachname + ", " + itemMeister.Spieler2Vorname;
+
+                    if (objStat.dictMeisterschaft.ContainsKey(strKeySpieler2))
+                    {
+                        if (itemMeister.HolzSpieler1 < itemMeister.HolzSpieler2)
+                            objStat.dictMeisterschaft[strKeySpieler2].Gewonnen++;
+
+                        if (itemMeister.HolzSpieler1 == itemMeister.HolzSpieler2)
+                            objStat.dictMeisterschaft[strKeySpieler2].Unentschieden++;
+
+                        if (itemMeister.HolzSpieler1 > itemMeister.HolzSpieler2)
+                            objStat.dictMeisterschaft[strKeySpieler2].Verloren++;
+                    }
+                    else
+                    {
+                        StatistikGUV objGUV = new();
+                        objStat.dictMeisterschaft.Add(strKeySpieler2, objGUV);
+
+                        if (itemMeister.HolzSpieler1 < itemMeister.HolzSpieler2)
+                            objStat.dictMeisterschaft[strKeySpieler2].Gewonnen++;
+
+                        if (itemMeister.HolzSpieler1 == itemMeister.HolzSpieler2)
+                            objStat.dictMeisterschaft[strKeySpieler2].Unentschieden++;
+
+                        if (itemMeister.HolzSpieler1 > itemMeister.HolzSpieler2)
+                            objStat.dictMeisterschaft[strKeySpieler2].Verloren++;
+                    }
+                }
+            }
+
+            foreach (var itemBlitz in blitz)
+            {
+                if (mitglied.Id != itemBlitz.SpielerId1)
+                {
+                    string strKeySpieler1 = itemBlitz.Spieler1Nachname + ", " + itemBlitz.Spieler1Vorname;
+
+                    if (objStat.dictBlitztunier.ContainsKey(strKeySpieler1))
+                    {
+                        if (itemBlitz.PunkteSpieler1 == 2)
+                            objStat.dictBlitztunier[strKeySpieler1].Gewonnen++;
+
+                        if (itemBlitz.PunkteSpieler1 == 1)
+                            objStat.dictBlitztunier[strKeySpieler1].Unentschieden++;
+
+                        if (itemBlitz.PunkteSpieler1 == 0)
+                            objStat.dictBlitztunier[strKeySpieler1].Verloren++;
+                    }
+                    else
+                    {
+                        StatistikGUV objGUV = new();
+                        objStat.dictBlitztunier.Add(strKeySpieler1, objGUV);
+
+                        if (itemBlitz.PunkteSpieler1 == 2)
+                            objStat.dictBlitztunier[strKeySpieler1].Gewonnen++;
+
+                        if (itemBlitz.PunkteSpieler1 == 1)
+                            objStat.dictBlitztunier[strKeySpieler1].Unentschieden++;
+
+                        if (itemBlitz.PunkteSpieler1 == 0)
+                            objStat.dictBlitztunier[strKeySpieler1].Verloren++;
+                    }
+                }
+
+                if (mitglied.Id != itemBlitz.SpielerId2)
+                {
+                    string strKeySpieler2 = itemBlitz.Spieler2Nachname + ", " + itemBlitz.Spieler2Vorname;
+
+                    if (objStat.dictBlitztunier.ContainsKey(strKeySpieler2))
+                    {
+                        if (itemBlitz.PunkteSpieler2 == 2)
+                            objStat.dictBlitztunier[strKeySpieler2].Gewonnen++;
+
+                        if (itemBlitz.PunkteSpieler2 == 1)
+                            objStat.dictBlitztunier[strKeySpieler2].Unentschieden++;
+
+                        if (itemBlitz.PunkteSpieler2 == 0)
+                            objStat.dictBlitztunier[strKeySpieler2].Verloren++;
+                    }
+                    else
+                    {
+                        StatistikGUV objGUV = new();
+                        objStat.dictBlitztunier.Add(strKeySpieler2, objGUV);
+
+                        if (itemBlitz.PunkteSpieler2 == 2)
+                            objStat.dictBlitztunier[strKeySpieler2].Gewonnen++;
+
+                        if (itemBlitz.PunkteSpieler2 == 1)
+                            objStat.dictBlitztunier[strKeySpieler2].Unentschieden++;
+
+                        if (itemBlitz.PunkteSpieler2 == 0)
+                            objStat.dictBlitztunier[strKeySpieler2].Verloren++;
+                    }
+                }
+            }
+
+            foreach (var itemKombi in kombi)
+            {
+                if (mitglied.Id != itemKombi.SpielerId1)
+                {
+                    string strKeySpieler1 = itemKombi.Spieler1Nachname + ", " + itemKombi.Spieler1Vorname;
+
+                    if (objStat.dictKombimeisterschaft.ContainsKey(strKeySpieler1))
+                    {
+                        //3 bis 8
+                        if(itemKombi.Spieler1Punkte3bis8 > itemKombi.Spieler2Punkte3bis8)
+                            objStat.dictKombimeisterschaft[strKeySpieler1].dict3bis8[strKeySpieler1].Gewonnen++;
+                        
+                        if(itemKombi.Spieler1Punkte3bis8 == itemKombi.Spieler2Punkte3bis8)
+                            objStat.dictKombimeisterschaft[strKeySpieler1].dict3bis8[strKeySpieler1].Unentschieden++;
+                        
+                        if(itemKombi.Spieler1Punkte3bis8 < itemKombi.Spieler2Punkte3bis8)
+                            objStat.dictKombimeisterschaft[strKeySpieler1].dict3bis8[strKeySpieler1].Verloren++;
+                        
+                        //5 Kugeln
+                        if(itemKombi.Spieler1Punkte5Kugeln > itemKombi.Spieler2Punkte5Kugeln)
+                            objStat.dictKombimeisterschaft[strKeySpieler1].dict5Kugeln[strKeySpieler1].Gewonnen++;
+                        
+                        if(itemKombi.Spieler1Punkte5Kugeln == itemKombi.Spieler2Punkte5Kugeln)
+                            objStat.dictKombimeisterschaft[strKeySpieler1].dict5Kugeln[strKeySpieler1].Unentschieden++;
+                        
+                        if(itemKombi.Spieler1Punkte5Kugeln < itemKombi.Spieler2Punkte5Kugeln)
+                            objStat.dictKombimeisterschaft[strKeySpieler1].dict5Kugeln[strKeySpieler1].Verloren++;
+                        
+                        //Gesamt
+                        if(itemKombi.Spieler1Punkte3bis8 + itemKombi.Spieler1Punkte5Kugeln > itemKombi.Spieler2Punkte3bis8 + itemKombi.Spieler2Punkte5Kugeln)
+                            objStat.dictKombimeisterschaft[strKeySpieler1].dictGesamt[strKeySpieler1].Gewonnen++;
+                        
+                        if(itemKombi.Spieler1Punkte3bis8 + itemKombi.Spieler1Punkte5Kugeln == itemKombi.Spieler2Punkte3bis8 + itemKombi.Spieler2Punkte5Kugeln)
+                            objStat.dictKombimeisterschaft[strKeySpieler1].dictGesamt[strKeySpieler1].Unentschieden++;
+                        
+                        if(itemKombi.Spieler1Punkte3bis8 + itemKombi.Spieler1Punkte5Kugeln < itemKombi.Spieler2Punkte3bis8 + itemKombi.Spieler2Punkte5Kugeln)
+                            objStat.dictKombimeisterschaft[strKeySpieler1].dictGesamt[strKeySpieler1].Verloren++;
+                    }
+                    else
+                    {
+                        StatistikSpielerKombimeisterschaft objStatKombi = new();
+                        objStat.dictKombimeisterschaft.Add(strKeySpieler1, objStatKombi);
+                        
+                        StatistikGUV objGUV = new();
+                        objStat.dictKombimeisterschaft[strKeySpieler1].dict3bis8.Add(strKeySpieler1, objGUV);
+                        objStat.dictKombimeisterschaft[strKeySpieler1].dict5Kugeln.Add(strKeySpieler1, objGUV);
+                        objStat.dictKombimeisterschaft[strKeySpieler1].dictGesamt.Add(strKeySpieler1, objGUV);
+                        
+                        //3 bis 8
+                        if (itemKombi.Spieler1Punkte3bis8 > itemKombi.Spieler2Punkte3bis8)
+                            objStat.dictKombimeisterschaft[strKeySpieler1].dict3bis8[strKeySpieler1].Gewonnen++;
+                        
+                        if(itemKombi.Spieler1Punkte3bis8 == itemKombi.Spieler2Punkte3bis8)
+                            objStat.dictKombimeisterschaft[strKeySpieler1].dict3bis8[strKeySpieler1].Unentschieden++;
+                        
+                        if(itemKombi.Spieler1Punkte3bis8 < itemKombi.Spieler2Punkte3bis8)
+                            objStat.dictKombimeisterschaft[strKeySpieler1].dict3bis8[strKeySpieler1].Verloren++;
+                        
+                        //5 Kugeln
+                        if(itemKombi.Spieler1Punkte5Kugeln > itemKombi.Spieler2Punkte5Kugeln)
+                            objStat.dictKombimeisterschaft[strKeySpieler1].dict5Kugeln[strKeySpieler1].Gewonnen++;
+                        
+                        if(itemKombi.Spieler1Punkte5Kugeln == itemKombi.Spieler2Punkte5Kugeln)
+                            objStat.dictKombimeisterschaft[strKeySpieler1].dict5Kugeln[strKeySpieler1].Unentschieden++;
+                        
+                        if(itemKombi.Spieler1Punkte5Kugeln < itemKombi.Spieler2Punkte5Kugeln)
+                            objStat.dictKombimeisterschaft[strKeySpieler1].dict5Kugeln[strKeySpieler1].Verloren++;
+                        
+                        //Gesamt
+                        if(itemKombi.Spieler1Punkte3bis8 + itemKombi.Spieler1Punkte5Kugeln > itemKombi.Spieler2Punkte3bis8 + itemKombi.Spieler2Punkte5Kugeln)
+                            objStat.dictKombimeisterschaft[strKeySpieler1].dictGesamt[strKeySpieler1].Gewonnen++;
+                        
+                        if(itemKombi.Spieler1Punkte3bis8 + itemKombi.Spieler1Punkte5Kugeln == itemKombi.Spieler2Punkte3bis8 + itemKombi.Spieler2Punkte5Kugeln)
+                            objStat.dictKombimeisterschaft[strKeySpieler1].dictGesamt[strKeySpieler1].Unentschieden++;
+                        
+                        if(itemKombi.Spieler1Punkte3bis8 + itemKombi.Spieler1Punkte5Kugeln < itemKombi.Spieler2Punkte3bis8 + itemKombi.Spieler2Punkte5Kugeln)
+                            objStat.dictKombimeisterschaft[strKeySpieler1].dictGesamt[strKeySpieler1].Verloren++;
+                    }
+                }
+                
+                if (mitglied.Id != itemKombi.SpielerId2)
+                {
+                    string strKeySpieler2 = itemKombi.Spieler2Nachname + ", " + itemKombi.Spieler2Vorname;
+                    
+                    if (objStat.dictKombimeisterschaft.ContainsKey(strKeySpieler2))
+                    {
+                        //3 bis 8
+                        if(itemKombi.Spieler1Punkte3bis8 > itemKombi.Spieler2Punkte3bis8)
+                            objStat.dictKombimeisterschaft[strKeySpieler2].dict3bis8[strKeySpieler2].Gewonnen++;
+                        
+                        if(itemKombi.Spieler1Punkte3bis8 == itemKombi.Spieler2Punkte3bis8)
+                            objStat.dictKombimeisterschaft[strKeySpieler2].dict3bis8[strKeySpieler2].Unentschieden++;
+                        
+                        if(itemKombi.Spieler1Punkte3bis8 < itemKombi.Spieler2Punkte3bis8)
+                            objStat.dictKombimeisterschaft[strKeySpieler2].dict3bis8[strKeySpieler2].Verloren++;
+                        
+                        //5 Kugeln
+                        if(itemKombi.Spieler1Punkte5Kugeln > itemKombi.Spieler2Punkte5Kugeln)
+                            objStat.dictKombimeisterschaft[strKeySpieler2].dict5Kugeln[strKeySpieler2].Gewonnen++;
+                        
+                        if(itemKombi.Spieler1Punkte5Kugeln == itemKombi.Spieler2Punkte5Kugeln)
+                            objStat.dictKombimeisterschaft[strKeySpieler2].dict5Kugeln[strKeySpieler2].Unentschieden++;
+                        
+                        if(itemKombi.Spieler1Punkte5Kugeln < itemKombi.Spieler2Punkte5Kugeln)
+                            objStat.dictKombimeisterschaft[strKeySpieler2].dict5Kugeln[strKeySpieler2].Verloren++;
+                        
+                        //Gesamt
+                        if(itemKombi.Spieler1Punkte3bis8 + itemKombi.Spieler1Punkte5Kugeln > itemKombi.Spieler2Punkte3bis8 + itemKombi.Spieler2Punkte5Kugeln)
+                            objStat.dictKombimeisterschaft[strKeySpieler2].dictGesamt[strKeySpieler2].Gewonnen++;
+                        
+                        if(itemKombi.Spieler1Punkte3bis8 + itemKombi.Spieler1Punkte5Kugeln == itemKombi.Spieler2Punkte3bis8 + itemKombi.Spieler2Punkte5Kugeln)
+                            objStat.dictKombimeisterschaft[strKeySpieler2].dictGesamt[strKeySpieler2].Unentschieden++;
+                        
+                        if(itemKombi.Spieler1Punkte3bis8 + itemKombi.Spieler1Punkte5Kugeln < itemKombi.Spieler2Punkte3bis8 + itemKombi.Spieler2Punkte5Kugeln)
+                            objStat.dictKombimeisterschaft[strKeySpieler2].dictGesamt[strKeySpieler2].Verloren++;
+                    }
+                    else
+                    {
+                        StatistikSpielerKombimeisterschaft objStatKombi = new();
+                        objStat.dictKombimeisterschaft.Add(strKeySpieler2, objStatKombi);
+                        
+                        StatistikGUV objGUV = new();
+                        objStat.dictKombimeisterschaft[strKeySpieler2].dict3bis8.Add(strKeySpieler2, objGUV);
+                        objStat.dictKombimeisterschaft[strKeySpieler2].dict5Kugeln.Add(strKeySpieler2, objGUV);
+                        objStat.dictKombimeisterschaft[strKeySpieler2].dictGesamt.Add(strKeySpieler2, objGUV);
+                        
+                        //3 bis 8
+                        if(itemKombi.Spieler1Punkte3bis8 > itemKombi.Spieler2Punkte3bis8)
+                            objStat.dictKombimeisterschaft[strKeySpieler2].dict3bis8[strKeySpieler2].Gewonnen++;
+                        
+                        if(itemKombi.Spieler1Punkte3bis8 == itemKombi.Spieler2Punkte3bis8)
+                            objStat.dictKombimeisterschaft[strKeySpieler2].dict3bis8[strKeySpieler2].Unentschieden++;
+                        
+                        if(itemKombi.Spieler1Punkte3bis8 < itemKombi.Spieler2Punkte3bis8)
+                            objStat.dictKombimeisterschaft[strKeySpieler2].dict3bis8[strKeySpieler2].Verloren++;
+                        
+                        //5 Kugeln
+                        if(itemKombi.Spieler1Punkte5Kugeln > itemKombi.Spieler2Punkte5Kugeln)
+                            objStat.dictKombimeisterschaft[strKeySpieler2].dict5Kugeln[strKeySpieler2].Gewonnen++;
+                        
+                        if(itemKombi.Spieler1Punkte5Kugeln == itemKombi.Spieler2Punkte5Kugeln)
+                            objStat.dictKombimeisterschaft[strKeySpieler2].dict5Kugeln[strKeySpieler2].Unentschieden++;
+                        
+                        if(itemKombi.Spieler1Punkte5Kugeln < itemKombi.Spieler2Punkte5Kugeln)
+                            objStat.dictKombimeisterschaft[strKeySpieler2].dict5Kugeln[strKeySpieler2].Verloren++;
+                        
+                        //Gesamt
+                        if(itemKombi.Spieler1Punkte3bis8 + itemKombi.Spieler1Punkte5Kugeln > itemKombi.Spieler2Punkte3bis8 + itemKombi.Spieler2Punkte5Kugeln)
+                            objStat.dictKombimeisterschaft[strKeySpieler2].dictGesamt[strKeySpieler2].Gewonnen++;
+                        
+                        if(itemKombi.Spieler1Punkte3bis8 + itemKombi.Spieler1Punkte5Kugeln == itemKombi.Spieler2Punkte3bis8 + itemKombi.Spieler2Punkte5Kugeln)
+                            objStat.dictKombimeisterschaft[strKeySpieler2].dictGesamt[strKeySpieler2].Unentschieden++;
+                        
+                        if(itemKombi.Spieler1Punkte3bis8 + itemKombi.Spieler1Punkte5Kugeln < itemKombi.Spieler2Punkte3bis8 + itemKombi.Spieler2Punkte5Kugeln)
+                            objStat.dictKombimeisterschaft[strKeySpieler2].dictGesamt[strKeySpieler2].Verloren++;
+                    }
+                }
+            }
+            
+            lstStat.Add(objStat);
+        }
+
+        return lstStat;
+    }
+    
     #endregion
 }
