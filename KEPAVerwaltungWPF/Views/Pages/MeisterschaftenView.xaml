@@ -61,6 +61,7 @@
                                    Margin="0 0 0 5"
                                    Style="{StaticResource CardHeaderStyle}"/>
                             <DataGrid x:Name="dgMeisterschaften"
+                                      IsReadOnly="True"
                                       ItemsSource="{Binding Meisterschaften}">
                                 <DataGrid.Columns>
                                     <DataGridTextColumn Header="ID" Binding="{Binding ID}" Visibility="Collapsed" />
@@ -169,6 +170,7 @@
                                     <StackPanel Margin="10 10">
                                         <Label Content="Aktive Mitglieder"/>
                                         <DataGrid x:Name="dgAktiveMitglieder"
+                                                  IsReadOnly="True"
                                                   ItemsSource="{Binding AktiveMitglieder}"
                                                   AllowDrop="True"
                                                   DragEnter="DataGrid_DragEnter"
@@ -186,6 +188,7 @@
                                         
                                         <Label Content="Aktive Spieler" Margin="0 20 0 0"/>
                                         <DataGrid x:Name="dgAktiveSpieler"
+                                                  IsReadOnly="True"
                                                   ItemsSource="{Binding AktiveTeilnehmer}"
                                                   AllowDrop="True"
                                                   DragEnter="DataGrid_DragEnter"

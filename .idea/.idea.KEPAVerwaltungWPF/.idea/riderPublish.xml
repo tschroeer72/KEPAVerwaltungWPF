@@ -4,6 +4,9 @@
     <option name="locations">
       <list>
         <option value="$PROJECT_DIR$/../../../KEPAPublish" />
+        <option value="$PROJECT_DIR$/../../KEPARelease" />
+        <option value="$PROJECT_DIR$/../KEPAVerwaltungPublish" />
+        <option value="$PROJECT_DIR$/../KEPAVerwaltungPublish/Publish" />
       </list>
     </option>
   </component>

@@ -1,14 +1,25 @@
 ﻿using System.Diagnostics;
 using System.IO;
+using System.Net;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Forms;
 using System.Windows.Input;
 using KEPAVerwaltungWPF.Enums;
+using KEPAVerwaltungWPF.Helper;
 using KEPAVerwaltungWPF.Services;
 using KEPAVerwaltungWPF.ViewModels;
 using KEPAVerwaltungWPF.Views.Pages;
 using MahApps.Metro.Controls;
+using NetSparkleUpdater;
+using NetSparkleUpdater.Enums;
+using NetSparkleUpdater.SignatureVerifiers;
+using NetSparkleUpdater.UI.WPF;
 using PdfSharp.Quality;
+using Application = System.Windows.Application;
+using KeyEventArgs = System.Windows.Input.KeyEventArgs;
+using MessageBox = System.Windows.MessageBox;
+using RadioButton = System.Windows.Controls.RadioButton;
 
 namespace KEPAVerwaltungWPF.Views.Windows;
 
@@ -17,6 +28,8 @@ namespace KEPAVerwaltungWPF.Views.Windows;
 /// </summary>
 public partial class MainWindow : MetroWindow
 {
+    private SparkleUpdater _sparkle;
+
     public MainWindowModel MainViewModel { get; }
 
     public MainWindow(MainWindowModel mainViewModel)
@@ -25,8 +38,10 @@ public partial class MainWindow : MetroWindow
         MainViewModel = mainViewModel;
         DataContext = MainViewModel;
         MainViewModel.InitBaseViewModelDelegateAndEvents();
+
     }
     
+ 
     private void OpenPageOnMain(object sender, RoutedEventArgs e)
     {
         if (sender is RadioButton objButton)
@@ -180,6 +195,36 @@ public partial class MainWindow : MetroWindow
                 break;
         }
         EnableDisableZoom(MainViewModel.ZoomActive);
+        
+        //var iconPath = "pack://application:,,,/KEPAVerwaltungWPF;component/Resources/bowling_pins.ico";
+        var icon = ImageHelper.GetApplicationIcon();
+        
+        // on your main thread...
+        // _sparkle = new SparkleUpdater(
+        //     "https://kegelgruppe-kepa.de/verwaltung/appcast.xml", // link to your app cast file - change extension to .json if using json
+        //     new Ed25519Checker(SecurityMode.Strict, // security mode -- use .Unsafe to ignore all signature checking (NOT recommended!!)
+        //         "j1R6KPS6H/rxQ3R815tfoYOaJ2PT30rMor+avyYq3Z8=") // your base 64 public key
+        // )
+        // {
+        //     UIFactory = new NetSparkleUpdater.UI.WPF.UIFactory(), // or null, or choose some other UI factory, or build your own IUIFactory implementation!
+        //     RelaunchAfterUpdate = true, // set to true if needed
+        // };
+        // _sparkle.LogWriter = new LogWriter(LogWriterOutputMode.Console);
+        // _sparkle.CheckForUpdatesAtUserRequest();
+        //_sparkle.StartLoop(true); // will auto-check for updates
+        
+        
+        _sparkle = new SparkleUpdater(
+            "https://kegelgruppe-kepa.de/verwaltung/appcast.xml", // link to your app cast file - change extension to .json if using json
+            new Ed25519Checker(SecurityMode.Unsafe) // your base 64 public key
+        )
+        {
+            //UIFactory = new NetSparkleUpdater.UI.WPF.UIFactory(icon), // or null, or choose some other UI factory, or build your own IUIFactory implementation!
+            UIFactory = new CustomUIFactory(),
+            RelaunchAfterUpdate = true, // set to true if needed
+        };
+        _sparkle.LogWriter = new LogWriter(LogWriterOutputMode.Console);
+        _sparkle.CheckForUpdatesAtUserRequest();
         
         ViewManager.ShowPageOnMainView<HomeView>();
     }

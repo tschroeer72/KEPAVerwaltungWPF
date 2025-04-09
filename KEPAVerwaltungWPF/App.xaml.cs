@@ -16,6 +16,7 @@ using KEPAVerwaltungWPF.Views.Windows;
 using Microsoft.EntityFrameworkCore;
 using PdfSharp.Quality;
 using SplashScreen = KEPAVerwaltungWPF.Views.Windows.SplashScreen;
+using KEPAVerwaltungWPF.Helper;
 
 namespace KEPAVerwaltungWPF;
 
@@ -53,8 +54,13 @@ public partial class App : Application
                 }
             }
     }
+    
     protected override async void OnStartup(StartupEventArgs e)
     {
+       
+        
+        DatabaseInitializer.EnsureDatabaseCopied();
+
         var mainView = _ServiceProvider.GetService<MainWindow>();
         if(mainView == null)
         {
@@ -98,9 +104,14 @@ public partial class App : Application
         services.AddSingleton<DBService>();
         services.AddSingleton<CommonService>();
         services.AddSingleton<PrintService>();
-        
+
         // DbContexts
-        var localDbConnectionString = ConfigurationManager.ConnectionStrings["LocalDB"].ConnectionString;
+        string localDbPath = Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+            "KEPAVerwaltung",
+            "KEPAVerwaltung.mdf"
+        );
+        var localDbConnectionString = ConfigurationManager.ConnectionStrings["LocalDB"].ConnectionString.Replace("[DB]", localDbPath);
         services.AddDbContext<LocalDbContext>(options => options.UseSqlServer(localDbConnectionString));
 
         var webDbConnectionString = ConfigurationManager.ConnectionStrings["WebDB"].ConnectionString;

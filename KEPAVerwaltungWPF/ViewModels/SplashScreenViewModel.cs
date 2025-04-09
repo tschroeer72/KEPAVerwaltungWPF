@@ -90,7 +90,7 @@ public partial class SplashScreenViewModel : BaseViewModel
     public async Task InitializeAsync()
     {
         ProgramVersion = Assembly.GetExecutingAssembly().GetName().Version.ToString();
-        Copyright = "(c) 2025 by Thorsten Schröer";
+        Copyright = $"(c) {DateTime.Now.Year} by Thorsten Schröer";
 
         // object[] attributes = Assembly.GetExecutingAssembly()
         //     .GetCustomAttributes(typeof(AssemblyCopyrightAttribute), false);

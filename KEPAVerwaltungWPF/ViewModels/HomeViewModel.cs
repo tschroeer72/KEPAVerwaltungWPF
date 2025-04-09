@@ -1,4 +1,6 @@
-﻿using CommunityToolkit.Mvvm.Input;
+﻿using System.Reflection;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using KEPAVerwaltungWPF.Models.Local;
 using KEPAVerwaltungWPF.Services;
 using KEPAVerwaltungWPF.Views;
@@ -22,8 +24,14 @@ public partial class HomeViewModel : BaseViewModel
         {
             //Datenbankabfrage
             //await _dbService.UpdateLocalDBAsync();
+            
+            ProgramVersion = Assembly.GetExecutingAssembly().GetName().Version.ToString();
+            Copyright = "(c) 2025 by Thorsten Schröer";
         }
         
         IsViewModelLoaded = true;
     }
+    
+    [ObservableProperty] private string programVersion = default;
+    [ObservableProperty] private string copyright = default;
 }

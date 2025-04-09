@@ -7,7 +7,6 @@ using MigraDoc.DocumentObjectModel;
 using MigraDoc.DocumentObjectModel.Tables;
 using MigraDoc.Rendering;
 using PdfSharp.Quality;
-using QRCoder;
 using Orientation = MigraDoc.DocumentObjectModel.Orientation;
 
 namespace KEPAVerwaltungWPF.Views.Pages;

@@ -273,6 +273,8 @@
                                              VerticalContentAlignment="Top">
                                 <Grid Margin="0 10">
                                     <DataGrid x:Name="dgErgebnisse"
+                                              IsReadOnly="True"
+                                              SelectionMode="Single"
                                               ItemsSource="{Binding StatistikSpielerErgebnisse}">
                                         <DataGrid.Columns>
                                             <DataGridTextColumn Header="Spieltag" Binding="{Binding Spieltag, StringFormat=\{0:dd.MM.yyyy\}}" MinWidth="130" Width="*"/>
@@ -296,6 +298,7 @@
                                              VerticalContentAlignment="Top">
                                 <Grid Margin="0 10">
                                     <DataGrid x:Name="dgStatistik"
+                                              IsReadOnly="True"
                                               ItemsSource="{Binding StatistikSpieler}">
                                         <DataGrid.Columns>
                                             <DataGridTextColumn Header="HolzMeisterSumme" Binding="{Binding HolzMeisterSumme}" MinWidth="220" Width="*"/>
@@ -373,7 +376,7 @@
                             <Button x:Name="BtnDrucken"
                                     Margin="8,4,8,8"
                                     HorizontalAlignment="Left"
-                                    Content="Drucken"
+                                    Content="Druckvorschau"
                                     IsEnabled="{Binding BtnDruckenEnabled, UpdateSourceTrigger=PropertyChanged}"
                                     Click="BtnDrucken_OnClick">
                             </Button>
@@ -383,8 +386,10 @@
                                       Foreground="{DynamicResource PrimaryBrush}">
                                 <StackPanel Orientation="Horizontal">
                                     <CheckBox Content="Ergebnisse" 
+                                              Margin="10"
                                               IsChecked="{Binding DruckErgebnisse}" />
                                     <CheckBox Content="Statistik" 
+                                              Margin="5 10"
                                               IsChecked="{Binding DruckStatistik}" />
                                 </StackPanel>
                             </GroupBox>

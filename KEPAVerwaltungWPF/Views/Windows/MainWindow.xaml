@@ -42,6 +42,12 @@
                        VerticalAlignment="Center"
                        FontSize="28" FontFamily="Forte">
             </TextBlock>
+            <TextBlock Text="{Binding ProgramVersion}"
+                       Margin="10 4"
+                       VerticalAlignment="Bottom"
+                       FontSize="14"
+                       FontFamily="Arial">
+            </TextBlock>
         </mw:WindowCommands>
     </mw:MetroWindow.LeftWindowCommands>
 
