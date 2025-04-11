@@ -323,13 +323,30 @@ public class DBService(
 
     private async Task<List<Models.Web.TblDbchangeLog>> getDifferentRecordsAsync()
     {
-        var localDBChanges = await _localDbContext.TblDbchangeLogs.Where(w => w.Tablename != "init").ToListAsync();
-        var webDBChanges = await _webDbContext.TblDbchangeLogs.Where(w => w.Tablename != "init").ToListAsync();
+        // var localDBChanges = await _localDbContext.TblDbchangeLogs.Where(w => w.Tablename != "init").ToListAsync();
+        // var webDBChanges = await _webDbContext.TblDbchangeLogs.Where(w => w.Tablename != "init").ToListAsync();
+        //
+        // var differences = webDBChanges
+        //     .Where(w => !localDBChanges.Any(w2 => w2.Tablename == "init" && w2.Zeitstempel == w.Zeitstempel))
+        //     .ToList();
 
+        // Lade alle relevanten Einträge aus der lokalen und der Web-Datenbank
+        var localDBChanges = await _localDbContext.TblDbchangeLogs
+            .Where(w => w.Tablename != "init")
+            .ToListAsync();
+
+        var webDBChanges = await _webDbContext.TblDbchangeLogs
+            .Where(w => w.Tablename != "init")
+            .ToListAsync();
+
+        // Finde die Unterschiede: Einträge, die in der Web-Datenbank sind, aber nicht in der lokalen Datenbank
         var differences = webDBChanges
-            .Where(w => !localDBChanges.Any(w2 => w2.Tablename == "init" && w2.Zeitstempel == w.Zeitstempel))
+            .Where(webEntry => !localDBChanges.Any(localEntry =>
+                localEntry.Tablename == webEntry.Tablename &&
+                localEntry.Zeitstempel == webEntry.Zeitstempel &&
+                localEntry.Command == webEntry.Command))
             .ToList();
-
+        
         return differences;
     }
 
