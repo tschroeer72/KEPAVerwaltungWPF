@@ -1002,6 +1002,8 @@ public class PrintService(DBService _dbService, CommonService _commonService)
         vpe.Line(vpe.nRight, vpe.nBottom, vpe.nRight + 3, vpe.nBottom);
 
         //Zahlbeträge Überschift
+        
+        vpe.SetFontAttr(TextAlignment.Left, false, false, false, false);
         vpe.Write(vpe.nLeftMargin, vpe.nBottom + 0.6, -3, -1.2, "Name");
         vpe.PenStyle = PenStyle.Solid;
         vpe.Line(vpe.nRight, vpe.nTop, vpe.nRight, vpe.nBottomMargin);
@@ -1011,6 +1013,9 @@ public class PrintService(DBService _dbService, CommonService _commonService)
         vpe.Write(vpe.nLeft, vpe.nBottom, -1.8, -0.5, "EUR");
         vpe.Line(vpe.nRight, vpe.nTop - 0.5, vpe.nRight, vpe.nBottomMargin);
         vpe.Write(vpe.nRight, vpe.nTop, -1.6, -0.5, "Beitrag");
+        vpe.Write(vpe.nLeft, vpe.nBottom, -1.6, -0.5, "EUR");
+        vpe.Line(vpe.nRight, vpe.nTop - 0.5, vpe.nRight, vpe.nBottomMargin);
+        vpe.Write(vpe.nRight, vpe.nTop, -1.6, -0.5, "Bahnmiete");
         vpe.Write(vpe.nLeft, vpe.nBottom, -1.6, -0.5, "EUR");
         vpe.Line(vpe.nRight, vpe.nTop - 0.5, vpe.nRight, vpe.nBottomMargin);
         vpe.Write(vpe.nRight, vpe.nTop, -1.6, -0.5, "6 Tg. Ren.");
@@ -1043,17 +1048,23 @@ public class PrintService(DBService _dbService, CommonService _commonService)
 
         //Zeilen
         vpe.SelectFont("Arial", 12);
-        vpe.SetFontAttr(TextAlignment.Center, false, false, false, false);
+        double startY = vpe.nBottom;
+        double availableHeight = vpe.nBottomMargin - startY;
+        double lineHeight = availableHeight / 17;
+
         for (Int32 i = 0; i < 17; i++)
         {
-            vpe.Write(vpe.nLeftMargin + 3 + 1.8, vpe.nBottom + 0.2, -1.6, -0.65, "10,-");
-            vpe.Line(vpe.nLeftMargin, vpe.nBottom, vpe.nLeftMargin + 3 + 1.8 + 9 * 1.6, vpe.nBottom);
+            vpe.SetFontAttr(TextAlignment.Left, false, false, false, false);
+            vpe.Write(vpe.nLeftMargin, startY + i * lineHeight, -3, -lineHeight, ""); // Platzhalter für Name (Linksbündig)
+            vpe.SetFontAttr(TextAlignment.Center, false, false, false, false);
+            vpe.Write(vpe.nLeftMargin + 3 + 1.8, startY + i * lineHeight, -1.6, -lineHeight, "10,-");
+            vpe.Line(vpe.nLeftMargin, startY + (i + 1) * lineHeight, vpe.nLeftMargin + 3 + 1.8 + 10 * 1.6, startY + (i + 1) * lineHeight);
         }
 
         //Abrechnung
         vpe.SelectFont("Arial", 18);
         vpe.SetFontAttr(TextAlignment.Center, false, false, false, false);
-        vpe.Write(vpe.nLeftMargin + 3 + 1.8 + 10 * 1.6, vpe.nTopMargin + 5, -6, -1,
+        vpe.Write(vpe.nLeftMargin + 3 + 1.8 + 11 * 1.6, vpe.nTopMargin + 5, -6, -1,
             "Abrechnung");
 
         vpe.SelectFont("Arial", 10);
@@ -1062,23 +1073,23 @@ public class PrintService(DBService _dbService, CommonService _commonService)
         vpe.Write(vpe.nRightMargin - 1.5, vpe.nTop, -1.5, -0.6, "EURO");
         vpe.Line(vpe.nRightMargin - 1.5, vpe.nBottom, vpe.nRightMargin, vpe.nBottom);
         vpe.SetFontAttr(TextAlignment.Left, false, false, false, false);
-        vpe.Write(vpe.nLeftMargin + 3 + 1.8 + 9 * 1.6 + 0.2, vpe.nBottom + 0.3, -5, -1, "Anfangsbestand");
-        vpe.Line(vpe.nLeftMargin + 3 + 1.8 + 9 * 1.6 + 0.2, vpe.nBottom, vpe.nRightMargin, vpe.nBottom);
-        vpe.Line(vpe.nLeftMargin + 3 + 1.8 + 9 * 1.6 + 0.2, vpe.nBottom + 0.8, vpe.nRightMargin, vpe.nBottom + 0.8);
-        vpe.Write(vpe.nLeftMargin + 3 + 1.8 + 9 * 1.6 + 0.2, vpe.nBottom + 0.3, -5, -1, "plus Einnahmen");
-        vpe.Line(vpe.nLeftMargin + 3 + 1.8 + 9 * 1.6 + 0.2, vpe.nBottom, vpe.nRightMargin, vpe.nBottom);
-        vpe.Write(vpe.nLeftMargin + 3 + 1.8 + 9 * 1.6 + 0.2, vpe.nBottom + 0.3, -5, -1, "Zwischensumme");
-        vpe.Line(vpe.nLeftMargin + 3 + 1.8 + 9 * 1.6 + 0.2, vpe.nBottom, vpe.nRightMargin, vpe.nBottom);
-        vpe.Write(vpe.nLeftMargin + 3 + 1.8 + 9 * 1.6 + 0.2, vpe.nBottom + 0.3, -5, -1, "minus Ausgaben");
-        vpe.Line(vpe.nLeftMargin + 3 + 1.8 + 9 * 1.6 + 0.2, vpe.nBottom, vpe.nRightMargin, vpe.nBottom);
+        vpe.Write(vpe.nLeftMargin + 3 + 1.8 + 10 * 1.6 + 0.2, vpe.nBottom + 0.3, -5, -1, "Anfangsbestand");
+        vpe.Line(vpe.nLeftMargin + 3 + 1.8 + 10 * 1.6 + 0.2, vpe.nBottom, vpe.nRightMargin, vpe.nBottom);
+        vpe.Line(vpe.nLeftMargin + 3 + 1.8 + 10 * 1.6 + 0.2, vpe.nBottom + 0.8, vpe.nRightMargin, vpe.nBottom + 0.8);
+        vpe.Write(vpe.nLeftMargin + 3 + 1.8 + 10 * 1.6 + 0.2, vpe.nBottom + 0.3, -5, -1, "plus Einnahmen");
+        vpe.Line(vpe.nLeftMargin + 3 + 1.8 + 10 * 1.6 + 0.2, vpe.nBottom, vpe.nRightMargin, vpe.nBottom);
+        vpe.Write(vpe.nLeftMargin + 3 + 1.8 + 10 * 1.6 + 0.2, vpe.nBottom + 0.3, -5, -1, "Zwischensumme");
+        vpe.Line(vpe.nLeftMargin + 3 + 1.8 + 10 * 1.6 + 0.2, vpe.nBottom, vpe.nRightMargin, vpe.nBottom);
+        vpe.Write(vpe.nLeftMargin + 3 + 1.8 + 10 * 1.6 + 0.2, vpe.nBottom + 0.3, -5, -1, "minus Ausgaben");
+        vpe.Line(vpe.nLeftMargin + 3 + 1.8 + 10 * 1.6 + 0.2, vpe.nBottom, vpe.nRightMargin, vpe.nBottom);
 
-        vpe.Line(vpe.nLeftMargin + 3 + 1.8 + 9 * 1.6 + 0.2, vpe.nBottom + 0.8, vpe.nRightMargin, vpe.nBottom + 0.8);
-        vpe.Line(vpe.nLeftMargin + 3 + 1.8 + 9 * 1.6 + 0.2, vpe.nBottom + 0.8, vpe.nRightMargin, vpe.nBottom + 0.8);
-        vpe.Line(vpe.nLeftMargin + 3 + 1.8 + 9 * 1.6 + 0.2, vpe.nBottom + 0.8, vpe.nRightMargin, vpe.nBottom + 0.8);
-        vpe.Line(vpe.nLeftMargin + 3 + 1.8 + 9 * 1.6 + 0.2, vpe.nBottom + 0.8, vpe.nRightMargin, vpe.nBottom + 0.8);
+        vpe.Line(vpe.nLeftMargin + 3 + 1.8 + 10 * 1.6 + 0.2, vpe.nBottom + 0.8, vpe.nRightMargin, vpe.nBottom + 0.8);
+        vpe.Line(vpe.nLeftMargin + 3 + 1.8 + 10 * 1.6 + 0.2, vpe.nBottom + 0.8, vpe.nRightMargin, vpe.nBottom + 0.8);
+        vpe.Line(vpe.nLeftMargin + 3 + 1.8 + 10 * 1.6 + 0.2, vpe.nBottom + 0.8, vpe.nRightMargin, vpe.nBottom + 0.8);
+        vpe.Line(vpe.nLeftMargin + 3 + 1.8 + 10 * 1.6 + 0.2, vpe.nBottom + 0.8, vpe.nRightMargin, vpe.nBottom + 0.8);
 
-        vpe.Write(vpe.nLeftMargin + 3 + 1.8 + 9 * 1.6 + 0.2, vpe.nBottom + 0.3, -5, -1, "Bestand am");
-        vpe.Line(vpe.nLeftMargin + 3 + 1.8 + 9 * 1.6 + 0.2, vpe.nBottom, vpe.nRightMargin, vpe.nBottom);
+        vpe.Write(vpe.nLeftMargin + 3 + 1.8 + 10 * 1.6 + 0.2, vpe.nBottom + 0.3, -5, -1, "Bestand am");
+        vpe.Line(vpe.nLeftMargin + 3 + 1.8 + 10 * 1.6 + 0.2, vpe.nBottom, vpe.nRightMargin, vpe.nBottom);
 
         //Ende
         vpe.CloseProgressBar();
@@ -1119,7 +1130,7 @@ public class PrintService(DBService _dbService, CommonService _commonService)
         vpe.PenStyle = PenStyle.Solid;
 
         vpe.SetFontAttr(TextAlignment.Left, false, false, false, false);
-        vpe.Write(vpe.nLeftMargin, vpe.nBottom + 1, -4, -0.8, "Name");
+        vpe.Write(vpe.nLeftMargin, vpe.nBottom + 1, -2.5, -0.8, "Name");
         vpe.StorePos();
         vpe.Line(vpe.nLeftMargin, vpe.nBottom + 0.5, vpe.nLeftMargin + 11.5, vpe.nBottom + 0.5);
         vpe.RestorePos();
@@ -1129,6 +1140,8 @@ public class PrintService(DBService _dbService, CommonService _commonService)
         vpe.Write(vpe.nRight, vpe.nTop, -1.5, -0.8, "6 Tg. R.");
         vpe.Line(vpe.nRight, vpe.nTop, vpe.nRight, vpe.nBottomMargin);
         vpe.Write(vpe.nRight, vpe.nTop, -1.5, -0.8, "Neun");
+        vpe.Line(vpe.nRight, vpe.nTop, vpe.nRight, vpe.nBottomMargin);
+        vpe.Write(vpe.nRight, vpe.nTop, -1.5, -0.8, "Kranz 8");
         vpe.Line(vpe.nRight, vpe.nTop, vpe.nRight, vpe.nBottomMargin);
         vpe.Write(vpe.nRight, vpe.nTop, -1.5, -0.8, "Ratten");
         vpe.Line(vpe.nRight, vpe.nTop, vpe.nRight, vpe.nBottomMargin);
@@ -1164,7 +1177,7 @@ public class PrintService(DBService _dbService, CommonService _commonService)
         vpe.PenStyle = PenStyle.Solid;
 
         vpe.SetFontAttr(TextAlignment.Left, false, false, false, false);
-        vpe.Write(vpe.nLeftMargin + (vpe.nLeftMargin + vpe.nRightMargin) / 2, vpe.nBottom + 1, -4, -0.8, "Name");
+        vpe.Write(vpe.nLeftMargin + (vpe.nLeftMargin + vpe.nRightMargin) / 2, vpe.nBottom + 1, -2.5, -0.8, "Name");
         vpe.StorePos();
         vpe.Line(vpe.nLeftMargin + (vpe.nLeftMargin + vpe.nRightMargin) / 2, vpe.nBottom + 0.5,
             vpe.nLeftMargin + (vpe.nLeftMargin + vpe.nRightMargin) / 2 + 11.5,
@@ -1176,6 +1189,8 @@ public class PrintService(DBService _dbService, CommonService _commonService)
         vpe.Write(vpe.nRight, vpe.nTop, -1.5, -0.8, "6 Tg. R.");
         vpe.Line(vpe.nRight, vpe.nTop, vpe.nRight, vpe.nBottomMargin);
         vpe.Write(vpe.nRight, vpe.nTop, -1.5, -0.8, "Neun");
+        vpe.Line(vpe.nRight, vpe.nTop, vpe.nRight, vpe.nBottomMargin);
+        vpe.Write(vpe.nRight, vpe.nTop, -1.5, -0.8, "Kranz 8");
         vpe.Line(vpe.nRight, vpe.nTop, vpe.nRight, vpe.nBottomMargin);
         vpe.Write(vpe.nRight, vpe.nTop, -1.5, -0.8, "Ratten");
         vpe.Line(vpe.nRight, vpe.nTop, vpe.nRight, vpe.nBottomMargin);

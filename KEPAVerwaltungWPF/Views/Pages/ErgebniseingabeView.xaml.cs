@@ -29,6 +29,13 @@ public partial class ErgebniseingabeView : UserControl
 
     private void DataGrid_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
     {
+        if (ErgebniseingabeViewModel.SelectedSpiel == string.Empty)
+        {
+            ErgebniseingabeViewModel.DelShowMainInfoFlyout.Invoke("Bitte zuerst ein Spiel auswählen.", true);
+            
+            return;
+        }
+        
         if (sender is DataGrid dataGridL && dataGridL.Name == "dgAktiveMitglieder" &&
             dataGridL.SelectedItem != null)
         {

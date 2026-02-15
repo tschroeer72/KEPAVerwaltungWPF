@@ -11,9 +11,9 @@
     </AssemblyOriginatorKeyFile>
     <Company>Thorsten Schröer</Company>
     <Product>KEPA 1958 Verwaltung</Product>
-    <AssemblyVersion>1.0.0</AssemblyVersion>
-    <Version>1.0.0</Version>
-    <FileVersion>1.0.0</FileVersion>
+    <AssemblyVersion>1.0.2</AssemblyVersion>
+    <Version>1.0.2</Version>
+    <FileVersion>1.0.2</FileVersion>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
   </PropertyGroup>
@@ -38,7 +38,7 @@
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.0" />
     <PackageReference Include="Microsoft.Xaml.Behaviors.Wpf" Version="1.1.135" />
     <PackageReference Include="NetSparkleUpdater.UI.WPF" Version="3.0.2" />
-    <PackageReference Include="PDFsharp-MigraDoc-GDI" Version="6.1.1" />
+    <PackageReference Include="PDFsharp-MigraDoc-GDI" Version="6.2.4" />
     <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="8.0.3" />
     <PackageReference Include="Pomelo.EntityFrameworkCore.MySql.Design" Version="1.1.2" />
   </ItemGroup>

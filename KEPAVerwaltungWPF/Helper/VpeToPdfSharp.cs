@@ -54,6 +54,7 @@ public class VpeToPdfSharp
     // Aktuelle Schrift und Formatierung
     public XFont CurrentFont;
     public XStringFormat StringFormat;
+    public XParagraphAlignment ParagraphAlignment = XParagraphAlignment.Left;
 
     public PageOrientation PageOrientation
     {
@@ -131,12 +132,15 @@ public class VpeToPdfSharp
         {
             case TextAlignment.Left:
                 StringFormat.Alignment = XStringAlignment.Near;
+                ParagraphAlignment = XParagraphAlignment.Left;
                 break;
             case TextAlignment.Center:
                 StringFormat.Alignment = XStringAlignment.Center;
+                ParagraphAlignment = XParagraphAlignment.Center;
                 break;
             case TextAlignment.Right:
                 StringFormat.Alignment = XStringAlignment.Far;
+                ParagraphAlignment = XParagraphAlignment.Right;
                 break;
         }
     }
@@ -161,9 +165,13 @@ public class VpeToPdfSharp
         double height = (h < 0) ? Math.Abs(h) * cm : h * cm;
 
         XRect rect = new XRect(X, Y, width, height);
-        XTextFormatter tf = new XTextFormatter(Gfx);
-        //Gfx.DrawString(text, CurrentFont, XBrushes.Black, rect, StringFormat);
-        tf.DrawString(text, CurrentFont, XBrushes.Black, rect, XStringFormats.TopLeft);
+        
+        // Verwende DrawString mit StringFormat für korrekte Ausrichtung (auch vertikal)
+        XStringFormat format = new XStringFormat();
+        format.Alignment = StringFormat.Alignment;
+        format.LineAlignment = XLineAlignment.Center; // Vertikale Zentrierung
+
+        Gfx.DrawString(text, CurrentFont, XBrushes.Black, rect, format);
         
         // Aktualisiere Platzhalter (in cm)
         nLeft = x;
@@ -191,10 +199,14 @@ public class VpeToPdfSharp
         double width = (w < 0) ? Math.Abs(w) * cm : w * cm;
         double height = (h < 0) ? Math.Abs(h) * cm : h * cm;
 
-        XTextFormatter tf = new XTextFormatter(Gfx);
         XRect rect = new XRect(X, Y, width, height);
-        //Gfx.DrawString(text, CurrentFont, XBrushes.Black, rect, StringFormat);
-        tf.DrawString(text, CurrentFont, XBrushes.Black, rect, XStringFormats.TopLeft);
+
+        // Verwende DrawString mit StringFormat für korrekte Ausrichtung (auch vertikal)
+        XStringFormat format = new XStringFormat();
+        format.Alignment = StringFormat.Alignment;
+        format.LineAlignment = XLineAlignment.Center; // Vertikale Zentrierung
+
+        Gfx.DrawString(text, CurrentFont, XBrushes.Black, rect, format);
         
         // Aktualisiere Platzhalter (in cm)
         nLeft = x;

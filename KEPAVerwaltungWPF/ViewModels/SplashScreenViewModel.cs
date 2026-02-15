@@ -89,7 +89,8 @@ public partial class SplashScreenViewModel : BaseViewModel
 
     public async Task InitializeAsync()
     {
-        ProgramVersion = Assembly.GetExecutingAssembly().GetName().Version.ToString();
+        var version = Assembly.GetExecutingAssembly().GetName().Version;
+        ProgramVersion = $"Version {version!.Major}.{version.Minor}.{version.Build}";
         Copyright = $"(c) {DateTime.Now.Year} by Thorsten Schröer";
 
         // object[] attributes = Assembly.GetExecutingAssembly()

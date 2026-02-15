@@ -11,6 +11,7 @@ using KEPAVerwaltungWPF.Services;
 using KEPAVerwaltungWPF.ViewModels;
 using KEPAVerwaltungWPF.Views.Pages;
 using MahApps.Metro.Controls;
+using Microsoft.Win32;
 using NetSparkleUpdater;
 using NetSparkleUpdater.Enums;
 using NetSparkleUpdater.SignatureVerifiers;
@@ -89,6 +90,33 @@ public partial class MainWindow : MetroWindow
                     break;
                 case "MnuBtnZoom":
                     EnableDisableZoom(!MainViewModel.ZoomActive);
+                    break;
+                case "MnuBtnUpdate":
+                    // // Pfad zum Registry-Key
+                    // string registryPath = @"Software\Thorsten Schröer\KEPA 1958 Verwaltung\NetSparkleUpdater";
+                    //
+                    // // Öffne den Registry-Key unter HKEY_CURRENT_USER
+                    // using (RegistryKey key = Registry.CurrentUser.OpenSubKey(registryPath, writable: true))
+                    // {
+                    //     if (key != null)
+                    //     {
+                    //         // Beispiel: Einen Wert setzen oder bearbeiten
+                    //         key.SetValue("SkipThisVersion", "", RegistryValueKind.String);
+                    //
+                    //         // Beispiel: Einen Wert auslesen
+                    //         object value = key.GetValue("SkipThisVersion");
+                    //         if (value != null)
+                    //         {
+                    //             Console.WriteLine($"Wert von SkipThisVersion: {value}");
+                    //         }
+                    //     }
+                    //     else
+                    //     {
+                    //         Console.WriteLine("Registry-Key nicht gefunden.");
+                    //     }
+                    // }
+                    
+                    _sparkle.CheckForUpdatesAtUserRequest();
                     break;
             }
         }

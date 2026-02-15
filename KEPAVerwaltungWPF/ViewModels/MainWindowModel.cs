@@ -20,7 +20,7 @@ public partial class MainWindowModel : BaseViewModel
         CommonService.OnChange += () => OnPropertyChanged(nameof(MeisterschaftAktiv));
         Titel = "Kegelgruppe KEPA 1958 Verwaltung";
         var version = Assembly.GetExecutingAssembly().GetName().Version;
-        ProgramVersion = $"Version {version!.Major}.{version.Minor}.{version.Revision}";
+        ProgramVersion = $"Version {version!.Major}.{version.Minor}.{version.Build}";
         Copyright = $"(c) {DateTime.Now.Year} by Thorsten Schröer";
     }
 

@@ -189,6 +189,26 @@
                                 </StackPanel>
                             </MenuItem.Header>
                         </MenuItem>
+                        
+                        <MenuItem Name="MnuBtnUpdate"
+                                  Height="50" 
+                                  Background="{DynamicResource BackgroundBrush}"
+                                  FontWeight="ExtraBold"
+                                  Cursor="Hand" 
+                                  Click="OpenPageOnMain">
+                            <MenuItem.Header>
+                                <StackPanel Orientation="Horizontal">
+                                    <md:PackIcon Kind="Update"
+                                                 Height="30" Width="30"
+                                                 Foreground="{DynamicResource TitleBrush}"/>
+                                    <Label Content="Prüfe auf Updates" 
+                                           Foreground="{DynamicResource TitleBrush}"
+                                           FontSize="20" FontWeight="ExtraBold"
+                                           VerticalContentAlignment="Center">
+                                    </Label>
+                                </StackPanel>
+                            </MenuItem.Header>
+                        </MenuItem>
                     </MenuItem>
                 </Menu>
             </StackPanel>
